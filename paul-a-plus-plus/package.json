@@ -1,0 +1,25 @@
+{
+  "name": "paul-a-plus-plus",
+  "displayName": ".a++",
+  "description": "A++ Language Syntax Highlighting and Tools: Provides syntax highlighting, basic IntelliSense, and support for A++, a C-like programming language designed for simple, efficient development.",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "a++",
+      "aliases": ["A++", "a++"],
+      "extensions": ["a++","app"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "a++",
+      "scopeName": "source.a++",
+      "path": "./syntaxes/a++.tmLanguage.json"
+    }]
+  }
+}
