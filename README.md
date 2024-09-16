@@ -17,8 +17,7 @@ To build the A++ Compiler, you need to have a C compiler installed on your syste
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/app-compiler.git
-    cd app-compiler
+    git clone https://github.com/A-Plus-Plus-Devs/aplusplus.git
     ```
 
 2. Build the project:
@@ -29,7 +28,7 @@ To build the A++ Compiler, you need to have a C compiler installed on your syste
 ## Usage
 
 To use the A++ Compiler, run the following command:
-
+```
 sh
 ./build/bin/a++c <source_file>.a++
 ```
