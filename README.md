@@ -28,7 +28,7 @@ To build the A++ Compiler, you need to have a C compiler installed on your syste
 ## Usage
 
 To use the A++ Compiler, run the following command:
-    ```sh
+    ```
     ./build/bin/a++c <source_file>.a++
     ```
 Replace `<source_file>.a++` with the path to your A++ source file.
