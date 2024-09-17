@@ -9,7 +9,7 @@
 *.swp
 *.swo
 .DS_Store
-/paul-a-plus-plus/
+paul-a-plus-plus/
 
 # Ignore test artifacts
 /tests/*.out
