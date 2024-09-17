@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>  // Add this at the top of the file for the pow() function
+#include <math.h> // Add this at the top of the file for the pow() function
 
 // This defines the maximum number of variables our program can handle
 #define MAX_VARIABLES 100
@@ -12,12 +12,13 @@
 // This structure represents a variable in our program
 typedef struct
 {
-    char *name;           // The name of the variable
-    VariableType type;    // The type of the variable (int or string)
+    char *name;        // The name of the variable
+    VariableType type; // The type of the variable (int or string)
     union
     {
-        int int_value;        // If it's an int, store the value here
-        char *string_value;   // If it's a string, store the value here
+        int int_value; // If it's an int, store the value here
+        char *string_value;
+        bool bool_value;
     } value;
 } Variable;
 
@@ -46,6 +47,10 @@ static void set_variable(const char *name, VariableType type, void *value)
                 // If it's a string, we free the old string and store the new one
                 free(variables[i].value.string_value);
                 variables[i].value.string_value = strdup((char *)value);
+            }
+            else if (type == BOOL_TYPE)
+            {
+                variables[i].value.bool_value = *(bool *)value;
             }
             return;
         }
@@ -76,6 +81,11 @@ static void set_variable(const char *name, VariableType type, void *value)
     }
 }
 
+static bool strtobool(const char *str)
+{
+    return (strcmp(str, "true") == 0 || strcmp(str, "1") == 0);
+}
+
 // This function gets the value of a variable
 static Variable *get_variable(const char *name)
 {
@@ -95,7 +105,8 @@ static Variable *get_variable(const char *name)
 // This function evaluates an expression (currently only supports basic operations)
 static int evaluate_expression(ASTNode *node)
 {
-    if (node == NULL) {
+    if (node == NULL)
+    {
         printf("Debug: Null node in evaluate_expression\n");
         return 0;
     }
@@ -120,6 +131,11 @@ static int evaluate_expression(ASTNode *node)
             printf("Error: Variable '%s' is not an integer or is undefined.\n", node->value);
             return 0;
         }
+    }
+    else if (node->type == NODE_BOOL_LITERAL)
+    {
+        printf("Debug: Bool literal value: %s\n", node->value);
+        return strtobool(node->value);
     }
     else if (node->type == NODE_BINARY_OP)
     {
@@ -160,7 +176,30 @@ static int evaluate_expression(ASTNode *node)
     return 0;
 }
 
-static char* evaluate_string_expression(ASTNode *node)
+static bool evaluate_bool_expression(ASTNode *node)
+{
+    if (node->type == NODE_BOOL_LITERAL)
+    {
+        return strtobool(node->value);
+    }
+    else if (node->type == NODE_LITERAL)
+    {
+        Variable *var = get_variable(node->value);
+        if (var && var->type == BOOL_TYPE)
+        {
+            return var->value.bool_value;
+        }
+        else
+        {
+            printf("Error: Variable '%s' is not a boolean or is undefined.\n", node->value);
+            return false;
+        }
+    }
+    printf("Error: Unknown boolean expression type.\n");
+    return false;
+}
+
+static char *evaluate_string_expression(ASTNode *node)
 {
     if (node->type == NODE_STRING_LITERAL)
     {
@@ -205,26 +244,38 @@ void interpret(ASTNode *node)
             }
             else if (strcmp(node->var_type, "string") == 0)
             {
-                char* value = node->left ? evaluate_string_expression(node->left) : strdup("");
+                char *value = node->left ? evaluate_string_expression(node->left) : strdup("");
                 printf("Debug: Setting variable %s to %s\n", node->var_name, value);
                 set_variable(node->var_name, STRING_TYPE, value);
                 free(value);
+            }
+            else if (strcmp(node->var_type, "bool") == 0)
+            {
+                bool value = node->left ? evaluate_bool_expression(node->left) : false;
+                printf("Debug: Setting variable %s to %s\n", node->var_name, value ? "true" : "false");
+                set_variable(node->var_name, BOOL_TYPE, &value);
             }
             break;
         }
         case NODE_PRINT:
         {
             printf("Debug: Print statement\n");
-            if (node->left->type == NODE_INT_LITERAL || 
+            if (node->left->type == NODE_INT_LITERAL ||
                 (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == INT_TYPE) ||
                 node->left->type == NODE_BINARY_OP)
             {
                 int result = evaluate_expression(node->left);
                 printf("%d\n", result);
             }
+            else if (node->left->type == NODE_BOOL_LITERAL ||
+                     (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == BOOL_TYPE))
+            {
+                bool result = evaluate_bool_expression(node->left);
+                printf("%s\n", result ? "true" : "false");
+            }
             else
             {
-                char* result = evaluate_string_expression(node->left);
+                char *result = evaluate_string_expression(node->left);
                 printf("%s\n", result);
                 free(result);
             }
@@ -232,9 +283,29 @@ void interpret(ASTNode *node)
         }
         case NODE_ASSIGNMENT:
         {
-            printf("Debug: Assignment to %s\n", node->var_name);
-            int value = evaluate_expression(node->left);
-            set_variable(node->var_name, INT_TYPE, &value);
+             printf("Debug: Assignment to %s\n", node->var_name);
+            Variable *var = get_variable(node->var_name);
+            if (var == NULL)
+            {
+                printf("Error: Undefined variable %s\n", node->var_name);
+                break;
+            }
+            if (var->type == BOOL_TYPE)
+            {
+                bool value = evaluate_bool_expression(node->left);
+                set_variable(node->var_name, BOOL_TYPE, &value);
+            }
+            else if (var->type == INT_TYPE)
+            {
+                int value = evaluate_expression(node->left);
+                set_variable(node->var_name, INT_TYPE, &value);
+            }
+            else if (var->type == STRING_TYPE)
+            {
+                char *value = evaluate_string_expression(node->left);
+                set_variable(node->var_name, STRING_TYPE, value);
+                free(value);
+            }
             break;
         }
         default:

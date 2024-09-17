@@ -224,6 +224,10 @@ static ASTNode *parse_var_declaration(Parser *parser)
             // Create a new AST node for the string literal
             value = create_node(NODE_STRING_LITERAL, NULL, NULL, parser->current_token->value);
             get_next_token(parser); // Move to the next token
+        } else if (strcmp(type, "bool") == 0 && parser->current_token->type == TOKEN_BOOL)
+        {
+            value = create_node(NODE_BOOL_LITERAL, NULL, NULL, parser->current_token->value);
+            get_next_token(parser);
         }
         else
         {
@@ -285,6 +289,15 @@ static ASTNode *parse_assignment(Parser *parser)
     get_next_token(parser);
 
     ASTNode *value = parse_expression(parser);
+
+    if (parser->current_token->type == TOKEN_BOOL)
+    {
+        value = create_node(NODE_BOOL_LITERAL, NULL, NULL, parser->current_token->value);
+        get_next_token(parser);
+    } else {
+        value = parse_expression(parser);
+    }
+
     if (!value)
     {
         free(var_name);
@@ -364,6 +377,12 @@ static ASTNode *parse_factor(Parser *parser)
     {
         ASTNode *node = create_node(NODE_LITERAL, NULL, NULL, token->value);
         printf("Debug: Created identifier node: %s\n", token->value);
+        get_next_token(parser);
+        return node;
+    } else if (token->type == TOKEN_BOOL)
+    {
+        ASTNode *node = create_node(NODE_BOOL_LITERAL, NULL, NULL, token->value);
+        printf("Debug: Created bool literal node: %s\n", token->value);
         get_next_token(parser);
         return node;
     }

@@ -17,6 +17,7 @@ typedef enum
     NODE_INT_LITERAL,
     NODE_STRING_LITERAL,
     NODE_BINARY_OP,
+    NODE_BOOL_LITERAL
 } ASTNodeType;
 
 typedef struct ASTNode

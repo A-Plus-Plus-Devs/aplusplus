@@ -220,6 +220,7 @@ void skip_whitespace(Lexer *lexer)
     }
 }
 
+
 // Get the next token
 Token *next_token(Lexer *lexer)
 {
