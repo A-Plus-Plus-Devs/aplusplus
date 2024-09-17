@@ -26,12 +26,14 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # Debug build
-debug: CFLAGS += -g -DDEBUG
-debug: clean all
+debug:	
+	$(MAKE) clean
+	$(MAKE) all CFLAGS+=-g -DDEBUG
 
 # Release build
-release: CFLAGS += -O3
-release: clean all
+release: 
+	$(MAKE) clean
+	$(MAKE) all CFLAGS+=-O3
 
 # Run tests
 test: all
