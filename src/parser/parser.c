@@ -1,4 +1,3 @@
-// parser.c
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -13,9 +12,9 @@ static ASTNode *parse_power(Parser *parser);
 static ASTNode *parse_term(Parser *parser);
 static ASTNode *parse_factor(Parser *parser);
 static ASTNode *parse_if_statement(Parser *parser);
-static ASTNode *parse_ternary(Parser *parser);
+static ASTNode *parse_ternary(Parser *parser)  __attribute__((unused));
 static ASTNode *parse_var_declaration(Parser *parser);
-ASTNode *parse_print(Parser *parser); // Note: This is not static
+ASTNode *parse_print(Parser *parser);
 // static ASTNode *parse_echo(Parser *parser);
 static ASTNode *parse_var_declaration(Parser *parser);
 static ASTNode *parse_for_statement(Parser *parser);
@@ -162,10 +161,10 @@ void free_parser(Parser *parser)
 // This function parses a single statement from the source code
 static ASTNode *parse_statement(Parser *parser)
 {
-    printf("\nDEBUG: Starting statement parse\n");
-    printf("DEBUG: Current token type: %d, value: '%s'\n", 
-           parser->current_token->type, 
-           parser->current_token->value ? parser->current_token->value : "NULL");
+    // printf("\nDEBUG: Starting statement parse\n");
+    // printf("DEBUG: Current token type: %d, value: '%s'\n", 
+    //        parser->current_token->type, 
+    //        parser->current_token->value ? parser->current_token->value : "NULL");
 
     ASTNode *statement = NULL;
 
@@ -210,7 +209,7 @@ static ASTNode *parse_statement(Parser *parser)
 // This function parses a variable declaration statement
 static ASTNode *parse_var_declaration(Parser *parser)
 {
-    printf("\nDEBUG: Starting var declaration parse\n");
+    // printf("\nDEBUG: Starting var declaration parse\n");
     char *type = strdup(parser->current_token->value);
     
     get_next_token(parser);
@@ -327,7 +326,7 @@ static ASTNode *parse_expression(Parser *parser)
         char *op = op_token->type == TOKEN_PLUS ? "+" : "-";
         
         get_next_token(parser);
-        ASTNode *right = parse_comparison(parser);  // Use comparison here too
+        ASTNode *right = parse_comparison(parser); 
         left = create_node(NODE_BINARY_OP, left, right, op);
     }
 
@@ -343,7 +342,7 @@ static ASTNode *parse_power(Parser *parser)
         get_next_token(parser);
         ASTNode *right = parse_factor(parser);
         left = create_node(NODE_BINARY_OP, left, right, "**");
-        printf("Debug: Created binary op node: **\n");
+        // printf("Debug: Created binary op node: **\n");
     }
 
     return left;
@@ -358,7 +357,7 @@ static ASTNode *parse_term(Parser *parser)
            parser->current_token->type == TOKEN_MODULUS)
     {
         Token *op_token = parser->current_token;
-        char *op = NULL;  // Initialize to NULL to fix warning
+        char *op = NULL;  // Initialise to NULL to fix warning
         
         if (op_token->type == TOKEN_MULTIPLY) 
             op = "*";
@@ -375,7 +374,7 @@ static ASTNode *parse_term(Parser *parser)
         get_next_token(parser);
         ASTNode *right = parse_power(parser);
         left = create_node(NODE_BINARY_OP, left, right, op);
-        printf("Debug: Created binary op node: %s\n", op);
+        // printf("Debug: Created binary op node: %s\n", op);
     }
 
     return left;
@@ -384,8 +383,8 @@ static ASTNode *parse_term(Parser *parser)
 static ASTNode *parse_factor(Parser *parser)
 {
     Token *token = parser->current_token;
-    printf("Debug: Parsing factor, token type: %d, value: %s\n", 
-           token->type, token->value ? token->value : "NULL");
+    // printf("Debug: Parsing factor, token type: %d, value: %s\n", 
+    //        token->type, token->value ? token->value : "NULL");
 
     if (token->type == TOKEN_NOT)
     {
@@ -409,14 +408,14 @@ static ASTNode *parse_factor(Parser *parser)
     else if (token->type == TOKEN_STRING)
     {
         ASTNode *node = create_node(NODE_STRING_LITERAL, NULL, NULL, token->value);
-        printf("Debug: Created string literal node: %s\n", token->value);
+        // printf("Debug: Created string literal node: %s\n", token->value);
         get_next_token(parser);
         return node;
     }
     else if (token->type == TOKEN_IDENTIFIER)
     {
         ASTNode *node = create_node(NODE_LITERAL, NULL, NULL, token->value);
-        printf("Debug: Created identifier node: %s\n", token->value);
+        // printf("Debug: Created identifier node: %s\n", token->value);
         get_next_token(parser);
         return node;
     }
@@ -443,7 +442,7 @@ static ASTNode *parse_factor(Parser *parser)
     else if (token->type == TOKEN_BOOL)
     {
         ASTNode *node = create_node(NODE_BOOL_LITERAL, NULL, NULL, token->value);
-        printf("Debug: Created bool literal node: %s\n", token->value);
+        // printf("Debug: Created bool literal node: %s\n", token->value);
         get_next_token(parser);
         return node;
     }
@@ -612,7 +611,7 @@ static ASTNode *parse_for_statement(Parser *parser)
     }
     get_next_token(parser); // consume '('
 
-    // Parse initialization
+    // Parse initialisation
     ASTNode *init = NULL;
     if (parser->current_token->type == TOKEN_INT_TYPE ||
         parser->current_token->type == TOKEN_FLOAT_TYPE ||
@@ -753,7 +752,7 @@ static ASTNode *parse_logical_or(Parser *parser)
 
     while (parser->current_token->type == TOKEN_LOGICAL_OR)
     {
-        printf("DEBUG: Parsing OR operator\n");
+        // printf("DEBUG: Parsing OR operator\n");
         get_next_token(parser); // consume '||'
         ASTNode *right = parse_logical_and(parser);
         left = create_node(NODE_BINARY_OP, left, right, "||");
@@ -769,7 +768,7 @@ static ASTNode *parse_logical_and(Parser *parser)
 
     while (parser->current_token->type == TOKEN_LOGICAL_AND)
     {
-        printf("DEBUG: Parsing AND operator\n");
+        // printf("DEBUG: Parsing AND operator\n");
         get_next_token(parser); // consume '&&'
         ASTNode *right = parse_comparison(parser);
         left = create_node(NODE_BINARY_OP, left, right, "&&");

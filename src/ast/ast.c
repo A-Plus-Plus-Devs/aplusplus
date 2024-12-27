@@ -1,4 +1,3 @@
-// ast.c
 #include <stdlib.h>  // This includes the standard library for functions like malloc and free
 #include <stdio.h>   // This includes the standard input/output library
 #include <string.h>  // This includes the string manipulation library
@@ -77,7 +76,6 @@ ASTNode *create_assignment_node(char *var_name, ASTNode *value)
     return node;
 }
 
-// This function creates a node specifically for for loops
 ASTNode *create_for_node(ASTNode *init, ASTNode *condition, ASTNode *increment, ASTNode *body)
 {
     ASTNode *node = (ASTNode *)malloc(sizeof(ASTNode));
@@ -111,13 +109,13 @@ void free_ast(ASTNode *node)
         // Free the variable type if it exists
         free(node->var_type);
 
-        free_ast(node->init);       // Add these
-        free_ast(node->condition);  // new
-        free_ast(node->increment);  // fields
-        free_ast(node->body);       // to free
+        free_ast(node->init);       
+        free_ast(node->condition);  
+        free_ast(node->increment);  
+        free_ast(node->body);   
 
-        free_ast(node->else_branch);  // Free the else_branch
-        free_ast(node->elseif_branch);  // Free the elseif_branch
+        free_ast(node->else_branch);  
+        free_ast(node->elseif_branch);
         
         // Free the variable name if it exists
         free(node->var_name);

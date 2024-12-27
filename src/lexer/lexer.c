@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-// Initialize the lexer
+// Initialise the lexer
 Lexer *init_lexer(const char *input)
 {
     Lexer *lexer = (Lexer *)malloc(sizeof(Lexer)); // Allocate memory for a new Lexer structure
@@ -48,7 +48,7 @@ static Token *identifier_or_keyword(Lexer *lexer)
     Token *token = malloc(sizeof(Token));
     token->value = strdup(buffer);
 
-    printf("DEBUG: Identifying token: '%s'\n", buffer);
+    // printf("DEBUG: Identifying token: '%s'\n", buffer);
 
     // Add new keywords
     if (strcmp(buffer, "if") == 0)
@@ -72,7 +72,7 @@ static Token *identifier_or_keyword(Lexer *lexer)
     else
         token->type = TOKEN_IDENTIFIER;
 
-    printf("DEBUG: Token type assigned: %d\n", token->type);
+    // printf("DEBUG: Token type assigned: %d\n", token->type);
     return token;
 }
 
@@ -106,8 +106,8 @@ static Token *number(Lexer *lexer)
     int i = 0;
     bool is_float = false;
 
-    printf("\nDEBUG: Starting number parse\n");
-    printf("DEBUG: Current char: '%c'\n", lexer->current_char);
+    // printf("\nDEBUG: Starting number parse\n");
+    // printf("DEBUG: Current char: '%c'\n", lexer->current_char);
 
     // Get digits before decimal point
     while (isdigit(lexer->current_char))
@@ -119,7 +119,7 @@ static Token *number(Lexer *lexer)
     // Check for decimal point
     if (lexer->current_char == '.')
     {
-        printf("DEBUG: Found decimal point\n");
+        // printf("DEBUG: Found decimal point\n");
         is_float = true;
         buffer[i++] = lexer->current_char;
         advance(lexer);
@@ -138,8 +138,8 @@ static Token *number(Lexer *lexer)
     token->type = is_float ? TOKEN_FLOAT : TOKEN_NUMBER;
     token->value = strdup(buffer);
 
-    printf("DEBUG: Created number token - type: %d, value: '%s'\n", 
-           token->type, token->value);
+    // printf("DEBUG: Created number token - type: %d, value: '%s'\n", 
+    //        token->type, token->value);
 
     return token;
 }
@@ -171,7 +171,7 @@ static Token *string(Lexer *lexer)
     Token *token = malloc(sizeof(Token));
     token->type = TOKEN_STRING;
     token->value = strdup(buffer);
-    printf("Debug: Created string token: %s\n", token->value);
+    // printf("Debug: Created string token: %s\n", token->value);
 
     return token;
 }
@@ -219,7 +219,6 @@ static TokenType check_multi_char_operator(Lexer *lexer)
             return TOKEN_LESS_THAN_OR_EQUAL;
         }
         return TOKEN_LESS_THAN;
-        // Add more multi-char operators here
     } 
     return TOKEN_UNKNOWN;
 }
@@ -479,7 +478,7 @@ Token *next_token(Lexer *lexer)
         }
         else
         {
-            printf("Debug: Unknown character: '%c' (ASCII: %d)\n", lexer->current_char, lexer->current_char);
+            // printf("Debug: Unknown character: '%c' (ASCII: %d)\n", lexer->current_char, lexer->current_char);
             token->type = TOKEN_EOF;
             return token;
         }

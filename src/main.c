@@ -3,7 +3,6 @@
 #include <string.h> // This line includes the string manipulation library
 #include "lexer/lexer.h"           // This includes our custom lexer code
 #include "parser/parser.h"         // This includes our custom parser code
-#include "codegen/codegen.h"       // This includes our custom code generation code
 #include "interpreter/interpreter.h" // This includes our custom interpreter code
 
 /**

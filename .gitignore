@@ -15,3 +15,5 @@ a-plus-plus
 # Ignore test artifacts
 /tests/*.out
 /tests/*.o
+
+*.a++

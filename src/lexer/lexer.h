@@ -4,7 +4,6 @@
 #include <stddef.h> // For size_t
 
 // Token types
-// Add more token types as needed
 typedef enum
 {
     TOKEN_EOF,
@@ -94,7 +93,6 @@ typedef enum
     KEYWORD_SIGNED,
     KEYWORD_DOUBLE,
     KEYWORD_STRING,
-    // Add other keywords here
 } KeywordType;
 
 // Token structure
