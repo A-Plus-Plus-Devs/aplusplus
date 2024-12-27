@@ -211,46 +211,32 @@ static ASTNode *parse_statement(Parser *parser)
 static ASTNode *parse_var_declaration(Parser *parser)
 {
     printf("\nDEBUG: Starting var declaration parse\n");
-    printf("DEBUG: Current token type: %d, value: '%s'\n", 
-           parser->current_token->type, 
-           parser->current_token->value ? parser->current_token->value : "NULL");
-
-    // Save the type (int, float, string, etc.)
     char *type = strdup(parser->current_token->value);
-    printf("DEBUG: Type parsed: '%s'\n", type);
     
-    // Move to the next token (variable name)
     get_next_token(parser);
-    printf("DEBUG: After type token - type: %d, value: '%s'\n", 
-           parser->current_token->type, 
-           parser->current_token->value ? parser->current_token->value : "NULL");
-
+    
     if (parser->current_token->type != TOKEN_IDENTIFIER)
     {
-        printf("ERROR: Expected identifier after type, got token type %d\n", 
-               parser->current_token->type);
+        printf("ERROR: Expected identifier after type\n");
         free(type);
         return NULL;
     }
 
     char *var_name = strdup(parser->current_token->value);
-    printf("DEBUG: Variable name parsed: '%s'\n", var_name);
     
-    // Move to the next token (should be =)
     get_next_token(parser);
 
     if (parser->current_token->type != TOKEN_ASSIGN)
     {
-        printf("ERROR: Expected '=' after variable name '%s', got token type %d\n", 
-               var_name, parser->current_token->type);
+        printf("ERROR: Expected '=' after variable name\n");
         free(type);
         free(var_name);
         return NULL;
     }
 
-    // Move to the value
-    get_next_token(parser);
+    get_next_token(parser);  // Move past '='
 
+    // Parse the full expression, which can include binary operations
     ASTNode *value = parse_expression(parser);
     if (!value)
     {
@@ -260,19 +246,17 @@ static ASTNode *parse_var_declaration(Parser *parser)
         return NULL;
     }
 
-    // Create the declaration node
-    ASTNode *node = create_var_declaration_node(type, var_name, value);
-
-    // Check for semicolon
     if (parser->current_token->type != TOKEN_SEMICOLON)
     {
         printf("ERROR: Expected semicolon after variable declaration\n");
-        free_ast(node);
+        free_ast(value);
+        free(type);
+        free(var_name);
         return NULL;
     }
 
     get_next_token(parser); // consume semicolon
-    return node;
+    return create_var_declaration_node(type, var_name, value);
 }
 
 ASTNode *parse_print(Parser *parser)
@@ -313,27 +297,6 @@ static ASTNode *parse_assignment(Parser *parser)
     char *var_name = strdup(parser->current_token->value);
     get_next_token(parser);
 
-    // Handle increment/decrement operators
-    if (parser->current_token->type == TOKEN_INCREMENT)
-    {
-        get_next_token(parser); // consume '++'
-        // Create a node that represents: var_name = var_name + 1
-        ASTNode *var_node = create_node(NODE_LITERAL, NULL, NULL, var_name);
-        ASTNode *one = create_node(NODE_INT_LITERAL, NULL, NULL, "1");
-        ASTNode *add = create_node(NODE_BINARY_OP, var_node, one, "+");
-        return create_assignment_node(var_name, add);
-    }
-    else if (parser->current_token->type == TOKEN_DECREMENT)
-    {
-        get_next_token(parser); // consume '--'
-        // Create a node that represents: var_name = var_name - 1
-        ASTNode *var_node = create_node(NODE_LITERAL, NULL, NULL, var_name);
-        ASTNode *one = create_node(NODE_INT_LITERAL, NULL, NULL, "1");
-        ASTNode *sub = create_node(NODE_BINARY_OP, var_node, one, "-");
-        return create_assignment_node(var_name, sub);
-    }
-
-    // Regular assignment
     if (parser->current_token->type != TOKEN_ASSIGN)
     {
         free(var_name);
@@ -341,6 +304,8 @@ static ASTNode *parse_assignment(Parser *parser)
     }
 
     get_next_token(parser); // consume '='
+    
+    // Parse the full expression
     ASTNode *value = parse_expression(parser);
     if (!value)
     {
@@ -353,7 +318,20 @@ static ASTNode *parse_assignment(Parser *parser)
 
 static ASTNode *parse_expression(Parser *parser)
 {
-    return parse_logical_or(parser);
+    ASTNode *left = parse_comparison(parser);  // Start with comparison
+
+    while (parser->current_token->type == TOKEN_PLUS || 
+           parser->current_token->type == TOKEN_MINUS)
+    {
+        Token *op_token = parser->current_token;
+        char *op = op_token->type == TOKEN_PLUS ? "+" : "-";
+        
+        get_next_token(parser);
+        ASTNode *right = parse_comparison(parser);  // Use comparison here too
+        left = create_node(NODE_BINARY_OP, left, right, op);
+    }
+
+    return left;
 }
 
 static ASTNode *parse_power(Parser *parser)
@@ -634,17 +612,21 @@ static ASTNode *parse_for_statement(Parser *parser)
     }
     get_next_token(parser); // consume '('
 
-    // Parse initialization (variable declaration or assignment)
-    ASTNode *init;
+    // Parse initialization
+    ASTNode *init = NULL;
     if (parser->current_token->type == TOKEN_INT_TYPE ||
         parser->current_token->type == TOKEN_FLOAT_TYPE ||
         parser->current_token->type == TOKEN_STRING_TYPE)
     {
         init = parse_var_declaration(parser);
     }
-    else
+    else if (parser->current_token->type == TOKEN_IDENTIFIER)
     {
         init = parse_assignment(parser);
+        if (parser->current_token->type == TOKEN_SEMICOLON)
+        {
+            get_next_token(parser); // consume ';'
+        }
     }
 
     if (!init)
@@ -671,8 +653,33 @@ static ASTNode *parse_for_statement(Parser *parser)
     }
     get_next_token(parser); // consume ';'
 
-    // Parse increment (assignment)
-    ASTNode *increment = parse_assignment(parser);
+    // Parse increment
+    ASTNode *increment = NULL;
+    if (parser->current_token->type == TOKEN_IDENTIFIER)
+    {
+        // Handle both assignment and increment/decrement operators
+        char *var_name = strdup(parser->current_token->value);
+        get_next_token(parser);
+
+        if (parser->current_token->type == TOKEN_INCREMENT)
+        {
+            get_next_token(parser); // consume '++'
+            // Create a node that represents: var_name = var_name + 1
+            ASTNode *var_node = create_node(NODE_LITERAL, NULL, NULL, var_name);
+            ASTNode *one = create_node(NODE_INT_LITERAL, NULL, NULL, "1");
+            ASTNode *add = create_node(NODE_BINARY_OP, var_node, one, "+");
+            increment = create_assignment_node(var_name, add);
+            free(var_name); // free the strdup'd name since create_assignment_node makes its own copy
+        }
+        else if (parser->current_token->type == TOKEN_ASSIGN)
+        {
+            get_next_token(parser); // consume '='
+            ASTNode *value = parse_expression(parser);
+            increment = create_assignment_node(var_name, value);
+            free(var_name);
+        }
+    }
+
     if (!increment)
     {
         printf("Error: Invalid for loop increment\n");
@@ -691,7 +698,6 @@ static ASTNode *parse_for_statement(Parser *parser)
     }
     get_next_token(parser); // consume ')'
 
-    // Check for opening brace
     if (parser->current_token->type != TOKEN_LBRACE)
     {
         printf("Error: Expected '{' after for loop header\n");
@@ -702,7 +708,7 @@ static ASTNode *parse_for_statement(Parser *parser)
     }
     get_next_token(parser); // consume '{'
 
-    // Parse body (multiple statements)
+    // Parse body
     ASTNode *body = NULL;
     ASTNode *current = NULL;
 
@@ -731,13 +737,14 @@ static ASTNode *parse_for_statement(Parser *parser)
         free_ast(init);
         free_ast(condition);
         free_ast(increment);
-        free_ast(body);
+        if (body) free_ast(body);
         return NULL;
     }
     get_next_token(parser); // consume '}'
 
     return create_for_node(init, condition, increment, body);
 }
+
 
 // Parse expressions with logical OR (||)
 static ASTNode *parse_logical_or(Parser *parser)
