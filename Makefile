@@ -13,8 +13,8 @@ TARGET = $(BIN_DIR)/a++c
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	@mkdir -p $(BIN_DIR)  # This line should start with a tab
-	$(CC) $(CFLAGS) -o $@ $^  # This line should also start with a tab
+	@mkdir -p $(BIN_DIR)  
+	$(CC) $(CFLAGS) -o $@ $^  
 
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
