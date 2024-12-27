@@ -1,4 +1,3 @@
-// ast.h
 #ifndef AST_H
 #define AST_H
 
@@ -15,9 +14,14 @@ typedef enum
     NODE_LITERAL,
     NODE_FLOAT_LITERAL,
     NODE_INT_LITERAL,
+    NODE_IF,
+    NODE_TERNARY,
+    NODE_ELSE,
+    NODE_ELSEIF,
     NODE_STRING_LITERAL,
     NODE_BINARY_OP,
-    NODE_BOOL_LITERAL
+    NODE_BOOL_LITERAL,
+    NODE_FOR
 } ASTNodeType;
 
 typedef struct ASTNode
@@ -28,9 +32,17 @@ typedef struct ASTNode
 
     char *var_type;
     char *var_name;
+    struct ASTNode *else_branch;
+    struct ASTNode *elseif_branch;
+
     char *value;
     struct ASTNode *next;
     int int_value;
+
+    struct ASTNode *init;
+    struct ASTNode *condition;
+    struct ASTNode *increment;
+    struct ASTNode *body;
 } ASTNode;
 
 /**
@@ -69,5 +81,16 @@ ASTNode *create_assignment_node(char *var_name, ASTNode *value);
  * @param node The root node of the AST to be freed.
  */
 void free_ast(ASTNode *node);
+
+/**
+ * @brief Creates a for loop node.
+ * 
+ * @param init The initialization node.
+ * @param condition The condition node.
+ * @param increment The increment node.
+ * @param body The body node.
+ * @return ASTNode* A pointer to the newly created for loop node.
+ */
+ASTNode *create_for_node(ASTNode *init, ASTNode *condition, ASTNode *increment, ASTNode *body);
 
 #endif // AST_H

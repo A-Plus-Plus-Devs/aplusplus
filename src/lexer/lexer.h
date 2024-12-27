@@ -4,7 +4,6 @@
 #include <stddef.h> // For size_t
 
 // Token types
-// Add more token types as needed
 typedef enum
 {
     TOKEN_EOF,
@@ -20,6 +19,8 @@ typedef enum
     TOKEN_KEYWORD,
     TOKEN_LBRACE,                // {
     TOKEN_RBRACE,                // }
+    TOKEN_QUESTION,              // ?
+    TOKEN_COLON,                 // :
     TOKEN_SEMICOLON,             // ;
     TOKEN_LPAREN,                // (
     TOKEN_RPAREN,                // )
@@ -40,8 +41,6 @@ typedef enum
     TOKEN_LESS_THAN,             // <
     TOKEN_GREATER_THAN_OR_EQUAL, // >=
     TOKEN_LESS_THAN_OR_EQUAL,    // <=
-    TOKEN_AND,                   // &&
-    TOKEN_OR,                    // ||
     TOKEN_NOT,                   // !
     TOKEN_BITWISE_AND,           // &
     TOKEN_BITWISE_OR,            // |
@@ -51,6 +50,11 @@ typedef enum
     TOKEN_BITWISE_SHIFT_RIGHT,   // >>
     TOKEN_UNKNOWN,               // For
     TOKEN_INT_TYPE,
+    TOKEN_IF,
+    TOKEN_ELSE,
+    TOKEN_ELSEIF,
+    TOKEN_BREAK,
+    TOKEN_CONTINUE,
     TOKEN_FLOAT_TYPE,
     TOKEN_CHAR_TYPE,
     TOKEN_SHORT_TYPE,
@@ -60,6 +64,11 @@ typedef enum
     TOKEN_SIGNED_TYPE,
     TOKEN_DOUBLE_TYPE,
     TOKEN_STRING_TYPE,
+    TOKEN_FOR,
+    TOKEN_INCREMENT,    // ++
+    TOKEN_DECREMENT,    // --
+    TOKEN_LOGICAL_AND,  // &&
+    TOKEN_LOGICAL_OR,   // ||
 } TokenType;
 
 // Define keywords
@@ -84,7 +93,6 @@ typedef enum
     KEYWORD_SIGNED,
     KEYWORD_DOUBLE,
     KEYWORD_STRING,
-    // Add other keywords here
 } KeywordType;
 
 // Token structure
