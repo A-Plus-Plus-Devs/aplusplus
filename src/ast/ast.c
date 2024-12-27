@@ -77,6 +77,22 @@ ASTNode *create_assignment_node(char *var_name, ASTNode *value)
     return node;
 }
 
+// This function creates a node specifically for for loops
+ASTNode *create_for_node(ASTNode *init, ASTNode *condition, ASTNode *increment, ASTNode *body)
+{
+    ASTNode *node = (ASTNode *)malloc(sizeof(ASTNode));
+    node->type = NODE_FOR;
+    node->init = init;
+    node->condition = condition;
+    node->increment = increment;
+    node->body = body;
+    node->left = NULL;
+    node->right = NULL;
+    node->value = NULL;
+    node->next = NULL;
+    return node;
+}
+
 // This function frees the memory allocated for an AST
 void free_ast(ASTNode *node)
 {
@@ -94,6 +110,11 @@ void free_ast(ASTNode *node)
         
         // Free the variable type if it exists
         free(node->var_type);
+
+        free_ast(node->init);       // Add these
+        free_ast(node->condition);  // new
+        free_ast(node->increment);  // fields
+        free_ast(node->body);       // to free
 
         free_ast(node->else_branch);  // Free the else_branch
         free_ast(node->elseif_branch);  // Free the elseif_branch

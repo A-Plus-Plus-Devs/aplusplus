@@ -21,7 +21,8 @@ typedef enum
     NODE_ELSEIF,
     NODE_STRING_LITERAL,
     NODE_BINARY_OP,
-    NODE_BOOL_LITERAL
+    NODE_BOOL_LITERAL,
+    NODE_FOR
 } ASTNodeType;
 
 typedef struct ASTNode
@@ -38,6 +39,11 @@ typedef struct ASTNode
     char *value;
     struct ASTNode *next;
     int int_value;
+
+    struct ASTNode *init;
+    struct ASTNode *condition;
+    struct ASTNode *increment;
+    struct ASTNode *body;
 } ASTNode;
 
 /**
@@ -76,5 +82,16 @@ ASTNode *create_assignment_node(char *var_name, ASTNode *value);
  * @param node The root node of the AST to be freed.
  */
 void free_ast(ASTNode *node);
+
+/**
+ * @brief Creates a for loop node.
+ * 
+ * @param init The initialization node.
+ * @param condition The condition node.
+ * @param increment The increment node.
+ * @param body The body node.
+ * @return ASTNode* A pointer to the newly created for loop node.
+ */
+ASTNode *create_for_node(ASTNode *init, ASTNode *condition, ASTNode *increment, ASTNode *body);
 
 #endif // AST_H

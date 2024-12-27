@@ -67,6 +67,8 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_PRINT;
     else if (strcmp(buffer, "yup") == 0 || strcmp(buffer, "nope") == 0)
         token->type = TOKEN_BOOL;
+    else if (strcmp(buffer, "for") == 0)
+        token->type = TOKEN_FOR;
     else
         token->type = TOKEN_IDENTIFIER;
 
@@ -347,8 +349,58 @@ Token *next_token(Lexer *lexer)
         }
         return token;
 
-    case '+': token->type = TOKEN_PLUS; token->value = strdup("+"); break;
-    case '-': token->type = TOKEN_MINUS; token->value = strdup("-"); break;
+    case '+':
+        if (peek_char(lexer) == '+') {
+            token->type = TOKEN_INCREMENT;
+            token->value = strdup("++");
+            advance(lexer); // consume first '+'
+            advance(lexer); // consume second '+'
+        } else {
+            token->type = TOKEN_PLUS;
+            token->value = strdup("+");
+            advance(lexer);
+        }
+        return token;
+
+    case '-':
+        if (peek_char(lexer) == '-') {
+            token->type = TOKEN_DECREMENT;
+            token->value = strdup("--");
+            advance(lexer); // consume first '-'
+            advance(lexer); // consume second '-'
+        } else {
+            token->type = TOKEN_MINUS;
+            token->value = strdup("-");
+            advance(lexer);
+        }
+        return token;
+
+    case '&':
+        if (peek_char(lexer) == '&') {
+            token->type = TOKEN_LOGICAL_AND;
+            token->value = strdup("&&");
+            advance(lexer); // consume first '&'
+            advance(lexer); // consume second '&'
+        } else {
+            token->type = TOKEN_BITWISE_AND;
+            token->value = strdup("&");
+            advance(lexer);
+        }
+        return token;
+
+    case '|':
+        if (peek_char(lexer) == '|') {
+            token->type = TOKEN_LOGICAL_OR;
+            token->value = strdup("||");
+            advance(lexer); // consume first '|'
+            advance(lexer); // consume second '|'
+        } else {
+            token->type = TOKEN_BITWISE_OR;
+            token->value = strdup("|");
+            advance(lexer);
+        }
+        return token;
+
     case '*': 
         if (peek_char(lexer) == '*')
         {

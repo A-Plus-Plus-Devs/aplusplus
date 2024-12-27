@@ -42,8 +42,6 @@ typedef enum
     TOKEN_LESS_THAN,             // <
     TOKEN_GREATER_THAN_OR_EQUAL, // >=
     TOKEN_LESS_THAN_OR_EQUAL,    // <=
-    TOKEN_AND,                   // &&
-    TOKEN_OR,                    // ||
     TOKEN_NOT,                   // !
     TOKEN_BITWISE_AND,           // &
     TOKEN_BITWISE_OR,            // |
@@ -67,6 +65,11 @@ typedef enum
     TOKEN_SIGNED_TYPE,
     TOKEN_DOUBLE_TYPE,
     TOKEN_STRING_TYPE,
+    TOKEN_FOR,
+    TOKEN_INCREMENT,    // ++
+    TOKEN_DECREMENT,    // --
+    TOKEN_LOGICAL_AND,  // &&
+    TOKEN_LOGICAL_OR,   // ||
 } TokenType;
 
 // Define keywords

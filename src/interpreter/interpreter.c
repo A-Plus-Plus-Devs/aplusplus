@@ -52,20 +52,14 @@ static void set_variable(const char *name, VariableType type, void *value)
                 // If it's a string, we free the old string and store the new one
                 free(variables[i].value.string_value);
                 variables[i].value.string_value = strdup((char *)value);
-                printf("Debug: Updated string variable %s to %s\n", 
-                       name, variables[i].value.string_value);
             }
             else if (type == BOOL_TYPE)
             {
                 variables[i].value.bool_value = *(bool *)value;
-                printf("Debug: Updated existing variable %s to %s\n", 
-                       name, variables[i].value.bool_value ? "yup" : "nope");
             }
             else if (type == FLOAT_TYPE)
             {
                 variables[i].value.float_value = *(double *)value;
-                printf("Debug: Updated float variable %s to %g\n", 
-                       name, variables[i].value.float_value);
             }
             return;
         }
@@ -86,14 +80,10 @@ static void set_variable(const char *name, VariableType type, void *value)
         {
             // If it's a string, we store a copy of the string
             variables[variable_count].value.string_value = strdup((char *)value);
-            printf("Debug: Created new string variable %s with value %s\n", 
-                   name, variables[variable_count].value.string_value);
         }
         else if (type == BOOL_TYPE)
         {
             variables[variable_count].value.bool_value = *(bool *)value;
-            printf("Debug: Created new variable %s with value %s\n", 
-                   name, variables[variable_count].value.bool_value ? "yup" : "nope");
         }
         else if (type == FLOAT_TYPE)
         {
@@ -111,7 +101,6 @@ static void set_variable(const char *name, VariableType type, void *value)
 static bool strtobool(const char *str)
 {
     if (str == NULL) return false;
-    printf("Debug: Converting '%s' to bool\n", str);
     return (strcmp(str, "yup") == 0);
 }
 
@@ -136,20 +125,15 @@ static int evaluate_expression(ASTNode *node)
 {
     if (node == NULL)
     {
-        printf("Debug: Null node in evaluate_expression\n");
         return 0;
     }
 
-    printf("Debug: Evaluating node type %d\n", node->type);
-
     if (node->type == NODE_INT_LITERAL)
     {
-        printf("Debug: Int literal value: %s\n", node->value);
         return atoi(node->value);
     }
     else if (node->type == NODE_BOOL_LITERAL)
     {
-        printf("Debug: Bool literal value: %s\n", node->value);
         return strtobool(node->value);
     }
     else if (node->type == NODE_LITERAL)
@@ -159,17 +143,13 @@ static int evaluate_expression(ASTNode *node)
         {
             if (var->type == INT_TYPE)
             {
-                printf("Debug: Variable %s value: %d\n", node->value, var->value.int_value);
                 return var->value.int_value;
             }
             else if (var->type == BOOL_TYPE)
             {
-                printf("Debug: Variable %s value: %s\n", node->value, 
-                       var->value.bool_value ? "yup" : "nope");
                 return var->value.bool_value;
             }
         }
-        printf("Error: Variable '%s' is not an integer/boolean or is undefined.\n", node->value);
         return 0;
     }
     else if (node->type == NODE_BINARY_OP)
@@ -183,8 +163,6 @@ static int evaluate_expression(ASTNode *node)
 
         int left = evaluate_expression(node->left);
         int right = evaluate_expression(node->right);
-
-        printf("Debug: Binary op %s, left: %d, right: %d\n", node->value, left, right);
 
         if (strcmp(node->value, "+") == 0)
             return left + right;
@@ -214,59 +192,100 @@ static int evaluate_expression(ASTNode *node)
         }
     }
 
-    printf("Error: Unknown expression type: %d\n", node->type);
     return 0;
 }
 
 static bool evaluate_bool_expression(ASTNode *node)
 {
-    printf("Debug: Evaluating bool expression, node type: %d\n", node->type);
-    
-    if (node->type == NODE_BOOL_LITERAL)
+    if (node == NULL)
     {
-        printf("Debug: Bool literal value: '%s'\n", node->value);
-        return strtobool(node->value);
+        printf("DEBUG: evaluate_bool_expression received NULL node\n");
+        return false;
     }
-    else if (node->type == NODE_BINARY_OP)
+
+    printf("DEBUG: evaluate_bool_expression - node type: %d\n", node->type);
+    if (node->value)
+        printf("DEBUG: evaluate_bool_expression - node value: %s\n", node->value);
+
+    if (node->type == NODE_BINARY_OP)
     {
-        // Add handling for boolean negation
-        if (strcmp(node->value, "!") == 0)
-        {
-            bool operand = evaluate_bool_expression(node->left);
-            return !operand;
-        }
-
-        int left = evaluate_expression(node->left);
-        int right = evaluate_expression(node->right);
-        printf("Debug: Binary op '%s', left: %d, right: %d\n", 
-               node->value, left, right);
-
-        if (strcmp(node->value, "==") == 0)
-            return left == right;
-        if (strcmp(node->value, "!=") == 0)
-            return left != right;
+        printf("DEBUG: Processing binary operation: %s\n", node->value);
+        
+        // For comparison operators
         if (strcmp(node->value, ">") == 0)
+        {
+            int left = evaluate_expression(node->left);
+            int right = evaluate_expression(node->right);
+            printf("DEBUG: Comparing %d > %d\n", left, right);
             return left > right;
-        if (strcmp(node->value, "<") == 0)
+        }
+        else if (strcmp(node->value, "<") == 0)
+        {
+            int left = evaluate_expression(node->left);
+            int right = evaluate_expression(node->right);
+            printf("DEBUG: Comparing %d < %d\n", left, right);
             return left < right;
-        if (strcmp(node->value, ">=") == 0)
-            return left >= right;
-        if (strcmp(node->value, "<=") == 0)
-            return left <= right;
+        }
+        else if (strcmp(node->value, "==") == 0)
+        {
+            int left = evaluate_expression(node->left);
+            int right = evaluate_expression(node->right);
+            printf("DEBUG: Comparing %d == %d\n", left, right);
+            return left == right;
+        }
+        else if (strcmp(node->value, "&&") == 0)
+        {
+            printf("DEBUG: Processing AND operation\n");
+            bool left = evaluate_bool_expression(node->left);
+            printf("DEBUG: Left side of AND is %d\n", left);
+            if (!left) return false; // Short circuit
+            bool right = evaluate_bool_expression(node->right);
+            printf("DEBUG: Right side of AND is %d\n", right);
+            return right;
+        }
+        else if (strcmp(node->value, "||") == 0)
+        {
+            printf("DEBUG: Processing OR operation\n");
+            bool left = evaluate_bool_expression(node->left);
+            printf("DEBUG: Left side of OR is %d\n", left);
+            if (left) return true; // Short circuit
+            bool right = evaluate_bool_expression(node->right);
+            printf("DEBUG: Right side of OR is %d\n", right);
+            return right;
+        }
     }
     else if (node->type == NODE_LITERAL)
     {
+        printf("DEBUG: Processing literal: %s\n", node->value);
         Variable *var = get_variable(node->value);
-        if (var && var->type == BOOL_TYPE)
+        if (var)
         {
-            printf("Debug: Variable bool value: %s\n", 
-                   var->value.bool_value ? "yup" : "nope");
-            return var->value.bool_value;
+            printf("DEBUG: Found variable %s of type %d\n", node->value, var->type);
+            if (var->type == BOOL_TYPE)
+            {
+                return var->value.bool_value;
+            }
+            else if (var->type == INT_TYPE)
+            {
+                printf("DEBUG: Int value is %d\n", var->value.int_value);
+                return var->value.int_value != 0;
+            }
+        }
+        else
+        {
+            printf("DEBUG: Variable %s not found\n", node->value);
         }
     }
-    
-    printf("Error: Invalid boolean expression.\n");
-    return false;
+    else if (node->type == NODE_INT_LITERAL)
+    {
+        printf("DEBUG: Processing int literal: %s\n", node->value);
+        return atoi(node->value) != 0;
+    }
+
+    // For any other expression, evaluate it and convert to boolean
+    int result = evaluate_expression(node);
+    printf("DEBUG: Evaluated expression result: %d\n", result);
+    return result != 0;
 }
 
 static char *evaluate_string_expression(ASTNode *node)
@@ -286,12 +305,10 @@ static char *evaluate_string_expression(ASTNode *node)
         }
         else
         {
-            printf("Error: Variable '%s' is not a string or is undefined.\n", node->value);
             return strdup("");
         }
     }
 
-    printf("Error: Unknown string expression type.\n");
     return strdup("");
 }
 
@@ -300,22 +317,17 @@ static double evaluate_float_expression(ASTNode *node)
 {
     if (node == NULL)
     {
-        printf("Debug: Null node in evaluate_float_expression\n");
         return 0.0;
     }
-
-    printf("Debug: Evaluating float expression, node type: %d\n", node->type);
 
     if (node->type == NODE_FLOAT_LITERAL)
     {
         double value = atof(node->value);
-        printf("Debug: Float literal value: %g\n", value);
         return value;
     }
     else if (node->type == NODE_INT_LITERAL)
     {
         double value = (double)atoi(node->value);
-        printf("Debug: Int literal converted to float: %g\n", value);
         return value;
     }
     else if (node->type == NODE_LITERAL)
@@ -325,27 +337,19 @@ static double evaluate_float_expression(ASTNode *node)
         {
             if (var->type == FLOAT_TYPE)
             {
-                printf("Debug: Float variable %s value: %g\n", 
-                       node->value, var->value.float_value);
                 return var->value.float_value;
             }
             else if (var->type == INT_TYPE)
             {
-                printf("Debug: Int variable %s converted to float: %g\n", 
-                       node->value, (double)var->value.int_value);
                 return (double)var->value.int_value;
             }
         }
-        printf("Error: Variable '%s' is not a number or is undefined\n", node->value);
         return 0.0;
     }
     else if (node->type == NODE_BINARY_OP)
     {
         double left = evaluate_float_expression(node->left);
         double right = evaluate_float_expression(node->right);
-
-        printf("Debug: Binary op '%s', left: %g, right: %g\n", 
-               node->value, left, right);
 
         if (strcmp(node->value, "+") == 0)
             return left + right;
@@ -373,159 +377,157 @@ static double evaluate_float_expression(ASTNode *node)
         }
     }
 
-    printf("Error: Unknown node type in float expression: %d\n", node->type);
     return 0.0;
 }
 
 // This is the main function that interprets our AST
 void interpret(ASTNode *node)
 {
-    // We loop through each node in our AST
     while (node != NULL)
     {
-        printf("Debug: Interpreting node type %d\n", node->type);
-
         switch (node->type)
         {
-        case NODE_VAR_DECLARATION:
-        {
-            printf("Debug: Variable declaration %s of type %s\n", node->var_name, node->var_type);
-            if (strcmp(node->var_type, "float") == 0)
+            case NODE_VAR_DECLARATION:
             {
-                double value = node->left ? evaluate_float_expression(node->left) : 0.0;
-                printf("Debug: Setting float variable %s to %g\n", node->var_name, value);
-                set_variable(node->var_name, FLOAT_TYPE, &value);
-            }
-            else if (strcmp(node->var_type, "int") == 0)
-            {
-                int value = node->left ? evaluate_expression(node->left) : 0;
-                printf("Debug: Setting variable %s to %d\n", node->var_name, value);
-                set_variable(node->var_name, INT_TYPE, &value);
-            }
-            else if (strcmp(node->var_type, "boolean") == 0)
-            {
-                bool value;
-                if (node->left && node->left->type == NODE_BOOL_LITERAL)
+                if (strcmp(node->var_type, "float") == 0)
                 {
-                    value = strtobool(node->left->value);
+                    double value = node->left ? evaluate_float_expression(node->left) : 0.0;
+                    set_variable(node->var_name, FLOAT_TYPE, &value);
                 }
-                else
+                else if (strcmp(node->var_type, "int") == 0)
                 {
-                    value = false;
+                    int value = node->left ? evaluate_expression(node->left) : 0;
+                    set_variable(node->var_name, INT_TYPE, &value);
                 }
-                printf("Debug: Setting boolean variable %s to %s\n", 
-                       node->var_name, value ? "yup" : "nope");
-                set_variable(node->var_name, BOOL_TYPE, &value);
+                else if (strcmp(node->var_type, "boolean") == 0)
+                {
+                    bool value;
+                    if (node->left && node->left->type == NODE_BOOL_LITERAL)
+                    {
+                        value = strtobool(node->left->value);
+                    }
+                    else
+                    {
+                        value = false;
+                    }
+                    set_variable(node->var_name, BOOL_TYPE, &value);
+                }
+                else if (strcmp(node->var_type, "string") == 0)
+                {
+                    char *value = node->left ? evaluate_string_expression(node->left) : strdup("");
+                    set_variable(node->var_name, STRING_TYPE, value);
+                    free(value);
+                }
+                break;
             }
-            else if (strcmp(node->var_type, "string") == 0)
+            case NODE_PRINT:
             {
-                char *value = node->left ? evaluate_string_expression(node->left) : strdup("");
-                printf("Debug: Setting variable %s to %s\n", node->var_name, value);
-                set_variable(node->var_name, STRING_TYPE, value);
-                free(value);
-            }
-            break;
-        }
-        case NODE_PRINT:
-        {
-            printf("Debug: Print statement\n");
-            if (node->left->type == NODE_FLOAT_LITERAL ||
-                (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == FLOAT_TYPE))
-            {
-                double result = evaluate_float_expression(node->left);
-                printf("%g\n", result);  // %g will automatically handle decimal places
-            }
-            else if (node->left->type == NODE_BOOL_LITERAL ||
-                     (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == BOOL_TYPE))
-            {
-                bool result = evaluate_bool_expression(node->left);
-                printf("%s\n", result ? "yup" : "nope");
-            }
-            else if (node->left->type == NODE_BINARY_OP)
-            {
-                if (node->left->value && (
-                    strcmp(node->left->value, "==") == 0 ||
-                    strcmp(node->left->value, "!=") == 0 ||
-                    strcmp(node->left->value, ">") == 0 ||
-                    strcmp(node->left->value, "<") == 0 ||
-                    strcmp(node->left->value, ">=") == 0 ||
-                    strcmp(node->left->value, "<=") == 0 ||
-                    strcmp(node->left->value, "!") == 0))
+                if (node->left->type == NODE_FLOAT_LITERAL ||
+                    (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == FLOAT_TYPE))
+                {
+                    double result = evaluate_float_expression(node->left);
+                    printf("%g\n", result);
+                }
+                else if (node->left->type == NODE_BOOL_LITERAL ||
+                         (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == BOOL_TYPE))
                 {
                     bool result = evaluate_bool_expression(node->left);
                     printf("%s\n", result ? "yup" : "nope");
+                }
+                else if (node->left->type == NODE_BINARY_OP)
+                {
+                    if (node->left->value && (
+                        strcmp(node->left->value, "==") == 0 ||
+                        strcmp(node->left->value, "!=") == 0 ||
+                        strcmp(node->left->value, ">") == 0 ||
+                        strcmp(node->left->value, "<") == 0 ||
+                        strcmp(node->left->value, ">=") == 0 ||
+                        strcmp(node->left->value, "<=") == 0 ||
+                        strcmp(node->left->value, "!") == 0))
+                    {
+                        bool result = evaluate_bool_expression(node->left);
+                        printf("%s\n", result ? "yup" : "nope");
+                    }
+                    else
+                    {
+                        int result = evaluate_expression(node->left);
+                        printf("%d\n", result);
+                    }
+                }
+                else if (node->left->type == NODE_STRING_LITERAL ||
+                         (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == STRING_TYPE))
+                {
+                    char *result = evaluate_string_expression(node->left);
+                    printf("%s\n", result);
+                    free(result);
                 }
                 else
                 {
                     int result = evaluate_expression(node->left);
                     printf("%d\n", result);
                 }
+                break;
             }
-            else if (node->left->type == NODE_STRING_LITERAL ||
-                     (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == STRING_TYPE))
+            case NODE_ASSIGNMENT:
             {
-                char *result = evaluate_string_expression(node->left);
-                printf("%s\n", result);
-                free(result);
+                if (node->left->type == NODE_BOOL_LITERAL)
+                {
+                    bool value = strtobool(node->left->value);
+                    set_variable(node->var_name, BOOL_TYPE, &value);
+                }
+                else
+                {
+                    int value = evaluate_expression(node->left);
+                    set_variable(node->var_name, INT_TYPE, &value);
+                }
+                break;
             }
-            else
+            case NODE_IF:
             {
-                int result = evaluate_expression(node->left);
-                printf("%d\n", result);
+                bool condition = evaluate_bool_expression(node->left);
+                
+                if (condition)
+                {
+                    interpret(node->right);
+                }
+                else if (node->else_branch)
+                {
+                    interpret(node->else_branch);
+                }
+                break;
             }
-            break;
+            case NODE_TERNARY:
+            {
+                bool condition = evaluate_bool_expression(node->left);
+                if (condition)
+                {
+                    interpret(node->right);  // true expression
+                }
+                else if (node->else_branch)
+                {
+                    interpret(node->else_branch);  // false expression
+                }
+                break;
+            }
+            case NODE_FOR:
+            {
+                // Execute initialization
+                interpret(node->init);
+
+                // Loop while condition is true
+                while (evaluate_bool_expression(node->condition))
+                {
+                    // Execute body
+                    interpret(node->body);
+                    
+                    // Execute increment
+                    interpret(node->increment);
+                }
+                break;
+            }
+            default:
+                break;
         }
-        case NODE_ASSIGNMENT:
-        {
-            printf("Debug: Assignment to %s\n", node->var_name);
-            if (node->left->type == NODE_BOOL_LITERAL)
-            {
-                bool value = strtobool(node->left->value);
-                set_variable(node->var_name, BOOL_TYPE, &value);
-            }
-            else
-            {
-                int value = evaluate_expression(node->left);
-                set_variable(node->var_name, INT_TYPE, &value);
-            }
-            break;
-        }
-        case NODE_IF:
-        {
-            printf("Debug: Evaluating if condition\n");
-            bool condition = evaluate_bool_expression(node->left);
-            printf("Debug: Condition result: %s\n", condition ? "yup" : "nope");
-            
-            if (condition)
-            {
-                printf("Debug: Executing if branch\n");
-                interpret(node->right);
-            }
-            else if (node->else_branch)
-            {
-                printf("Debug: Executing else branch\n");
-                interpret(node->else_branch);
-            }
-            break;
-        }
-        case NODE_TERNARY:
-        {
-            bool condition = evaluate_bool_expression(node->left);
-            if (condition)
-            {
-                interpret(node->right);  // true expression
-            }
-            else if (node->else_branch)
-            {
-                interpret(node->else_branch);  // false expression
-            }
-            break;
-        }
-        default:
-            printf("Error: Unknown node type in interpreter: %d\n", node->type);
-            break;
-        }
-        // Move to the next node
         node = node->next;
     }
 }
