@@ -15,8 +15,13 @@ typedef enum
     NODE_LITERAL,
     NODE_FLOAT_LITERAL,
     NODE_INT_LITERAL,
+    NODE_IF,
+    NODE_TERNARY,
+    NODE_ELSE,
+    NODE_ELSEIF,
     NODE_STRING_LITERAL,
     NODE_BINARY_OP,
+    NODE_BOOL_LITERAL
 } ASTNodeType;
 
 typedef struct ASTNode
@@ -27,6 +32,9 @@ typedef struct ASTNode
 
     char *var_type;
     char *var_name;
+    struct ASTNode *else_branch;
+    struct ASTNode *elseif_branch;
+
     char *value;
     struct ASTNode *next;
     int int_value;

@@ -10,6 +10,7 @@
 *.swo
 .DS_Store
 paul-a-plus-plus/
+a-plus-plus
 
 # Ignore test artifacts
 /tests/*.out

@@ -1,5 +1,5 @@
 #include "lexer.h"
-// #include <stdbool.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -36,36 +36,47 @@ void advance(Lexer *lexer)
 // This function identifies keywords or identifiers
 static Token *identifier_or_keyword(Lexer *lexer)
 {
-    char buffer[256] = {0};                                            // Initialize a buffer to store the identifier
-    int i = 0;                                                         // Initialize an index for the buffer
-    while (isalnum(lexer->current_char) || lexer->current_char == '_') // While the current character is alphanumeric or an underscore
+    char buffer[256] = {0};
+    int i = 0;
+    while (isalnum(lexer->current_char) || lexer->current_char == '_')
     {
-        buffer[i++] = lexer->current_char; // Add the current character to the buffer
-        advance(lexer);                    // Move to the next character
+        buffer[i++] = lexer->current_char;
+        advance(lexer);
     }
-    buffer[i] = '\0'; // Null-terminate the buffer
+    buffer[i] = '\0';
 
-    Token *token = malloc(sizeof(Token)); // Allocate memory for a new token
-    token->value = strdup(buffer);        // Duplicate the buffer to store the identifier
+    Token *token = malloc(sizeof(Token));
+    token->value = strdup(buffer);
 
-    // Check if the buffer matches any keywords
-    if (strcmp(buffer, "int") == 0)
+    printf("DEBUG: Identifying token: '%s'\n", buffer);
+
+    // Add new keywords
+    if (strcmp(buffer, "if") == 0)
+        token->type = TOKEN_IF;
+    else if (strcmp(buffer, "else") == 0)
+        token->type = TOKEN_ELSE;
+    else if (strcmp(buffer, "int") == 0)
         token->type = TOKEN_INT_TYPE;
     else if (strcmp(buffer, "string") == 0)
         token->type = TOKEN_STRING_TYPE;
-    else if (strcmp(buffer, "print") == 0 || strcmp(buffer, "echo") == 0)
-        token->type = TOKEN_PRINT;
-    else if (strcmp(buffer, "bool") == 0)
+    else if (strcmp(buffer, "float") == 0)
+        token->type = TOKEN_FLOAT_TYPE;
+    else if (strcmp(buffer, "boolean") == 0)
         token->type = TOKEN_BOOL_TYPE;
+    else if (strcmp(buffer, "print") == 0 || strcmp(buffer, "echo") == 0 || strcmp(buffer, "yap") == 0)
+        token->type = TOKEN_PRINT;
+    else if (strcmp(buffer, "yup") == 0 || strcmp(buffer, "nope") == 0)
+        token->type = TOKEN_BOOL;
     else
-        token->type = TOKEN_IDENTIFIER; // If it's not a keyword, it's an identifier
+        token->type = TOKEN_IDENTIFIER;
 
-    return token; // Return the token
+    printf("DEBUG: Token type assigned: %d\n", token->type);
+    return token;
 }
 
 static Token *boolean(Lexer *lexer)
 {
-    char buffer[6] = {0}; // "true" and "false" are at most 5 characters long
+    char buffer[6] = {0};
     int i = 0;
     while (isalpha(lexer->current_char))
     {
@@ -75,11 +86,10 @@ static Token *boolean(Lexer *lexer)
     buffer[i] = '\0';
     Token *token = malloc(sizeof(Token));
 
-    if (strcmp(buffer, "true") == 0 || strcmp(buffer, "false") == 0) {
+    if (strcmp(buffer, "yup") == 0 || strcmp(buffer, "nope") == 0) {
         token->type = TOKEN_BOOL;
         token->value = strdup(buffer);
     } else {
-          // If it's not "true" or "false", treat it as an identifier
         token->type = TOKEN_IDENTIFIER;
         token->value = strdup(buffer);
     }
@@ -90,20 +100,46 @@ static Token *boolean(Lexer *lexer)
 // This function identifies numbers
 static Token *number(Lexer *lexer)
 {
-    char buffer[256] = {0};              // Initialize a buffer to store the number
-    int i = 0;                           // Initialize an index for the buffer
-    while (isdigit(lexer->current_char)) // While the current character is a digit
+    char buffer[256] = {0};
+    int i = 0;
+    bool is_float = false;
+
+    printf("\nDEBUG: Starting number parse\n");
+    printf("DEBUG: Current char: '%c'\n", lexer->current_char);
+
+    // Get digits before decimal point
+    while (isdigit(lexer->current_char))
     {
         buffer[i++] = lexer->current_char;
         advance(lexer);
     }
-    buffer[i] = '\0'; // Null-terminate the buffer
 
-    Token *token = malloc(sizeof(Token)); // Allocate memory for a new token
-    token->type = TOKEN_NUMBER;           // Set the type of the token to a number
-    token->value = strdup(buffer);        // Duplicate the buffer to store the number
+    // Check for decimal point
+    if (lexer->current_char == '.')
+    {
+        printf("DEBUG: Found decimal point\n");
+        is_float = true;
+        buffer[i++] = lexer->current_char;
+        advance(lexer);
+        
+        // Get digits after decimal point
+        while (isdigit(lexer->current_char))
+        {
+            buffer[i++] = lexer->current_char;
+            advance(lexer);
+        }
+    }
 
-    return token; // Return the token
+    buffer[i] = '\0';
+
+    Token *token = malloc(sizeof(Token));
+    token->type = is_float ? TOKEN_FLOAT : TOKEN_NUMBER;
+    token->value = strdup(buffer);
+
+    printf("DEBUG: Created number token - type: %d, value: '%s'\n", 
+           token->type, token->value);
+
+    return token;
 }
 
 // This function identifies strings
@@ -128,9 +164,12 @@ static Token *string(Lexer *lexer)
         printf("Error: Unterminated string literal\n");
     }
 
+    buffer[i] = '\0';
+
     Token *token = malloc(sizeof(Token));
     token->type = TOKEN_STRING;
     token->value = strdup(buffer);
+    printf("Debug: Created string token: %s\n", token->value);
 
     return token;
 }
@@ -213,8 +252,10 @@ static void skip_comments(Lexer *lexer)
 // Skip whitespace characters
 void skip_whitespace(Lexer *lexer)
 {
-    // While the current character is a space, tab, newline, or carriage return
-    while (lexer->current_char == ' ' || lexer->current_char == '\t' || lexer->current_char == '\n' || lexer->current_char == '\r')
+    while (lexer->current_char == ' ' || 
+           lexer->current_char == '\t' || 
+           lexer->current_char == '\n' || 
+           lexer->current_char == '\r')
     {
         advance(lexer);
     }
@@ -223,14 +264,12 @@ void skip_whitespace(Lexer *lexer)
 // Get the next token
 Token *next_token(Lexer *lexer)
 {
-    // Skip any whitespace and comments
     skip_whitespace(lexer);
     skip_comments(lexer);
 
     Token *token = malloc(sizeof(Token));
     token->value = NULL;
 
-    // If we've reached the end of the input
     if (lexer->current_char == '\0')
     {
         token->type = TOKEN_EOF;
@@ -249,9 +288,9 @@ Token *next_token(Lexer *lexer)
         return number(lexer); // Return the token
     }
 
-        // Check for boolean values
-    if ((lexer->current_char == 't' && strncmp(lexer->input + lexer->position, "true", 4) == 0) ||
-        (lexer->current_char == 'f' && strncmp(lexer->input + lexer->position, "false", 5) == 0))
+    // Check for boolean values
+    if ((lexer->current_char == 'y' && strncmp(lexer->input + lexer->position, "yup", 3) == 0) ||
+        (lexer->current_char == 'n' && strncmp(lexer->input + lexer->position, "nope", 4) == 0))
     {
         return boolean(lexer);
     }
@@ -263,21 +302,57 @@ Token *next_token(Lexer *lexer)
     case '=':
         if (peek_char(lexer) == '=')
         {
-            advance(lexer);
             token->type = TOKEN_EQUAL;
+            token->value = strdup("==");
+            advance(lexer); // consume first '='
+            advance(lexer); // consume second '='
         }
         else
         {
             token->type = TOKEN_ASSIGN;
+            token->value = strdup("=");
+            advance(lexer);
         }
-        break;
+        return token;
+
+    case '>':
+        if (peek_char(lexer) == '=')
+        {
+            token->type = TOKEN_GREATER_THAN_OR_EQUAL;
+            token->value = strdup(">=");
+            advance(lexer);
+            advance(lexer);
+        }
+        else
+        {
+            token->type = TOKEN_GREATER_THAN;
+            token->value = strdup(">");
+            advance(lexer);
+        }
+        return token;
+
+    case '<':
+        if (peek_char(lexer) == '=')
+        {
+            token->type = TOKEN_LESS_THAN_OR_EQUAL;
+            token->value = strdup("<=");
+            advance(lexer);
+            advance(lexer);
+        }
+        else
+        {
+            token->type = TOKEN_LESS_THAN;
+            token->value = strdup("<");
+            advance(lexer);
+        }
+        return token;
+
     case '+': token->type = TOKEN_PLUS; token->value = strdup("+"); break;
     case '-': token->type = TOKEN_MINUS; token->value = strdup("-"); break;
-    case '%': token->type = TOKEN_MODULUS; token->value = strdup("%"); break;
-    case '*':
+    case '*': 
         if (peek_char(lexer) == '*')
         {
-            advance(lexer); // Consume the second '*'
+            advance(lexer);
             token->type = TOKEN_POWER;
             token->value = strdup("**");
         }
@@ -291,11 +366,71 @@ Token *next_token(Lexer *lexer)
     case '(': token->type = TOKEN_LPAREN; token->value = strdup("("); break;
     case ')': token->type = TOKEN_RPAREN; token->value = strdup(")"); break;
     case ';': token->type = TOKEN_SEMICOLON; token->value = strdup(";"); break;
-    case '"': return string(lexer);
-    default:
-        printf("Unknown character: %c\n", lexer->current_char);
-        token->type = TOKEN_EOF;
+    case '"': 
+        free(token); // Free the token we created since string() creates its own
+        return string(lexer);
+    case '\n':
+    case '\r':
+        advance(lexer);
+        return next_token(lexer); // Skip newlines and get next token
+
+    case '?':
+        token->type = TOKEN_QUESTION;
+        token->value = strdup("?");
+        break;
+            
+    case ':':
+        token->type = TOKEN_COLON;
+        token->value = strdup(":");
+        break;
+
+    case '{':
+        token->type = TOKEN_LBRACE;
+        token->value = strdup("{");
+        break;
+
+    case '}':
+        token->type = TOKEN_RBRACE;
+        token->value = strdup("}");
+        break;
+
+    case '!':
+        if (peek_char(lexer) == '=')
+        {
+            token->type = TOKEN_NOT_EQUAL;
+            token->value = strdup("!=");
+            advance(lexer); // consume '!'
+            advance(lexer); // consume '='
+        }
+        else
+        {
+            token->type = TOKEN_NOT;
+            token->value = strdup("!");
+            advance(lexer);
+        }
         return token;
+
+    case '%': 
+        token->type = TOKEN_MODULUS; 
+        token->value = strdup("%"); 
+        advance(lexer);
+        return token;
+
+    default:
+        if (isdigit(lexer->current_char))
+        {
+            return number(lexer);
+        }
+        else if (isalpha(lexer->current_char) || lexer->current_char == '_')
+        {
+            return identifier_or_keyword(lexer);
+        }
+        else
+        {
+            printf("Debug: Unknown character: '%c' (ASCII: %d)\n", lexer->current_char, lexer->current_char);
+            token->type = TOKEN_EOF;
+            return token;
+        }
     }
 
     advance(lexer);

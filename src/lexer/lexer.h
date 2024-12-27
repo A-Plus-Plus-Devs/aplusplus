@@ -20,6 +20,8 @@ typedef enum
     TOKEN_KEYWORD,
     TOKEN_LBRACE,                // {
     TOKEN_RBRACE,                // }
+    TOKEN_QUESTION,              // ?
+    TOKEN_COLON,                 // :
     TOKEN_SEMICOLON,             // ;
     TOKEN_LPAREN,                // (
     TOKEN_RPAREN,                // )
@@ -51,6 +53,11 @@ typedef enum
     TOKEN_BITWISE_SHIFT_RIGHT,   // >>
     TOKEN_UNKNOWN,               // For
     TOKEN_INT_TYPE,
+    TOKEN_IF,
+    TOKEN_ELSE,
+    TOKEN_ELSEIF,
+    TOKEN_BREAK,
+    TOKEN_CONTINUE,
     TOKEN_FLOAT_TYPE,
     TOKEN_CHAR_TYPE,
     TOKEN_SHORT_TYPE,
@@ -74,7 +81,6 @@ typedef enum
     KEYWORD_INT,
     KEYWORD_FLOAT,
     KEYWORD_BOOL,
-    // KEYWORD_STRING,
     KEYWORD_VOID,
     KEYWORD_RETURN,
     KEYWORD_CONST,

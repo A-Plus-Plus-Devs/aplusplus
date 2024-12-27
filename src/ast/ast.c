@@ -18,6 +18,9 @@ ASTNode *create_node(ASTNodeType type, ASTNode *left, ASTNode *right, const char
     
     // Set the right child of the node
     node->right = right;
+
+    node->else_branch = NULL;
+    node->elseif_branch = NULL;
     
     // If a value was provided, make a copy of it and store it in the node
     // If no value was provided, set it to NULL
@@ -91,6 +94,9 @@ void free_ast(ASTNode *node)
         
         // Free the variable type if it exists
         free(node->var_type);
+
+        free_ast(node->else_branch);  // Free the else_branch
+        free_ast(node->elseif_branch);  // Free the elseif_branch
         
         // Free the variable name if it exists
         free(node->var_name);
