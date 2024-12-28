@@ -226,6 +226,18 @@ static bool evaluate_bool_expression(ASTNode *node)
             // printf("DEBUG: Comparing %d < %d\n", left, right);
             return left < right;
         }
+        else if (strcmp(node->value, "<=") == 0)
+        {
+            int left = evaluate_expression(node->left);
+            int right = evaluate_expression(node->right);
+            return left <= right;
+        }
+        else if (strcmp(node->value, ">=") == 0)
+        {
+            int left = evaluate_expression(node->left);
+            int right = evaluate_expression(node->right);
+            return left >= right;
+        }
         else if (strcmp(node->value, "==") == 0)
         {
             int left = evaluate_expression(node->left);
@@ -303,10 +315,68 @@ static char *evaluate_string_expression(ASTNode *node)
         {
             return strdup(var->value.string_value);
         }
+        else if (var && var->type == INT_TYPE)
+        {
+            // Convert int to string
+            char buffer[32];
+            snprintf(buffer, sizeof(buffer), "%d", var->value.int_value);
+            return strdup(buffer);
+        }
+        else if (var && var->type == FLOAT_TYPE)
+        {
+            // Convert float to string
+            char buffer[32];
+            snprintf(buffer, sizeof(buffer), "%g", var->value.float_value);
+            return strdup(buffer);
+        }
+        else if (var && var->type == BOOL_TYPE)
+        {
+            // Convert bool to string
+            return strdup(var->value.bool_value ? "yup" : "nope");
+        }
         else
         {
             return strdup("");
         }
+    }
+    else if (node->type == NODE_BINARY_OP && strcmp(node->value, "+") == 0)
+    {
+        // Handle string concatenation
+        char *left = evaluate_string_expression(node->left);
+        char *right = evaluate_string_expression(node->right);
+        
+        // Allocate space for concatenated string
+        char *result = malloc(strlen(left) + strlen(right) + 1);
+        if (result)
+        {
+            strcpy(result, left);
+            strcat(result, right);
+        }
+        
+        // Free temporary strings
+        free(left);
+        free(right);
+        
+        return result ? result : strdup("");
+    }
+    else if (node->type == NODE_INT_LITERAL)
+    {
+        // Convert int literal to string
+        char buffer[32];
+        snprintf(buffer, sizeof(buffer), "%d", atoi(node->value));
+        return strdup(buffer);
+    }
+    else if (node->type == NODE_FLOAT_LITERAL)
+    {
+        // Convert float literal to string
+        char buffer[32];
+        snprintf(buffer, sizeof(buffer), "%g", atof(node->value));
+        return strdup(buffer);
+    }
+    else if (node->type == NODE_BOOL_LITERAL)
+    {
+        // Convert bool literal to string
+        return strdup(strcmp(node->value, "yup") == 0 ? "yup" : "nope");
     }
 
     return strdup("");
@@ -435,7 +505,21 @@ void interpret(ASTNode *node)
                 }
                 else if (node->left->type == NODE_BINARY_OP)
                 {
-                    if (node->left->value && (
+                    // Check if it's a string concatenation operation
+                    if (node->left->value && strcmp(node->left->value, "+") == 0 &&
+                        (node->left->left->type == NODE_STRING_LITERAL || 
+                         node->left->right->type == NODE_STRING_LITERAL ||
+                         (node->left->left->type == NODE_LITERAL && 
+                          get_variable(node->left->left->value)->type == STRING_TYPE) ||
+                         (node->left->right->type == NODE_LITERAL && 
+                          get_variable(node->left->right->value)->type == STRING_TYPE)))
+                    {
+                        char *result = evaluate_string_expression(node->left);
+                        printf("%s\n", result);
+                        free(result);
+                    }
+                    // Keep existing boolean expression handling
+                    else if (node->left->value && (
                         strcmp(node->left->value, "==") == 0 ||
                         strcmp(node->left->value, "!=") == 0 ||
                         strcmp(node->left->value, ">") == 0  ||

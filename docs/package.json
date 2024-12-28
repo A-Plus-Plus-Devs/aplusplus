@@ -1,0 +1,16 @@
+{
+  "name": "aplusplus-docs",
+  "version": "1.0.0",
+  "description": "Documentation for the A++ Programming Language",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev .",
+    "build": "vitepress build .",
+    "preview": "vitepress preview ."
+  },
+  "devDependencies": {
+    "vitepress": "^1.0.0-rc.31",
+    "vue": "^3.3.8",
+    "typescript": "^5.2.2"
+  }
+}

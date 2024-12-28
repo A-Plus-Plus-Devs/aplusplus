@@ -12,6 +12,8 @@
 paul-a-plus-plus/
 a-plus-plus
 
+node_modules/
+
 # Ignore test artifacts
 /tests/*.out
 /tests/*.o

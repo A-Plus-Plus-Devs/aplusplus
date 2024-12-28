@@ -61,7 +61,7 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_STRING_TYPE;
     else if (strcmp(buffer, "float") == 0)
         token->type = TOKEN_FLOAT_TYPE;
-    else if (strcmp(buffer, "boolean") == 0)
+    else if (strcmp(buffer, "boolean") == 0 || strcmp(buffer, "bool") == 0)
         token->type = TOKEN_BOOL_TYPE;
     else if (strcmp(buffer, "print") == 0 || strcmp(buffer, "echo") == 0 || strcmp(buffer, "yap") == 0)
         token->type = TOKEN_PRINT;
@@ -488,4 +488,3 @@ Token *next_token(Lexer *lexer)
     advance(lexer);
     return token;
 }
-

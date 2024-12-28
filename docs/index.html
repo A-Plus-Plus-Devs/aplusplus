@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>A++ Programming Language</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-zinc-50">
+    <nav class="bg-white border-b border-zinc-200 fixed w-full top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex items-center">
+            <span
+              class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+              >A++</span
+            >
+          </div>
+          <div class="hidden md:flex items-center space-x-8">
+            <a href="#start" class="text-zinc-600 hover:text-zinc-900"
+              >Quick Start</a
+            >
+            <a href="#learn" class="text-zinc-600 hover:text-zinc-900">Learn</a>
+            <a href="#reference" class="text-zinc-600 hover:text-zinc-900"
+              >API</a
+            >
+            <a
+              href="https://github.com/A-Plus-Plus-Devs/aplusplus"
+              class="text-zinc-600 hover:text-zinc-900"
+              >GitHub</a
+            >
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="pt-16">
+      <section class="bg-gradient-to-b from-white to-zinc-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+          <div class="text-center">
+            <h1 class="text-5xl font-bold text-zinc-900 mb-6">
+              A++ Programming Language
+            </h1>
+            <p class="text-xl text-zinc-600 mb-8">
+              A modern, expressive, and easy-to-learn programming language
+            </p>
+            <div class="flex justify-center space-x-4">
+              <button
+                class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Get Started
+              </button>
+              <button
+                class="bg-zinc-100 text-zinc-900 px-6 py-3 rounded-lg hover:bg-zinc-200 transition-colors"
+              >
+                Contribute
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-3xl font-bold text-zinc-900 mb-6">
+              Write code that matters
+            </h2>
+            <p class="text-zinc-600 mb-6">
+              A++ combines the power of systems programming with modern language
+              features, making it perfect for everything from web servers to
+              embedded systems.
+            </p>
+          </div>
+          <div class="bg-zinc-900 rounded-lg p-6 shadow-xl">
+            <pre
+              class="!m-0"
+            >
+            <code class="language-c font-monospace">// Modern syntax for modern development
+int calculate_sum(int n) {
+    int sum = 0;
+    for (int i = 1; i <= n; i++) {
+        sum = sum + i;
+    }
+    return sum;
+}
+
+// Boolean expressions are clear and concise
+boolean is_valid = yup;
+if (status == "ready" && is_valid == yup) {
+    yap("System operational");
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-white border-y border-zinc-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <h2 class="text-3xl font-bold text-zinc-900 mb-12 text-center">
+            Why A++?
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="p-6 rounded-lg hover:bg-zinc-50 transition-colors">
+              <h3 class="text-xl font-semibold text-zinc-900 mb-3">
+                Modern Features
+              </h3>
+              <p class="text-zinc-600">
+                Type inference, pattern matching, and first-class functions make
+                A++ a joy to use.
+              </p>
+            </div>
+            <div class="p-6 rounded-lg hover:bg-zinc-50 transition-colors">
+              <h3 class="text-xl font-semibold text-zinc-900 mb-3">
+                Performance
+              </h3>
+              <p class="text-zinc-600">
+                Zero-cost abstractions and efficient memory management keep your
+                code fast.
+              </p>
+            </div>
+            <div class="p-6 rounded-lg hover:bg-zinc-50 transition-colors">
+              <h3 class="text-xl font-semibold text-zinc-900 mb-3">Safety</h3>
+              <p class="text-zinc-600">
+                Strong type system and memory safety prevent common programming
+                errors.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="reference"
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+      >
+        <h2 class="text-3xl font-bold text-zinc-900 mb-8">Quick Reference</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="bg-white p-6 rounded-lg shadow-sm border border-zinc-200">
+            <h3 class="text-xl font-semibold text-zinc-900 mb-4">Data Types</h3>
+            <pre><code class="language-c">int number = 42;
+float pi = 3.14159;
+string message = "Hello";
+boolean flag = yup;</code></pre>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-sm border border-zinc-200">
+            <h3 class="text-xl font-semibold text-zinc-900 mb-4">
+              Control Flow
+            </h3>
+            <pre><code class="language-c">if (condition) {
+    yap("True");
+} else {
+    yap("False");
+}
+
+for (int i = 0; i < 10; i++) {
+    yap(i);
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="bg-zinc-900 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div class="text-center">
+            <h2 class="text-3xl font-bold mb-6">Ready to get started?</h2>
+            <p class="text-zinc-400 mb-8">
+              Join the growing community of A++ developers
+            </p>
+            <div class="flex justify-center space-x-4">
+              <button
+                class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Installation Guide
+              </button>
+              <button
+                class="border border-zinc-700 text-zinc-300 px-6 py-3 rounded-lg hover:bg-zinc-800 transition-colors"
+              >
+                Read Docs
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-zinc-900 border-t border-zinc-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div>
+            <h3 class="text-zinc-400 font-semibold mb-4">Learn</h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="text-zinc-500 hover:text-zinc-300"
+                  >Documentation</a
+                >
+              </li>
+              <li>
+                <a href="#" class="text-zinc-500 hover:text-zinc-300"
+                  >Tutorials</a
+                >
+              </li>
+              <li>
+                <a href="#" class="text-zinc-500 hover:text-zinc-300"
+                  >Examples</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-zinc-400 font-semibold mb-4">Community</h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="text-zinc-500 hover:text-zinc-300">GitHub</a>
+              </li>
+              <li>
+                <a href="#" class="text-zinc-500 hover:text-zinc-300"
+                  >Discord</a
+                >
+              </li>
+              <li>
+                <a href="#" class="text-zinc-500 hover:text-zinc-300"
+                  >Twitter</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-zinc-400 font-semibold mb-4">Resources</h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="text-zinc-500 hover:text-zinc-300">Blog</a>
+              </li>
+              <li>
+                <a href="#" class="text-zinc-500 hover:text-zinc-300"
+                  >Releases</a
+                >
+              </li>
+              <li>
+                <a href="#" class="text-zinc-500 hover:text-zinc-300"
+                  >Security</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-zinc-400 font-semibold mb-4">About</h3>
+            <ul class="space-y-2">
+              <li>
+                <a href="#" class="text-zinc-500 hover:text-zinc-300">Team</a>
+              </li>
+              <li>
+                <a href="#" class="text-zinc-500 hover:text-zinc-300"
+                  >Contact</a
+                >
+              </li>
+              <li>
+                <a href="#" class="text-zinc-500 hover:text-zinc-300">Legal</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div
+          class="border-t border-zinc-800 mt-12 pt-8 text-center text-zinc-500"
+        >
+          © 2024 A++ Programming Language. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
