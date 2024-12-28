@@ -242,7 +242,7 @@ static bool evaluate_bool_expression(ASTNode *node)
         {
             int left = evaluate_expression(node->left);
             int right = evaluate_expression(node->right);
-            printf("DEBUG: Comparing %d == %d\n", left, right);
+            // printf("DEBUG: Comparing %d == %d\n", left, right);
             return left == right;
         }
         else if (strcmp(node->value, "&&") == 0)

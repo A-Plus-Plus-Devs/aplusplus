@@ -768,6 +768,16 @@ static ASTNode *parse_for_statement(Parser *parser)
             increment = create_assignment_node(var_name, add);
             free(var_name); // free the strdup'd name since create_assignment_node makes its own copy
         }
+        else if (parser->current_token->type == TOKEN_DECREMENT)
+        {
+            get_next_token(parser); // consume '--'
+            // Create a node that represents: var_name = var_name - 1
+            ASTNode *var_node = create_node(NODE_LITERAL, NULL, NULL, var_name);
+            ASTNode *one = create_node(NODE_INT_LITERAL, NULL, NULL, "1");
+            ASTNode *sub = create_node(NODE_BINARY_OP, var_node, one, "-");
+            increment = create_assignment_node(var_name, sub);
+            free(var_name); // free the strdup'd name since create_assignment_node makes its own copy
+        }
         else if (parser->current_token->type == TOKEN_ASSIGN)
         {
             get_next_token(parser); // consume '='
