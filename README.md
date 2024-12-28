@@ -1,147 +1,120 @@
-# A++ Compiler
+# A++ Programming Language & Compiler
 
-The A++ Compiler is a simple compiler for the A++ programming language. It includes a lexer, parser, code generator, and interpreter to process and execute A++ source files.
+A++ is a custom programming language and compiler written in C, featuring unique syntax elements and a straightforward compilation pipeline. The project implements a lexer, parser, and interpreter to execute A++ source files.
 
-## Table of Contents
+## Features
 
-- [Installation](#installation)
-- [Usage](#usage)
-- [Project Structure](#project-structure)
-- [File Descriptions](#file-descriptions)
-- [Contributing](#contributing)
-- [License](#license)
+- **Custom Syntax Elements:**
+  - Boolean literals: `yup` (true) and `nope` (false)
+  - Multiple print keywords: `print`, `echo`, `yap`
+  - C-like syntax with unique additions
+
+- **Type System:**
+  - Basic types: int, float, boolean, char, string
+  - Dynamic type conversion
+  - Variable declarations and assignments
+
+- **Control Flow:**
+  - If-else statements
+  - For loops
+  - Ternary operators (?:)
+
+- **Operators:**
+  - Arithmetic: +, -, *, /, %, ** (power)
+  - Comparison: <, >, <=, >=, ==, !=
+  - Logical: &&, ||, !
+  - Bitwise: &, |, ^, ~, <<, >>
+
+- **Comments:**
+  - Single-line (//)
+  - Multi-line (/* */)
 
 ## Installation
 
-To build the A++ Compiler, you need to have a C compiler installed on your system. You can use `gcc` or any other standard C compiler.
+Requirements:
+- GCC or any standard C compiler
+- Make
 
 1. Clone the repository:
-    ```sh
-    git clone https://github.com/A-Plus-Plus-Devs/aplusplus.git
-    ```
+```sh
+git clone https://github.com/A-Plus-Plus-Devs/aplusplus.git
+```
 
 2. Build the project:
-    ```sh
-    make
-    ```
+```sh
+make
+```
 
 ## Usage
 
-To use the A++ Compiler, run the following command:
-    ```
-    ./build/bin/a++c <source_file>.a++
-    ```
-Replace `<source_file>.a++` with the path to your A++ source file.
+Run A++ programs using the compiler:
+```sh
+./build/bin/a++c <source_file>.a++
+```
 
+Or use the convenient wrapper script:
+```sh
+./src/scripts/a++ <source_file>.a++
+```
 
-This will compile the source file into an executable binary.
+To make the A++ script globally accessible on macOS (run .a++ files from anywhere):
+
+1. Make the script executable:
+```sh
+chmod +x src/scripts/a++
+```
+
+2. Create a symbolic link in your local bin directory:
+```sh
+ln -s "$(pwd)/src/scripts/a++" /usr/local/bin/a++
+```
+
+Now you can run A++ files from any directory:
+```sh
+a++ yourprogram.a++
+```
+
+The script automatically recompiles the compiler if source files have changed.
 
 ## Project Structure
 
-The project is organized into several directories, each containing specific components of the compiler:
+- `src/`: Source code directory
+  - `main.c`: Compiler entry point
+  - `lexer/`: Tokenization of source code
+  - `parser/`: AST generation from tokens
+  - `ast/`: Abstract Syntax Tree implementation
+  - `interpreter/`: AST execution engine
+  - `common/`: Shared types and utilities
+  - `scripts/`: Build and execution tools
 
-- `src/`: Contains the source code for the compiler.
-  - `main.c`: The main entry point of the compiler.
-  - `lexer/`: Contains the lexer implementation.
-  - `parser/`: Contains the parser implementation.
-  - `codegen/`: Contains the code generation implementation.
-  - `interpreter/`: Contains the interpreter implementation.
-  - `ast/`: Contains the Abstract Syntax Tree (AST) implementation.
-  - `common/`: Contains common types and utilities.
+## Current Limitations
 
-## File Descriptions
+- Fixed variable limit (100 variables)
+- Single scope implementation
+- No function support yet
+- Basic error handling
+- No file I/O beyond program input
 
-### src/main.c
+## Development Status
 
-This is the main entry point of the compiler. It handles command-line arguments, reads the input file, and orchestrates the compilation process by calling the lexer, parser, and interpreter.
+The compiler currently supports:
+- Basic arithmetic and logical operations
+- Control flow statements
+- Variable management
+- Print statements
+- Type conversions
 
-Key functions:
-- `print_usage()`: Displays usage instructions.
-- `run_file()`: Reads the input file and initiates the compilation process.
-- `main()`: The main function that handles command-line arguments and calls `run_file()`.
-
-### src/lexer/lexer.h
-
-This header file defines the structure and functions for the lexer, which is responsible for breaking down the input source code into tokens.
-
-Key components:
-- `TokenType` enum: Defines all possible token types.
-- `KeywordType` enum: Defines keyword types.
-- `Token` struct: Represents a single token.
-- `Lexer` struct: Represents the lexer state.
-- Function declarations for lexer operations.
-
-### src/lexer/lexer.c
-
-This file implements the lexer functionality defined in `lexer.h`.
-
-Key functions:
-- `init_lexer()`: Initializes a new lexer with given input.
-- `advance()`: Moves the lexer to the next character.
-- `peek_char()`: Looks at the next character without advancing.
-- `next_token()`: Retrieves the next token from the input.
-- Various helper functions for identifying different types of tokens.
-
-### src/parser/parser.h
-
-This header file defines the structure and functions for the parser, which is responsible for analyzing the sequence of tokens and creating an Abstract Syntax Tree (AST).
-
-Key components:
-- `Parser` struct: Represents the parser state.
-- Function declarations for parser operations.
-
-### src/parser/parser.c
-
-This file implements the parser functionality defined in `parser.h`.
-
-Key functions:
-- `create_parser()`: Creates a new parser with a given lexer.
-- `parse_tokens()`: Parses all tokens and builds the AST.
-- Various parsing functions for different language constructs (e.g., `parse_statement()`, `parse_expression()`).
-
-### src/ast/ast.h
-
-This header file defines the structure and functions for the Abstract Syntax Tree (AST), which represents the structure of the program.
-
-Key components:
-- `ASTNodeType` enum: Defines all possible AST node types.
-- `ASTNode` struct: Represents a node in the AST.
-- Function declarations for AST operations.
-
-### src/ast/ast.c
-
-This file implements the AST functionality defined in `ast.h`.
-
-Key functions:
-- `create_node()`: Creates a new AST node.
-- `create_var_declaration_node()`: Creates a node for variable declarations.
-- `create_assignment_node()`: Creates a node for assignment statements.
-- `free_ast()`: Frees the memory allocated for an AST.
-
-### src/interpreter/interpreter.h
-
-This header file defines the function for interpreting the AST.
-
-Key components:
-- Declaration of the `interpret()` function.
-
-### src/interpreter/interpreter.c
-
-This file implements the interpreter functionality defined in `interpreter.h`.
-
-Key functions:
-- `interpret()`: Walks through the AST and executes each node.
-- Helper functions for evaluating expressions and managing variables.
-
-### src/common/types.h
-
-This header file defines common types used throughout the compiler.
-
-Key components:
-- `VariableType` enum: Defines the types of variables supported by the language.
+Active development focuses on:
+- Expanding core functionality
+- Adding function support
+- Implementing proper scoping
+- Enhancing error messages
+- Building standard library
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request with your changes.
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
+## License
 
+This project is open source and available under the MIT License.
