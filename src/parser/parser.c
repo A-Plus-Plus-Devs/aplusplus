@@ -173,6 +173,7 @@ static ASTNode *parse_statement(Parser *parser)
         case TOKEN_INT_TYPE:
         case TOKEN_FLOAT_TYPE:
         case TOKEN_STRING_TYPE:
+        case TOKEN_BOOL_TYPE:
             return parse_var_declaration(parser);
         case TOKEN_PRINT:
             statement = parse_print(parser);
@@ -615,7 +616,8 @@ static ASTNode *parse_for_statement(Parser *parser)
     ASTNode *init = NULL;
     if (parser->current_token->type == TOKEN_INT_TYPE ||
         parser->current_token->type == TOKEN_FLOAT_TYPE ||
-        parser->current_token->type == TOKEN_STRING_TYPE)
+        parser->current_token->type == TOKEN_STRING_TYPE ||
+        parser->current_token->type == TOKEN_BOOL_TYPE)
     {
         init = parse_var_declaration(parser);
     }
