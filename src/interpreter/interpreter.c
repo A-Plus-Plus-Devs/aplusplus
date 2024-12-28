@@ -20,6 +20,7 @@ typedef struct
         double float_value;
         char *string_value;
         bool bool_value;
+        char char_value;  // For character literals
     } value;
 } Variable;
 
@@ -61,6 +62,10 @@ static void set_variable(const char *name, VariableType type, void *value)
             {
                 variables[i].value.float_value = *(double *)value;
             }
+            else if (type == CHAR_TYPE)
+            {
+                variables[i].value.char_value = *(char *)value;
+            }
             return;
         }
     }
@@ -88,6 +93,10 @@ static void set_variable(const char *name, VariableType type, void *value)
         else if (type == FLOAT_TYPE)
         {
             variables[variable_count].value.float_value = *(double *)value;
+        }
+        else if (type == CHAR_TYPE)
+        {
+            variables[variable_count].value.char_value = *(char *)value;
         }
         variable_count++;
     }
@@ -136,6 +145,10 @@ static int evaluate_expression(ASTNode *node)
     {
         return strtobool(node->value);
     }
+    else if (node->type == NODE_CHAR_LITERAL)
+    {
+        return node->value[0];
+    }
     else if (node->type == NODE_LITERAL)
     {
         Variable *var = get_variable(node->value);
@@ -148,6 +161,10 @@ static int evaluate_expression(ASTNode *node)
             else if (var->type == BOOL_TYPE)
             {
                 return var->value.bool_value;
+            }
+            else if (var->type == CHAR_TYPE)
+            {
+                return var->value.char_value;
             }
         }
         return 0;
@@ -282,6 +299,11 @@ static bool evaluate_bool_expression(ASTNode *node)
                 // printf("DEBUG: Int value is %d\n", var->value.int_value);
                 return var->value.int_value != 0;
             }
+            else if (var->type == CHAR_TYPE)
+            {
+                // printf("DEBUG: Char value is %c\n", var->value.char_value);
+                return var->value.char_value != '\0';
+            }
         }
         // else
         // {
@@ -334,6 +356,14 @@ static char *evaluate_string_expression(ASTNode *node)
             // Convert bool to string
             return strdup(var->value.bool_value ? "yup" : "nope");
         }
+        else if (var && var->type == CHAR_TYPE)
+        {
+            // Convert char to string
+            char buffer[2];
+            buffer[0] = var->value.char_value;
+            buffer[1] = '\0';
+            return strdup(buffer);
+        }
         else
         {
             return strdup("");
@@ -377,6 +407,14 @@ static char *evaluate_string_expression(ASTNode *node)
     {
         // Convert bool literal to string
         return strdup(strcmp(node->value, "yup") == 0 ? "yup" : "nope");
+    }
+    else if (node->type == NODE_CHAR_LITERAL)
+    {
+        // Convert char literal to string
+        char buffer[2];
+        buffer[0] = node->value[0];
+        buffer[1] = '\0';
+        return strdup(buffer);
     }
 
     return strdup("");
@@ -487,6 +525,11 @@ void interpret(ASTNode *node)
                     set_variable(node->var_name, STRING_TYPE, value);
                     free(value);
                 }
+                else if (strcmp(node->var_type, "char") == 0)
+                {
+                    char value = node->left ? node->left->value[0] : '\0';
+                    set_variable(node->var_name, CHAR_TYPE, &value);
+                }
                 break;
             }
             case NODE_PRINT:
@@ -502,6 +545,12 @@ void interpret(ASTNode *node)
                 {
                     bool result = evaluate_bool_expression(node->left);
                     printf("%s\n", result ? "yup" : "nope");
+                }
+                else if (node->left->type == NODE_CHAR_LITERAL ||
+                         (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == CHAR_TYPE))
+                {
+                    char result = evaluate_expression(node->left);
+                    printf("%c\n", result);
                 }
                 else if (node->left->type == NODE_BINARY_OP)
                 {
@@ -557,6 +606,11 @@ void interpret(ASTNode *node)
                 {
                     bool value = strtobool(node->left->value);
                     set_variable(node->var_name, BOOL_TYPE, &value);
+                }
+                else if (node->left->type == NODE_CHAR_LITERAL)
+                {
+                    char value = node->left->value[0];
+                    set_variable(node->var_name, CHAR_TYPE, &value);
                 }
                 else
                 {

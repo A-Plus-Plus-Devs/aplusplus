@@ -5,7 +5,8 @@ typedef enum {
     INT_TYPE,
     FLOAT_TYPE,
     STRING_TYPE,
-    BOOL_TYPE
+    BOOL_TYPE,
+    CHAR_TYPE
 } VariableType;
 
 #endif // TYPES_H
