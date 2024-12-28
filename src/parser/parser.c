@@ -207,6 +207,7 @@ static ASTNode *parse_statement(Parser *parser)
     return statement;
 }
 
+
 // This function parses a variable declaration statement
 static ASTNode *parse_var_declaration(Parser *parser)
 {
@@ -529,48 +530,143 @@ static ASTNode *parse_if_statement(Parser *parser)
     }
     get_next_token(parser); // consume '}'
 
+    // Create the initial if node
+    ASTNode *if_node = create_node(NODE_IF, condition, if_body, NULL);
+    if_node->else_branch = NULL;
+
     // Check for else
-    if (parser->current_token->type == TOKEN_ELSE)
+    while (parser->current_token->type == TOKEN_ELSE)
     {
         get_next_token(parser); // consume 'else'
         
-        if (parser->current_token->type != TOKEN_LBRACE)
+        // Check if this is an "else if"
+        if (parser->current_token->type == TOKEN_IF)
         {
-            printf("Error: Expected '{' after else\n");
-            return NULL;
-        }
-        get_next_token(parser); // consume '{'
+            get_next_token(parser); // consume 'if'
 
-        current = NULL;
-        while (parser->current_token->type != TOKEN_RBRACE && 
-               parser->current_token->type != TOKEN_EOF)
-        {
-            ASTNode *statement = parse_statement(parser);
-            if (statement)
+            if (parser->current_token->type != TOKEN_LPAREN)
             {
-                if (!else_body)
+                printf("Error: Expected '(' after 'if'\n");
+                return NULL;
+            }
+            get_next_token(parser); // consume '('
+
+            ASTNode *else_if_condition = parse_logical_or(parser);
+            if (!else_if_condition)
+            {
+                printf("Error: Invalid condition in else if statement\n");
+                return NULL;
+            }
+
+            if (parser->current_token->type != TOKEN_RPAREN)
+            {
+                printf("Error: Expected ')' after else if condition\n");
+                free_ast(else_if_condition);
+                return NULL;
+            }
+            get_next_token(parser); // consume ')'
+
+            if (parser->current_token->type != TOKEN_LBRACE)
+            {
+                printf("Error: Expected '{' after else if condition\n");
+                return NULL;
+            }
+            get_next_token(parser); // consume '{'
+
+            ASTNode *else_if_body = NULL;
+            current = NULL;
+
+            // Parse the else if body
+            while (parser->current_token->type != TOKEN_RBRACE && 
+                   parser->current_token->type != TOKEN_EOF)
+            {
+                ASTNode *statement = parse_statement(parser);
+                if (statement)
                 {
-                    else_body = statement;
-                    current = else_body;
-                }
-                else
-                {
-                    current->next = statement;
-                    current = statement;
+                    if (!else_if_body)
+                    {
+                        else_if_body = statement;
+                        current = else_if_body;
+                    }
+                    else
+                    {
+                        current->next = statement;
+                        current = statement;
+                    }
                 }
             }
-        }
 
-        if (parser->current_token->type != TOKEN_RBRACE)
-        {
-            printf("Error: Expected '}' at end of else body\n");
-            return NULL;
+            if (parser->current_token->type != TOKEN_RBRACE)
+            {
+                printf("Error: Expected '}' at end of else if body\n");
+                return NULL;
+            }
+            get_next_token(parser); // consume '}'
+
+            // Create a new if node for the else if branch
+            ASTNode *else_if_node = create_node(NODE_IF, else_if_condition, else_if_body, NULL);
+            
+            // Find the last if node in the chain
+            ASTNode *last_if = if_node;
+            while (last_if->else_branch != NULL && last_if->else_branch->type == NODE_IF)
+            {
+                last_if = last_if->else_branch;
+            }
+            
+            // Add it as the else branch of the last if node
+            last_if->else_branch = else_if_node;
         }
-        get_next_token(parser); // consume '}'
+        else // Just else
+        {
+            if (parser->current_token->type != TOKEN_LBRACE)
+            {
+                printf("Error: Expected '{' after else\n");
+                return NULL;
+            }
+            get_next_token(parser); // consume '{'
+
+            ASTNode *else_body = NULL;
+            current = NULL;
+
+            while (parser->current_token->type != TOKEN_RBRACE && 
+                   parser->current_token->type != TOKEN_EOF)
+            {
+                ASTNode *statement = parse_statement(parser);
+                if (statement)
+                {
+                    if (!else_body)
+                    {
+                        else_body = statement;
+                        current = else_body;
+                    }
+                    else
+                    {
+                        current->next = statement;
+                        current = statement;
+                    }
+                }
+            }
+
+            if (parser->current_token->type != TOKEN_RBRACE)
+            {
+                printf("Error: Expected '}' at end of else body\n");
+                return NULL;
+            }
+            get_next_token(parser); // consume '}'
+
+            // Find the last if node in the chain
+            ASTNode *last_if = if_node;
+            while (last_if->else_branch != NULL && last_if->else_branch->type == NODE_IF)
+            {
+                last_if = last_if->else_branch;
+            }
+            
+            // Add the else body to the last if node
+            last_if->else_branch = else_body;
+            break;
+        }
     }
 
-    ASTNode *if_node = create_node(NODE_IF, condition, if_body, NULL);
-    if_node->else_branch = else_body;
     return if_node;
 }
 

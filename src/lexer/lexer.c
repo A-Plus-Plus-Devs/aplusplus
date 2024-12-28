@@ -487,4 +487,3 @@ Token *next_token(Lexer *lexer)
     advance(lexer);
     return token;
 }
-
