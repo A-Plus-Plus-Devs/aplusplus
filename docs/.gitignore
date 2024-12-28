@@ -1,0 +1,21 @@
+# Ignore build artifacts
+/build/
+*.o
+*.out
+*.exe
+
+# Ignore editor/IDE files
+.vscode/
+*.swp
+*.swo
+.DS_Store
+paul-a-plus-plus/
+a-plus-plus
+
+node_modules/
+
+# Ignore test artifacts
+/tests/*.out
+/tests/*.o
+
+**/*.a++

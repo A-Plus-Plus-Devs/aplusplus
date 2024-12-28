@@ -1,9 +1,21 @@
-for (int i = 0; i <= 6; i++) {
-    if (i % 2 == 0) {
-        print(i);
-        print("Even");
-    } else {
-        print(i);
-        print("Odd");
-    }
-}
+// Basic string concatenation
+string name = "Alice";
+string greeting = "Hello, " + name;
+print(greeting);  // Outputs: Hello, Alice
+
+// Concatenate with numbers
+int age = 25;
+print("Age: " + age);  // Outputs: Age: 25
+
+// Concatenate with floats
+float height = 1.75;
+print("Height: " + height + " meters");  // Outputs: Height: 1.75 meters
+
+// Concatenate with booleans
+boolean isStudent = yup;
+print("Is student: " + isStudent);  // Outputs: Is student: yup
+
+// Multiple concatenations
+string first = "Hello";
+string second = "World";
+print(first + " " + second + "!");  // Outputs: Hello World!
