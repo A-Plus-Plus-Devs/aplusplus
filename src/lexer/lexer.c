@@ -69,6 +69,8 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_BOOL;
     else if (strcmp(buffer, "for") == 0)
         token->type = TOKEN_FOR;
+    else if (strcmp(buffer, "char") == 0)
+        token->type = TOKEN_CHAR_TYPE;
     else
         token->type = TOKEN_IDENTIFIER;
 
@@ -173,6 +175,24 @@ static Token *string(Lexer *lexer)
     token->value = strdup(buffer);
     // printf("Debug: Created string token: %s\n", token->value);
 
+    return token;
+}
+
+static Token *char_literal(Lexer *lexer)
+{
+    char buffer[2] = {0};
+    advance(lexer); // Skip the opening quote
+    buffer[0] = lexer->current_char;
+    advance(lexer); // Move to closing quote
+    if (lexer->current_char != '\'') {
+        printf("Error: Expected closing quote for character literal\n");
+        buffer[0] = '\0';
+    }
+    advance(lexer); // Skip the closing quote
+    buffer[1] = '\0';
+    Token *token = malloc(sizeof(Token));
+    token->type = TOKEN_CHAR;
+    token->value = strdup(buffer);
     return token;
 }
 
@@ -421,6 +441,9 @@ Token *next_token(Lexer *lexer)
     case '"': 
         free(token); // Free the token we created since string() creates its own
         return string(lexer);
+    case '\'':
+        free(token); // Free the token we created since char_literal() creates its own
+        return char_literal(lexer);
     case '\n':
     case '\r':
         advance(lexer);

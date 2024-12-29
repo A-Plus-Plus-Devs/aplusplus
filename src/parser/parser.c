@@ -172,6 +172,7 @@ static ASTNode *parse_statement(Parser *parser)
         case TOKEN_FLOAT_TYPE:
         case TOKEN_STRING_TYPE:
         case TOKEN_BOOL_TYPE:
+        case TOKEN_CHAR_TYPE:
             return parse_var_declaration(parser);
         case TOKEN_PRINT:
             return parse_print(parser);
@@ -413,6 +414,12 @@ static ASTNode *parse_factor(Parser *parser)
     {
         ASTNode *node = create_node(NODE_STRING_LITERAL, NULL, NULL, token->value);
         // printf("Debug: Created string literal node: %s\n", token->value);
+        get_next_token(parser);
+        return node;
+    }
+    else if (token->type == TOKEN_CHAR)
+    {
+        ASTNode *node = create_node(NODE_CHAR_LITERAL, NULL, NULL, token->value);
         get_next_token(parser);
         return node;
     }
