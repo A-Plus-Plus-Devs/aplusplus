@@ -245,6 +245,12 @@ static bool evaluate_bool_expression(ASTNode *node)
             // printf("DEBUG: Comparing %d == %d\n", left, right);
             return left == right;
         }
+        else if (strcmp(node->value, "!=") == 0)
+        {
+            int left = evaluate_expression(node->left);
+            int right = evaluate_expression(node->right);
+            return left != right;
+        }
         else if (strcmp(node->value, "&&") == 0)
         {
             // printf("DEBUG: Processing AND operation\n");
@@ -526,6 +532,8 @@ void interpret(ASTNode *node)
                         strcmp(node->left->value, "<") == 0  ||
                         strcmp(node->left->value, ">=") == 0 ||
                         strcmp(node->left->value, "<=") == 0 ||
+                        strcmp(node->left->value, "&&") == 0 ||
+                        strcmp(node->left->value, "||") == 0 ||
                         strcmp(node->left->value, "!") == 0))
                     {
                         bool result = evaluate_bool_expression(node->left);
