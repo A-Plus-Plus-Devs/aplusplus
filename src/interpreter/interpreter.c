@@ -249,31 +249,22 @@ static bool evaluate_bool_expression(ASTNode *node)
 {
     if (node == NULL)
     {
-        // printf("DEBUG: evaluate_bool_expression received NULL node\n");
         return false;
     }
 
-    // printf("DEBUG: evaluate_bool_expression - node type: %d\n", node->type);
-    if (node->value)
-        // printf("DEBUG: evaluate_bool_expression - node value: %s\n", node->value);
-
     if (node->type == NODE_BINARY_OP)
     {
-        // printf("DEBUG: Processing binary operation: %s\n", node->value);
-        
         // For comparison operators
         if (strcmp(node->value, ">") == 0)
         {
             int left = evaluate_expression(node->left);
             int right = evaluate_expression(node->right);
-            // printf("DEBUG: Comparing %d > %d\n", left, right);
             return left > right;
         }
         else if (strcmp(node->value, "<") == 0)
         {
             int left = evaluate_expression(node->left);
             int right = evaluate_expression(node->right);
-            // printf("DEBUG: Comparing %d < %d\n", left, right);
             return left < right;
         }
         else if (strcmp(node->value, "<=") == 0)
@@ -292,7 +283,6 @@ static bool evaluate_bool_expression(ASTNode *node)
         {
             int left = evaluate_expression(node->left);
             int right = evaluate_expression(node->right);
-            // printf("DEBUG: Comparing %d == %d\n", left, right);
             return left == right;
         }
         else if (strcmp(node->value, "!=") == 0)
@@ -303,61 +293,45 @@ static bool evaluate_bool_expression(ASTNode *node)
         }
         else if (strcmp(node->value, "&&") == 0)
         {
-            // printf("DEBUG: Processing AND operation\n");
             bool left = evaluate_bool_expression(node->left);
-            // printf("DEBUG: Left side of AND is %d\n", left);
             if (!left) return false; // Short circuit
             bool right = evaluate_bool_expression(node->right);
-            // printf("DEBUG: Right side of AND is %d\n", right);
             return right;
         }
         else if (strcmp(node->value, "||") == 0)
         {
-            // printf("DEBUG: Processing OR operation\n");
             bool left = evaluate_bool_expression(node->left);
-            // printf("DEBUG: Left side of OR is %d\n", left);
             if (left) return true; // Short circuit
             bool right = evaluate_bool_expression(node->right);
-            // printf("DEBUG: Right side of OR is %d\n", right);
             return right;
         }
     }
     else if (node->type == NODE_LITERAL)
     {
-        // printf("DEBUG: Processing literal: %s\n", node->value);
         Variable *var = get_variable(node->value);
         if (var)
         {
-            // printf("DEBUG: Found variable %s of type %d\n", node->value, var->type);
             if (var->type == BOOL_TYPE)
             {
                 return var->value.bool_value;
             }
             else if (var->type == INT_TYPE)
             {
-                // printf("DEBUG: Int value is %d\n", var->value.int_value);
                 return var->value.int_value != 0;
             }
             else if (var->type == CHAR_TYPE)
             {
-                // printf("DEBUG: Char value is %c\n", var->value.char_value);
                 return var->value.char_value != '\0';
             }
         }
-        // else
-        // {
-        //     printf("DEBUG: Variable %s not found\n", node->value);
-        // }
     }
     else if (node->type == NODE_INT_LITERAL)
     {
-        // printf("DEBUG: Processing int literal: %s\n", node->value);
         return atoi(node->value) != 0;
     }
 
     // For any other expression, evaluate it and convert to boolean
     int result = evaluate_expression(node);
-    // printf("DEBUG: Evaluated expression result: %d\n", result);
     return result != 0;
 }
 

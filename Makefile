@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -g -I./src -I./src/common
+DEBUG_FLAGS = -DDEBUG
 SRC_DIR = ./src
 OBJ_DIR = ./build/obj
 BIN_DIR = ./build/bin
@@ -16,19 +17,18 @@ $(TARGET): $(OBJS)
 	@mkdir -p $(BIN_DIR)  
 	$(CC) $(CFLAGS) -o $@ $^  
 
-
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEBUG_FLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(DEBUG_FLAGS) -c $< -o $@
 
 # Debug build
 debug:	
 	$(MAKE) clean
-	$(MAKE) all CFLAGS+=-g -DDEBUG
+	$(MAKE) all
 
 # Release build
 release: 

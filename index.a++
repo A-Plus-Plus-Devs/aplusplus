@@ -1,3 +1,97 @@
-for (int i = 0; i < 10; i++) {
-    print(i);
+// Comprehensive test file for A++ language features
+// Each section tests different functionality
+
+// 1. Basic Print Tests
+print("=== Basic Print Tests ===");
+print(42);                  // Integer
+print(3.14);               // Float
+print("Hello, World!");    // String
+print(yup);               // Boolean
+
+// 2. Variable Declaration and Assignment Tests
+print("=== Variable Tests ===");
+int x = 10;
+print(x);
+float y = 20.5;
+print(y);
+string message = "Testing";
+print(message);
+boolean flag = yup;
+print(flag);
+
+// 3. Arithmetic Operations Tests
+print("=== Arithmetic Tests ===");
+int a1 = 15;
+int b1 = 5;
+print(a1 + b1);    // Addition: should print 20
+print(a1 - b1);    // Subtraction: should print 10
+print(a1 * b1);    // Multiplication: should print 75
+print(a1 / b1);    // Division: should print 3
+print(a1 % b1);    // Modulus: should print 0
+print(a1 ** b1);  // Exponentiation: should print 759375
+
+// Order of Operations Tests
+print("=== Order of Operations Tests ===");
+// Basic precedence
+print(2 + 3 * 4);        // Should print 14 (multiplication before addition)
+print(10 - 6 / 2);       // Should print 7 (division before subtraction)
+print(15 / 3 * 2);       // Should print 10 (left to right for same precedence)
+print(20 - 4 - 2);       // Should print 14 (left to right for same precedence)
+
+// Mixed operations
+print(2 * 3 + 4 * 5);    // Should print 26 (multiplications before addition)
+print(10 + 20 / 5 - 3);  // Should print 11 (division before addition/subtraction)
+print(8 * 4 / 2 + 3);    // Should print 19 (multiplication/division before addition)
+
+// Parentheses overriding precedence
+print((2 + 3) * 4);      // Should print 20 (parentheses before multiplication)
+print(10 / (5 - 3));     // Should print 5 (parentheses before division)
+print((15 + 5) / (3 + 1)); // Should print 5 (nested parentheses)
+
+// Complex expressions
+print(2 * (3 + 4) * 5);    // Should print 70 (parentheses, then multiplication)
+print(100 / (5 + 5) * 3);  // Should print 30 (parentheses, then division, then multiplication)
+print((20 + 5 * 2) / 3);   // Should print 10 (multiplication in parentheses, then division)
+
+// Edge cases
+print(0 * 5 + 3);        // Should print 3 (multiplication by zero)
+print(10 / 2 * 0);       // Should print 0 (multiplication by zero after division)
+print(1 + 2 + 3 + 4 + 5); // Should print 15 (multiple additions)
+
+// 4. Loop Tests
+print("=== Loop Tests ===");
+for (int i = 0; i < 5; i++) {
+    print(i);    // Should print 0 through 4
 }
+
+// 5. Conditional Tests
+print("=== Conditional Tests ===");
+if (yup) {
+    print("Condition is yup");
+}
+
+if (10 > 5) {
+    print("10 is greater than 5");
+} else {
+    print("This should not print");
+}
+
+// 6. Comparison Tests
+print("=== Comparison Tests ===");
+print(5 < 10);   // Should print yup
+print(5 > 10);   // Should print nope
+print(5 == 5);   // Should print yup
+print(5 != 10);  // Should print yup
+print(5 >= 5);   // Should print yup
+print(5 <= 4);   // Should print nope
+
+// 7. Logical Operator Tests
+print("=== Logical Operator Tests ===");
+print(yup && yup);     // Should print yup
+print(yup && nope);    // Should print nope
+print(yup || nope);    // Should print yup
+print(!yup);          // Should print nope
+
+
+
+//All tests working
