@@ -16,4 +16,6 @@ a-plus-plus
 /tests/*.out
 /tests/*.o
 
+*/logs
+
 # **/*.a++

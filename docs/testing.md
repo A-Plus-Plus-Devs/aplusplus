@@ -108,7 +108,7 @@ The test runner handles:
 ./run_tests.sh
 
 # View test logs
-cat ./temp/test_log.txt
+cat ./logs/<filname>.log
 ```
 
 ### Test Output Example

@@ -5,7 +5,25 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo "Running A++ Comprehensive Tests..."
+# Create logs directory if it doesn't exist
+mkdir -p logs
+
+# Set up log file with timestamp
+LOG_FILE="logs/test_run_$(date +%Y%m%d_%H%M%S).log"
+
+# Function to log message to both console and file
+log() {
+    echo -e "$1"
+    echo -e "${1//$GREEN/}${1//$RED/}${1//$NC/}" >> "$LOG_FILE"
+}
+
+log "Running A++ Comprehensive Tests..."
+log "Test started at: $(date)"
+log "\nTest Environment:"
+log "----------------"
+log "OS: $(uname -s)"
+log "Compiler Version: $(../build/bin/a++c --version 2>&1 || echo 'Version info not available')"
+log "----------------\n"
 
 # Run the test file
 TEST_OUTPUT=$(../build/bin/a++c comprehensive_test.a++ 2>&1)
@@ -15,10 +33,10 @@ EXIT_CODE=$?
 check_output() {
     local expected="$1"
     if echo "$TEST_OUTPUT" | grep -q "$expected"; then
-        echo -e "${GREEN}✓${NC} Found expected output: $expected"
+        log "${GREEN}✓${NC} Found expected output: $expected"
         return 0
     else
-        echo -e "${RED}✗${NC} Missing expected output: $expected"
+        log "${RED}✗${NC} Missing expected output: $expected"
         return 1
     fi
 }
@@ -78,23 +96,43 @@ EXPECTED_OUTPUTS=(
 
 # Run the checks
 FAILED=0
+TOTAL=0
+PASSED=0
+
+log "\nRunning Test Cases:"
+log "----------------"
+
 for expected in "${EXPECTED_OUTPUTS[@]}"; do
-    if ! check_output "$expected"; then
+    ((TOTAL++))
+    if check_output "$expected"; then
+        ((PASSED++))
+    else
         FAILED=1
     fi
 done
 
 # Print full output for reference
-echo -e "\nFull test output:"
-echo "----------------"
-echo "$TEST_OUTPUT"
-echo "----------------"
+log "\nFull test output:"
+log "----------------"
+log "$TEST_OUTPUT"
+log "----------------"
+
+# Test Summary
+log "\nTest Summary:"
+log "----------------"
+log "Total Tests: $TOTAL"
+log "Passed: $PASSED"
+log "Failed: $((TOTAL-PASSED))"
+log "Success Rate: $(( (PASSED * 100) / TOTAL ))%"
+log "Time Completed: $(date)"
 
 # Final result
 if [ $FAILED -eq 0 ] && [ $EXIT_CODE -eq 0 ]; then
-    echo -e "\n${GREEN}All tests passed!${NC}"
+    log "\n${GREEN}All tests passed!${NC}"
+    log "\nLog file created at: $LOG_FILE"
     exit 0
 else
-    echo -e "\n${RED}Some tests failed!${NC}"
+    log "\n${RED}Some tests failed!${NC}"
+    log "\nLog file created at: $LOG_FILE"
     exit 1
 fi
