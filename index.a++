@@ -17,7 +17,7 @@ print(y);
 string message = "Testing";
 print(message);
 boolean flag = yup;
-print(flag);
+print(flag); 
 
 // 3. Arithmetic Operations Tests
 print("=== Arithmetic Tests ===");
