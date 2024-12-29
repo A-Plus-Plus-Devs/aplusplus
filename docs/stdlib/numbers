@@ -1,0 +1,30 @@
+<program>       ::= <statement_list>
+
+<statement_list> ::= <statement> ";" <statement_list>
+                  |  ε
+
+<statement>     ::= <assignment>
+                  |  <number_operation>
+
+<assignment>    ::= IDENTIFIER "=" <expression>
+
+<number_operation> ::= IDENTIFIER "." <number_method> "(" <arguments> ")"
+
+<number_method> ::= "abs"
+                  | "round"
+                  | "floor"
+                  | "ceil"
+                  | "sqrt"
+                  | "pow"
+                  | "sin"
+                  | "cos"
+                  | "tan"
+                  | "log"
+                  | "exp"
+
+<arguments>     ::= <expression> ("," <expression>)*
+                  |  ε
+
+<expression>    ::= NUMBER
+                  |  IDENTIFIER
+                  |  <number_operation>

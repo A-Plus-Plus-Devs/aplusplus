@@ -1,0 +1,6 @@
+float x = 3.14;
+int y = 2;
+float z = x + y;  // Should be 5.14
+int w = x + y;    // Should be 5 (with warning)
+print(z);
+print(w);

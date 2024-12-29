@@ -1,0 +1,25 @@
+<program>       ::= <statement_list>
+
+<statement_list> ::= <statement> ";" <statement_list>
+                  |  ε
+
+<statement>     ::= <assignment>
+                  |  <string_operation>
+
+<assignment>    ::= IDENTIFIER "=" <expression>
+
+<string_operation> ::= IDENTIFIER "." <string_method> "(" <arguments> ")"
+
+<string_method> ::= "length"
+                  | "concat"
+                  | "substring"
+                  | "indexOf"
+                  | "toUpperCase"
+                  | "toLowerCase"
+
+<arguments>     ::= <expression> ("," <expression>)*
+                  |  ε
+
+<expression>    ::= STRING_LITERAL
+                  |  IDENTIFIER
+                  |  <string_operation>
