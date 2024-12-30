@@ -31,7 +31,6 @@ export default defineConfig({
         {
           text: 'Core Concepts',
           items: [
-            { text: 'Variables and Types', link: '/guide/variables-and-types' },
             { text: 'Control Flow', link: '/guide/control-flow' }
           ]
         },
@@ -39,18 +38,13 @@ export default defineConfig({
           text: 'Language Reference',
           items: [
             { text: 'Syntax', link: '/reference/syntax' },
-            { text: 'Types', link: '/reference/types' },
-            { text: 'Operators', link: '/reference/operators' },
-            { text: 'Keywords', link: '/reference/keywords' },
-            { text: 'Built-in Functions', link: '/reference/built-ins' }
+            { text: 'Language Basics', link: '/reference/language-basics' },
           ]
         },
         {
           text: 'Examples',
           items: [
             { text: 'Hello World', link: '/examples/hello-world' },
-            { text: 'Basic Calculator', link: '/examples/calculator' },
-            { text: 'File Handling', link: '/examples/file-handling' }
           ]
         },
         {
