@@ -5,7 +5,12 @@ export default defineConfig({
   description: "A modern, expressive, and easy-to-learn programming language",
   srcDir: '.',
   outDir: './.vitepress/dist',
+  base: '/aplusplus/',
   cleanUrls: true,
+  head: [
+    ['link', { rel: 'icon', href: '/aplusplus/logo.svg' }],
+    ['meta', { name: 'theme-color', content: '#646cff' }]
+  ],
   themeConfig: {
     logo: '/logo.svg',
     nav: [

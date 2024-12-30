@@ -38,6 +38,11 @@ jobs:
           cd docs
           npm run build
           
+      - name: Prepare Deployment
+        run: |
+          cd docs
+          cp .nojekyll .vitepress/dist/
+          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:

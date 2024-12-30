@@ -1,0 +1,41 @@
+/* .vitepress/theme/custom.css */
+
+:root {
+  --vp-c-brand: #646cff;
+  --vp-c-brand-light: #747bff;
+  --vp-c-brand-lighter: #9499ff;
+  --vp-c-brand-dark: #535bf2;
+  --vp-c-brand-darker: #454ce1;
+}
+
+.VPHero .name {
+  background: -webkit-linear-gradient(315deg, #42d392 25%, #647eff);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.VPHero .text {
+  color: var(--vp-c-text-1);
+}
+
+.VPHero .tagline {
+  color: var(--vp-c-text-2);
+}
+
+.VPFeatures .box {
+  background-color: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: border-color 0.25s, background-color 0.25s;
+}
+
+.VPFeatures .box:hover {
+  border-color: var(--vp-c-brand);
+  background-color: var(--vp-c-bg-soft-up);
+}
+
+.main {
+  padding: 32px 24px;
+}
