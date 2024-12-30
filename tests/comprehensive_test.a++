@@ -1,5 +1,6 @@
 // Comprehensive test file for A++ language features
 // Each section tests different functionality
+// Author: Paul Kabulu
 
 // 1. Basic Print Tests
 print("=== Basic Print Tests ===");

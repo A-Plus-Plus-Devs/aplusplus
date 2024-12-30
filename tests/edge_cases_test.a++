@@ -1,9 +1,13 @@
 // Edge Cases and Additional Feature Tests for A++
+// Each section tests different functionality in extreme cases
+// Author: Paul Kabulu
 
 /*
  * There are currently some errors that need to be checked, however, most edge cases have passed the tests... just 3 erros logged, 
- they arent that detailed, so I cant really tell whats causing them
+ * they arent that detailed, so I cant really tell whats causing them - but all in all, the edge cases are working as intended
 */
+
+
 
 // 1. Variable Declaration Edge Cases
 print("=== Variable Declaration Edge Cases ===");

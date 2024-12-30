@@ -1,14 +1,14 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: "A++ Programming Language",
+  title: "A++",
   description: "A modern, expressive, and easy-to-learn programming language",
   srcDir: '.',
   outDir: './.vitepress/dist',
-  base: '/aplusplus/',
+  base: '/',
   cleanUrls: true,
   head: [
-    ['link', { rel: 'icon', href: '/aplusplus/logo.svg' }],
+    ['link', { rel: 'icon', href: '/logo.svg' }],
     ['meta', { name: 'theme-color', content: '#646cff' }]
   ],
   themeConfig: {
@@ -20,11 +20,10 @@ export default defineConfig({
       { text: 'GitHub', link: 'https://github.com/A-Plus-Plus-Devs/aplusplus' }
     ],
     sidebar: {
-      '/guide/': [
+      '/': [
         {
-          text: 'Introduction',
+          text: 'Getting Started',
           items: [
-            { text: 'Getting Started', link: '/guide/getting-started' },
             { text: 'Installation', link: '/guide/installation' },
             { text: 'First Program', link: '/guide/first-program' }
           ]
@@ -32,14 +31,10 @@ export default defineConfig({
         {
           text: 'Core Concepts',
           items: [
-            { text: 'Variables & Types', link: '/guide/variables-types' },
-            { text: 'Control Flow', link: '/guide/control-flow' },
-            { text: 'Functions', link: '/guide/functions' },
-            { text: 'Error Handling', link: '/guide/error-handling' }
+            { text: 'Variables and Types', link: '/guide/variables-and-types' },
+            { text: 'Control Flow', link: '/guide/control-flow' }
           ]
-        }
-      ],
-      '/reference/': [
+        },
         {
           text: 'Language Reference',
           items: [
@@ -49,6 +44,22 @@ export default defineConfig({
             { text: 'Keywords', link: '/reference/keywords' },
             { text: 'Built-in Functions', link: '/reference/built-ins' }
           ]
+        },
+        {
+          text: 'Examples',
+          items: [
+            { text: 'Hello World', link: '/examples/hello-world' },
+            { text: 'Basic Calculator', link: '/examples/calculator' },
+            { text: 'File Handling', link: '/examples/file-handling' }
+          ]
+        },
+        {
+          text: 'Advanced Topics',
+          items: [
+            { text: 'Classes', link: '/guide/classes' },
+            { text: 'Error Handling', link: '/guide/error-handling' },
+            { text: 'Testing', link: '/guide/testing' }
+          ]
         }
       ]
     },
@@ -57,7 +68,7 @@ export default defineConfig({
     ],
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright 2024-present A++ Team'
+      copyright: 'Copyright 2024 A++ Team'
     }
   }
 })

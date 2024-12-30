@@ -1,18 +1,17 @@
 /* .vitepress/theme/custom.css */
 
 :root {
-  --vp-c-brand: #646cff;
-  --vp-c-brand-light: #747bff;
-  --vp-c-brand-lighter: #9499ff;
-  --vp-c-brand-dark: #535bf2;
-  --vp-c-brand-darker: #454ce1;
+  --vp-c-brand: #719ace;
+  --vp-c-brand-light: #245696;
+  --vp-c-brand-lighter: #173d75;
+  --vp-c-brand-dark: #245696;
+  --vp-c-brand-darker: #173d75;
 }
 
+/* Hero section styling - simple and clean */
 .VPHero .name {
-  background: -webkit-linear-gradient(315deg, #42d392 25%, #647eff);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--vp-c-brand);
+  font-weight: 700;
 }
 
 .VPHero .text {
@@ -20,20 +19,68 @@
 }
 
 .VPHero .tagline {
+  font-size: 1.2em;
   color: var(--vp-c-text-2);
 }
 
-.VPFeatures .box {
-  background-color: var(--vp-c-bg-soft);
-  border: 1px solid var(--vp-c-border);
-  border-radius: 12px;
-  padding: 24px;
-  transition: border-color 0.25s, background-color 0.25s;
+/* Sidebar styling */
+.VPSidebar {
+  border-right: 1px solid var(--vp-c-divider);
 }
 
-.VPFeatures .box:hover {
+.VPSidebarItem.level-1 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.VPSidebarItem.level-2 {
+  padding-left: 1rem;
+}
+
+/* Link hover effects */
+.VPLink:hover {
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+/* Feature sections */
+.VPFeature {
+  background-color: var(--vp-c-bg-soft);
+  border-radius: 12px;
+  padding: 24px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.VPFeature:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Code blocks */
+.vp-doc div[class*='language-'] {
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+/* Custom button styling */
+.VPButton {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.VPButton.medium {
+  padding: 8px 16px;
+}
+
+.VPButton.brand {
   border-color: var(--vp-c-brand);
-  background-color: var(--vp-c-bg-soft-up);
+  color: var(--vp-c-brand);
+}
+
+.VPButton.brand:hover {
+  background-color: var(--vp-c-brand);
+  color: white;
 }
 
 .main {
