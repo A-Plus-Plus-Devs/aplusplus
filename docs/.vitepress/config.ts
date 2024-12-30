@@ -3,6 +3,9 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "A++ Programming Language",
   description: "A modern, expressive, and easy-to-learn programming language",
+  srcDir: '.',
+  outDir: './.vitepress/dist',
+  cleanUrls: true,
   themeConfig: {
     logo: '/logo.svg',
     nav: [
@@ -49,7 +52,7 @@ export default defineConfig({
     ],
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2024-present A++ Team'
+      copyright: 'Copyright 2024-present A++ Team'
     }
   }
 })
