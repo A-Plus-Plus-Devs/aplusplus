@@ -42,6 +42,13 @@ export default defineConfig({
           ]
         },
         {
+          text: 'Development',
+          items: [
+            { text: 'Version Management', link: '/guide/versioning' },
+            { text: 'Testing', link: '/guide/testing' },
+          ]
+        },
+        {
           text: 'Examples',
           items: [
             { text: 'Hello World', link: '/examples/hello-world' },
@@ -52,7 +59,6 @@ export default defineConfig({
           items: [
             { text: 'Classes', link: '/guide/classes' },
             { text: 'Error Handling', link: '/guide/error-handling' },
-            { text: 'Testing', link: '/guide/testing' }
           ]
         }
       ]

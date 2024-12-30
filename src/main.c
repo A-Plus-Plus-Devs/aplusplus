@@ -4,6 +4,7 @@
 #include "lexer/lexer.h"           // This includes our custom lexer code
 #include "parser/parser.h"         // This includes our custom parser code
 #include "interpreter/interpreter.h" // This includes our custom interpreter code
+#include "common/version.h"        // This includes version information
 
 /**
  * @brief Prints the usage instructions for the A++ compiler.
@@ -12,9 +13,21 @@
  */
 void print_usage()
 {
-    // This function prints instructions on how to use the program
+    printf("A++ Programming Language %s\n\n", A_PLUS_PLUS_VERSION_STRING);
+    printf("Usage: a++ [options] <source_file>.a++\n\n");
+    printf("Options:\n");
+    printf("  --version     Display version information\n");
+    printf("  --help        Display this help message\n");
+}
 
-    printf("Usage: ./build/bin/a++c <source_file>.a++\n");
+/**
+ * @brief Prints version information for the A++ compiler.
+ */
+void print_version()
+{
+    printf("A++ Programming Language %s\n", A_PLUS_PLUS_VERSION_STRING);
+    printf("Copyright (c) 2024 Paul Kabulu\n");
+    printf("Released under the MIT License\n");
 }
 
 /**
@@ -102,26 +115,34 @@ void run_file(const char *filename)
  */
 int main(int argc, char *argv[])
 {
-    // This is the main function, the entry point of the program
-    if (argc != 2)
+    if (argc < 2)
     {
-        // If the wrong number of arguments is provided, print usage instructions and exit
         print_usage();
         return 1;
     }
 
-    const char *filename = argv[1];           // Get the filename from the command line argument
-    const char *ext = strrchr(filename, '.'); // Get the file extension
-
-    if (!ext || strcmp(ext, ".a++") != 0)
+    // Check for --version flag
+    if (strcmp(argv[1], "--version") == 0)
     {
-        // If the file doesn't have a .a++ extension, print an error message and exit
-        printf("Error: Input file must have a .a++ extension.\n");
+        print_version();
+        return 0;
+    }
+
+    // Check for --help flag
+    if (strcmp(argv[1], "--help") == 0)
+    {
+        print_usage();
+        return 0;
+    }
+
+    // Check if the file has the correct extension
+    const char *filename = argv[1];
+    if (strlen(filename) < 5 || strcmp(filename + strlen(filename) - 4, ".a++") != 0)
+    {
+        printf("Error: File must have .a++ extension\n");
         return 1;
     }
 
-    // Run the compiler on the provided file
     run_file(filename);
-
-    return 0; // Return 0 to indicate successful execution
+    return 0;
 }
