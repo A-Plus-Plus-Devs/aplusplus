@@ -25,14 +25,6 @@ int age = 25;
 string name = "Alice";
 boolean isValid = yup;
 
-// Functions
-int calculate_sum(int a, int b) {
-    return a + b;
-}
-
-// Using the function
-int result = calculate_sum(10, 20);
-print(result);  // Outputs: 30
 ```
 
 ## Next Steps

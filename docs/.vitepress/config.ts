@@ -54,13 +54,13 @@ export default defineConfig({
             { text: 'Hello World', link: '/examples/hello-world' },
           ]
         },
-        {
-          text: 'Advanced Topics',
-          items: [
-            { text: 'Classes', link: '/guide/classes' },
-            { text: 'Error Handling', link: '/guide/error-handling' },
-          ]
-        }
+        // {
+        //   text: 'Advanced Topics',
+        //   items: [
+        //     { text: 'Classes', link: '/guide/classes' },
+        //     { text: 'Error Handling', link: '/guide/error-handling' },
+        //   ]
+        // }
       ]
     },
     socialLinks: [

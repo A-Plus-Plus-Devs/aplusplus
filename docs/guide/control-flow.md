@@ -16,7 +16,7 @@ if (condition) {
 }
 ```
 
-### Switch Statement
+<!-- ### Switch Statement
 
 ```a++
 switch (value) {
@@ -29,7 +29,7 @@ switch (value) {
     default:
         print("Other");
 }
-```
+``` -->
 
 ## Loops
 
@@ -40,14 +40,8 @@ switch (value) {
 for (int i = 0; i < 5; i++) {
     print(i);
 }
-
-// For-each loop with arrays
-array<string> names = ["Alice", "Bob", "Charlie"];
-for (string name in names) {
-    print(name);
-}
 ```
-
+<!-- 
 ### While Loop
 
 ```a++
@@ -60,7 +54,7 @@ while (condition) {
 do {
     // code
 } while (condition);
-```
+``` -->
 
 ## Control Statements
 
@@ -76,7 +70,7 @@ for (int i = 0; i < 10; i++) {
     print(i);
 }
 ```
-
+<!-- 
 ### Continue
 
 Skip to the next iteration:
@@ -88,9 +82,9 @@ for (int i = 0; i < 5; i++) {
     }
     print(i);
 }
-```
+``` -->
 
-### Return
+<!-- ### Return
 
 Exit a function and optionally return a value:
 
@@ -101,9 +95,9 @@ int findMax(int a, int b) {
     }
     return b;
 }
-```
+``` -->
 
-## Pattern Matching
+<!-- ## Pattern Matching
 
 A++ supports modern pattern matching:
 
@@ -120,9 +114,9 @@ match (obj) {
     case int n -> print("Number: " + n);
     case _ -> print("Unknown type");
 }
-```
+``` -->
 
-## Error Handling
+<!-- ## Error Handling
 
 ### Try-Catch Blocks
 
@@ -137,7 +131,7 @@ try {
     // Always executed
     cleanup();
 }
-```
+``` -->
 
 ## Best Practices
 
@@ -175,7 +169,7 @@ if (!condition3) return;
 // code
 ```
 
-3. **Use Switch for Multiple Conditions**
+<!-- 3. **Use Switch for Multiple Conditions**
 ```a++
 // Bad
 if (value == 1) {
@@ -192,8 +186,8 @@ switch (value) {
     case 2: // code; break;
     case 3: // code; break;
 }
-```
-
+``` -->
+<!-- 
 ## Examples
 
 ### Menu System
@@ -220,9 +214,9 @@ while (running) {
             print("Invalid option");
     }
 }
-```
+``` -->
 
-### Data Processing
+<!-- ### Data Processing
 ```a++
 array<int> numbers = [1, 2, 3, 4, 5];
 array<int> evenNumbers = [];
@@ -232,7 +226,7 @@ for (int num in numbers) {
         evenNumbers.push(num);
     }
 }
-```
+``` -->
 
 ## Next Steps
 
