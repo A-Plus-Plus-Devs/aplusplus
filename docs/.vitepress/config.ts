@@ -5,7 +5,7 @@ export default defineConfig({
   description: "A modern, expressive, and easy-to-learn programming language",
   srcDir: '.',
   outDir: './.vitepress/dist',
-  base: '/',
+  base: '/aplusplus',
   cleanUrls: true,
   head: [
     ['link', { rel: 'icon', href: '/logo.svg' }],
