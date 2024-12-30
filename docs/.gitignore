@@ -4,6 +4,14 @@
 *.out
 *.exe
 
+.npm
+
+# Build output
+.vitepress/dist/
+dist/
+cache/
+
+
 # Ignore editor/IDE files
 .vscode/
 *.swp
