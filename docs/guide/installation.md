@@ -58,12 +58,12 @@ a++ --version
 # Test version manager
 a++version current
 ```
-
+<!-- 
 #### Linux (Ubuntu/Debian)
 ```bash
 sudo apt-get update
 sudo apt-get install aplusplus
-```
+``` -->
 
 ## Running A++ Programs
 

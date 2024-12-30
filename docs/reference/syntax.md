@@ -5,14 +5,14 @@ This page provides a comprehensive reference for A++ syntax.
 ## Basic Syntax
 
 ### Comments
-```cpp
+```a++
 // Single line comment
 /* Multi-line
    comment */
 ```
 
 ### Variables
-```cpp
+```a++
 int number = 42;
 float pi = 3.14159;
 string message = "Hello";
@@ -53,7 +53,7 @@ boolean flag = yup;  // A++ uses yup/nope for booleans
 ## Control Structures
 
 ### If Statement
-```cpp
+```a++
 if (condition) {
     // code
 } else if (another_condition) {
@@ -64,20 +64,15 @@ if (condition) {
 ```
 
 ### Loops
-```cpp
+```a++
 // For loop
 for (int i = 0; i < 10; i++) {
-    // code
-}
-
-// While loop
-while (condition) {
     // code
 }
 ```
 
 ## Functions
-```cpp
+```a++
 // Function declaration
 return_type function_name(parameter_type parameter) {
     // function body
@@ -91,7 +86,7 @@ int add(int a, int b) {
 ```
 
 ## Error Handling
-```cpp
+```a++
 try {
     // code that might throw an error
 } catch (error) {

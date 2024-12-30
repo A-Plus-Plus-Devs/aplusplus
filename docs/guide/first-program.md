@@ -6,7 +6,7 @@ Let's write your first A++ program and understand the basics of the language.
 
 Create a new file called `hello.a++`:
 
-```cpp
+```a++
 // This is your first A++ program
 print("Hello, World!");
 ```
@@ -28,9 +28,9 @@ Let's break down what's happening:
 
 Let's write a program that demonstrates more features:
 
-```cpp
+```a++
 // Input/Output example
-string name = input("What's your name? ");
+string name = "Name";
 print("Hello, " + name + "!");
 
 // Variables and arithmetic
@@ -72,17 +72,17 @@ a++ --debug yourprogram.a++
 # With optimization
 a++ --optimize yourprogram.a++
 ```
-
+<!-- 
 ### IDE Integration
 If you're using VS Code with the A++ extension:
 1. Open your `.a++` file
 2. Press F5 to run
-3. Use the integrated terminal for input/output
+3. Use the integrated terminal for input/output -->
 
 ## Common Beginner Mistakes
 
 1. Forgetting semicolons
-```cpp
+```a++
 // Wrong
 print("Hello")
 
@@ -91,7 +91,7 @@ print("Hello");
 ```
 
 2. Using wrong boolean values
-```cpp
+```a++
 // Wrong
 boolean flag = true;
 
@@ -99,14 +99,14 @@ boolean flag = true;
 boolean flag = yup;  // A++ uses yup/nope
 ```
 
-3. Incorrect string concatenation
-```cpp
+<!-- 3. Incorrect string concatenation
+```a++
 // Wrong
 print(5 + " is a number");
 
 // Correct
 print(toString(5) + " is a number");
-```
+``` -->
 
 ## Next Steps
 

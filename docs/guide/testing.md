@@ -18,10 +18,10 @@ The A++ testing suite includes several key test files:
 
 #### 1. Basic Operations
 ```a++
-print 42;         // Integer printing
-print 3.14;       // Float printing
-print "Hello";    // String printing
-print yup;        // Boolean printing
+yap(42);         // Integer printing
+yap(3.14);       // Float printing
+yap("Hello");    // String printing
+yap(yup);        // Boolean printing
 ```
 
 #### 2. Variable Operations
@@ -34,23 +34,23 @@ bool flag = yup;
 
 #### 3. Arithmetic Tests
 ```a++
-print 1 + 1;      // Addition
-print 5 - 3;      // Subtraction
-print 4 * 2;      // Multiplication
-print 8 / 2;      // Division
-print 7 % 3;      // Modulus
+echo(1 + 1);      // Addition
+echo(5 - 3);      // Subtraction
+echo(4 * 2);      // Multiplication
+echo(8 / 2);      // Division
+echo(7 % 3);      // Modulus
 ```
 
 #### 4. Control Flow
 ```a++
 if (x > 0) {
-    print "Positive";
+    print("Positive";)
 } else {
-    print "Non-positive";
+    print("Non-positive");
 }
 
 for (num i = 0; i < 5; i = i + 1) {
-    print i;
+    print(i);
 }
 ```
 
@@ -95,10 +95,10 @@ Red X Variable Operations
 // Test case 1: Addition
 num a = 5;
 num b = 3;
-print a + b;  // Expected: 8
+print(a + b);  // Expected: 8
 
 // Test case 2: Multiplication
-print a * b;  // Expected: 15
+print(a * b);  // Expected: 15
 ```
 
 ### Best Practices

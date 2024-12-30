@@ -16,9 +16,9 @@ A++ is a modern programming language that combines simplicity with power. It fea
 
 Here's a simple A++ program:
 
-```cpp
+```a++
 // Hello World in A++
-print("Hello, World!");
+yap("Hello, World!");
 
 // Variables and types
 int age = 25;

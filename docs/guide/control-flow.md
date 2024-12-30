@@ -6,7 +6,7 @@ Control flow structures in A++ help you control the execution path of your progr
 
 ### If-Else Statement
 
-```cpp
+```a++
 if (condition) {
     // code when condition is yup
 } else if (another_condition) {
@@ -18,7 +18,7 @@ if (condition) {
 
 ### Switch Statement
 
-```cpp
+```a++
 switch (value) {
     case 1:
         print("One");
@@ -35,7 +35,7 @@ switch (value) {
 
 ### For Loop
 
-```cpp
+```a++
 // Basic for loop
 for (int i = 0; i < 5; i++) {
     print(i);
@@ -50,7 +50,7 @@ for (string name in names) {
 
 ### While Loop
 
-```cpp
+```a++
 // While loop
 while (condition) {
     // code
@@ -68,7 +68,7 @@ do {
 
 Exit a loop early:
 
-```cpp
+```a++
 for (int i = 0; i < 10; i++) {
     if (i == 5) {
         break;  // Exit loop when i is 5
@@ -81,7 +81,7 @@ for (int i = 0; i < 10; i++) {
 
 Skip to the next iteration:
 
-```cpp
+```a++
 for (int i = 0; i < 5; i++) {
     if (i == 2) {
         continue;  // Skip printing 2
@@ -94,7 +94,7 @@ for (int i = 0; i < 5; i++) {
 
 Exit a function and optionally return a value:
 
-```cpp
+```a++
 int findMax(int a, int b) {
     if (a > b) {
         return a;
@@ -107,7 +107,7 @@ int findMax(int a, int b) {
 
 A++ supports modern pattern matching:
 
-```cpp
+```a++
 match (value) {
     case 1 -> print("One");
     case 2 -> print("Two");
@@ -126,7 +126,7 @@ match (obj) {
 
 ### Try-Catch Blocks
 
-```cpp
+```a++
 try {
     // Code that might throw an error
     riskyFunction();
@@ -142,7 +142,7 @@ try {
 ## Best Practices
 
 1. **Keep Conditions Simple**
-```cpp
+```a++
 // Bad
 if (user.age >= 18 && user.hasLicense && !user.isRestricted) {
     // code
@@ -158,7 +158,7 @@ if (canDrive) {
 ```
 
 2. **Avoid Deep Nesting**
-```cpp
+```a++
 // Bad
 if (condition1) {
     if (condition2) {
@@ -176,7 +176,7 @@ if (!condition3) return;
 ```
 
 3. **Use Switch for Multiple Conditions**
-```cpp
+```a++
 // Bad
 if (value == 1) {
     // code
@@ -197,7 +197,7 @@ switch (value) {
 ## Examples
 
 ### Menu System
-```cpp
+```a++
 boolean running = yup;
 while (running) {
     print("1. Start Game");
@@ -223,7 +223,7 @@ while (running) {
 ```
 
 ### Data Processing
-```cpp
+```a++
 array<int> numbers = [1, 2, 3, 4, 5];
 array<int> evenNumbers = [];
 

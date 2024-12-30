@@ -6,7 +6,7 @@ Functions are reusable blocks of code that perform specific tasks. A++ provides 
 
 ### Function Declaration
 
-```cpp
+```a++
 // Basic function
 return_type function_name(parameter_type parameter) {
     // function body
@@ -21,7 +21,7 @@ int add(int a, int b) {
 
 ### Function Types
 
-```cpp
+```a++
 // Void function (no return value)
 void greet(string name) {
     print("Hello, " + name + "!");
@@ -42,7 +42,7 @@ string formatName(string firstName, string lastName) {
 
 ### Default Parameters
 
-```cpp
+```a++
 // Parameters with default values
 void configure(string host = "localhost", int port = 8080) {
     // ...
@@ -56,7 +56,7 @@ configure("example.com", 3000); // Uses all custom values
 
 ### Named Parameters
 
-```cpp
+```a++
 void createUser(string name, int age, boolean isAdmin = nope) {
     // ...
 }
@@ -71,7 +71,7 @@ createUser(
 
 ### Variable Arguments
 
-```cpp
+```a++
 // Function that accepts variable number of arguments
 int sum(...int numbers) {
     int total = 0;
@@ -88,7 +88,7 @@ sum(1, 2, 3, 4, 5); // Returns 15
 
 ## Function Overloading
 
-```cpp
+```a++
 // Same function name, different parameters
 int add(int a, int b) {
     return a + b;
@@ -105,7 +105,7 @@ string add(string a, string b) {
 
 ## Lambda Functions
 
-```cpp
+```a++
 // Anonymous function
 var multiply = (int x, int y) => x * y;
 
@@ -116,7 +116,7 @@ array<int> doubled = numbers.map(n => n * 2);
 
 ## Higher-Order Functions
 
-```cpp
+```a++
 // Function that takes a function as parameter
 void processNumbers(array<int> numbers, function<int, int> processor) {
     for (int n in numbers) {
@@ -131,7 +131,7 @@ processNumbers(nums, n => n * n);  // Prints squares
 
 ## Generators
 
-```cpp
+```a++
 // Generator function
 generator<int> range(int start, int end) {
     for (int i = start; i <= end; i++) {
@@ -147,7 +147,7 @@ for (int num in range(1, 5)) {
 
 ## Error Handling in Functions
 
-```cpp
+```a++
 // Function that might throw an error
 int divide(int a, int b) throws DivisionError {
     if (b == 0) {
@@ -167,7 +167,7 @@ try {
 ## Best Practices
 
 1. **Single Responsibility**
-```cpp
+```a++
 // Bad: Function does too much
 void processUser(User user) {
     validateUser(user);
@@ -182,7 +182,7 @@ void notifyUser(User user) { ... }
 ```
 
 2. **Descriptive Names**
-```cpp
+```a++
 // Bad
 void p(string s) { ... }
 
@@ -191,7 +191,7 @@ void printMessage(string message) { ... }
 ```
 
 3. **Parameter Validation**
-```cpp
+```a++
 int calculateArea(int width, int height) {
     if (width <= 0 || height <= 0) {
         throw new ValueError("Dimensions must be positive");
@@ -201,7 +201,7 @@ int calculateArea(int width, int height) {
 ```
 
 4. **Return Early Pattern**
-```cpp
+```a++
 boolean validateUser(User user) {
     if (!user.name) return nope;
     if (!user.email) return nope;
@@ -213,7 +213,7 @@ boolean validateUser(User user) {
 ## Examples
 
 ### Working with Arrays
-```cpp
+```a++
 // Map function
 array<string> capitalize(array<string> words) {
     return words.map(word => {
@@ -233,7 +233,7 @@ int calculateTotal(array<int> numbers) {
 ```
 
 ### Practical Example: Data Processing
-```cpp
+```a++
 // Define data structure
 struct UserData {
     string name;

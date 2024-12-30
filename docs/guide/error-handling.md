@@ -6,7 +6,7 @@ Error handling is crucial for writing robust and reliable programs. A++ provides
 
 ### Basic Error Handling
 
-```cpp
+```a++
 try {
     // Code that might throw an error
     riskyOperation();
@@ -18,7 +18,7 @@ try {
 
 ### Multiple Catch Blocks
 
-```cpp
+```a++
 try {
     connectToDatabase();
 } catch (ConnectionError e) {
@@ -32,7 +32,7 @@ try {
 
 ### Finally Block
 
-```cpp
+```a++
 file resource = null;
 try {
     resource = openFile("data.txt");
@@ -50,7 +50,7 @@ try {
 
 ### Creating Custom Error Types
 
-```cpp
+```a++
 // Define custom error
 class ValidationError extends Error {
     constructor(message) {
@@ -72,7 +72,7 @@ void validateAge(int age) {
 
 ### Error Hierarchy
 
-```cpp
+```a++
 // Base application error
 class AppError extends Error { }
 
@@ -86,7 +86,7 @@ class ValidationError extends AppError { }
 
 ### Throwing Errors
 
-```cpp
+```a++
 int divide(int a, int b) throws DivisionError {
     if (b == 0) {
         throw new DivisionError("Cannot divide by zero");
@@ -97,7 +97,7 @@ int divide(int a, int b) throws DivisionError {
 
 ### Rethrowing Errors
 
-```cpp
+```a++
 try {
     processData();
 } catch (error) {
@@ -112,7 +112,7 @@ try {
 
 ### 1. Be Specific with Error Types
 
-```cpp
+```a++
 // Bad: Generic error
 throw new Error("Something went wrong");
 
@@ -122,7 +122,7 @@ throw new FileNotFoundError("Config file missing: config.json");
 
 ### 2. Provide Meaningful Error Messages
 
-```cpp
+```a++
 // Bad
 throw new Error("Invalid input");
 
@@ -132,7 +132,7 @@ throw new ValidationError("Username must be between 3 and 20 characters");
 
 ### 3. Clean Up Resources
 
-```cpp
+```a++
 // Using try-finally for cleanup
 database db = null;
 try {
@@ -147,7 +147,7 @@ try {
 
 ### 4. Don't Catch and Ignore
 
-```cpp
+```a++
 // Bad: Swallowing errors
 try {
     riskyOperation();
@@ -168,7 +168,7 @@ try {
 
 ### Async Error Handling
 
-```cpp
+```a++
 async void fetchData() {
     try {
         var response = await api.getData();
@@ -183,7 +183,7 @@ async void fetchData() {
 
 ### Error Chaining
 
-```cpp
+```a++
 try {
     processData();
 } catch (error) {
@@ -193,7 +193,7 @@ try {
 
 ### Custom Error Properties
 
-```cpp
+```a++
 class ApiError extends Error {
     int statusCode;
     string endpoint;
@@ -217,7 +217,7 @@ throw new ApiError(
 
 ### Form Validation
 
-```cpp
+```a++
 class FormValidator {
     void validateUser(User user) throws ValidationError {
         if (user.name.length < 2) {
@@ -249,7 +249,7 @@ class FormValidator {
 
 ### File Processing
 
-```cpp
+```a++
 class FileProcessor {
     void processFile(string path) {
         file file = null;
