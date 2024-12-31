@@ -43,7 +43,8 @@ typedef struct ASTNode
     // Function-specific fields
     char *return_type;           // Return type for functions
     char *function_name;         // Name of the function
-    struct ASTNode *parameters;  // Linked list of parameters
+    struct ASTNode *parameters;  // Linked list of parameters for function definitions
+    struct ASTNode *arguments;   // Linked list of arguments for function calls
     struct ASTNode *body;        // Function body
     struct ASTNode *yield_expr;  // Expression to yield
 

@@ -141,7 +141,8 @@ ASTNode *create_function_call_node(char *function_name, ASTNode *arguments)
     ASTNode *node = (ASTNode *)malloc(sizeof(ASTNode));
     node->type = NODE_FUNCTION_CALL;
     node->function_name = strdup(function_name);
-    node->parameters = arguments;  // Reusing parameters field for arguments
+    node->arguments = arguments;  // Use arguments field for function call arguments
+    node->parameters = NULL;      // Parameters is only for function definitions
     node->left = NULL;
     node->right = NULL;
     node->value = NULL;

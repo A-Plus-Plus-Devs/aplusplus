@@ -322,75 +322,73 @@ static ASTNode *parse_expression(Parser *parser)
            parser->current_token->type,
            parser->current_token->value ? parser->current_token->value : "NULL");
 
-    // Parse the first term
-    ASTNode *left = parse_term(parser);
+    // Start with logical OR, which will go through the entire operator precedence chain
+    ASTNode *left = parse_logical_or(parser);
     if (!left)
     {
         printf("[DEBUG] Failed to parse left term of expression\n");
         return NULL;
     }
 
-    // Keep parsing binary operators as long as we find them
-    while (parser->current_token->type == TOKEN_PLUS ||
-           parser->current_token->type == TOKEN_MINUS ||
-           parser->current_token->type == TOKEN_MULTIPLY ||
-           parser->current_token->type == TOKEN_DIVIDE ||
-           parser->current_token->type == TOKEN_POWER)
+    return left;
+}
+
+// Parse expressions with logical OR (||)
+static ASTNode *parse_logical_or(Parser *parser)
+{
+    ASTNode *left = parse_logical_and(parser);
+
+    while (parser->current_token->type == TOKEN_LOGICAL_OR)
     {
-        TokenType op_type = parser->current_token->type;
-        printf("[DEBUG] Found binary operator: %d\n", op_type);
-        
-        get_next_token(parser); // consume operator
-        
-        ASTNode *right;
-        if (op_type == TOKEN_POWER) {
-            right = parse_power(parser);
-        } else {
-            right = parse_term(parser);
-        }
-        
-        if (!right)
-        {
-            printf("[DEBUG] Failed to parse right term of expression\n");
-            free_ast(left);
-            return NULL;
+        get_next_token(parser); // consume '||'
+        ASTNode *right = parse_logical_and(parser);
+        left = create_node(NODE_BINARY_OP, left, right, "||");
+    }
+
+    return left;
+}
+
+// Parse expressions with logical AND (&&)
+static ASTNode *parse_logical_and(Parser *parser)
+{
+    ASTNode *left = parse_comparison(parser);
+
+    while (parser->current_token->type == TOKEN_LOGICAL_AND)
+    {
+        get_next_token(parser); // consume '&&'
+        ASTNode *right = parse_comparison(parser);
+        left = create_node(NODE_BINARY_OP, left, right, "&&");
+    }
+
+    return left;
+}
+
+// Parse comparison expressions (<, >, ==, etc.)
+static ASTNode *parse_comparison(Parser *parser)
+{
+    ASTNode *left = parse_term(parser);
+
+    while (parser->current_token->type == TOKEN_EQUAL ||
+           parser->current_token->type == TOKEN_NOT_EQUAL ||
+           parser->current_token->type == TOKEN_LESS_THAN ||
+           parser->current_token->type == TOKEN_GREATER_THAN ||
+           parser->current_token->type == TOKEN_LESS_THAN_OR_EQUAL ||
+           parser->current_token->type == TOKEN_GREATER_THAN_OR_EQUAL)
+    {
+        char *op = NULL;
+        switch (parser->current_token->type) {
+            case TOKEN_EQUAL: op = "=="; break;
+            case TOKEN_NOT_EQUAL: op = "!="; break;
+            case TOKEN_LESS_THAN: op = "<"; break;
+            case TOKEN_GREATER_THAN: op = ">"; break;
+            case TOKEN_LESS_THAN_OR_EQUAL: op = "<="; break;
+            case TOKEN_GREATER_THAN_OR_EQUAL: op = ">="; break;
+            default: op = "=="; break;
         }
 
-        // Create binary operation node
-        char *op;
-        switch (op_type)
-        {
-            case TOKEN_PLUS:
-                op = "+";
-                break;
-            case TOKEN_MINUS:
-                op = "-";
-                break;
-            case TOKEN_MULTIPLY:
-                op = "*";
-                break;
-            case TOKEN_DIVIDE:
-                op = "/";
-                break;
-            case TOKEN_POWER:
-                op = "^";
-                break;
-            default:
-                printf("[DEBUG] Error: Unknown operator type: %d\n", op_type);
-                free_ast(left);
-                free_ast(right);
-                return NULL;
-        }
-
-        ASTNode *binary_op = create_node(NODE_BINARY_OP, left, right, op);
-        if (!binary_op)
-        {
-            printf("[DEBUG] Error: Failed to create binary operation node\n");
-            free_ast(left);
-            free_ast(right);
-            return NULL;
-        }
-        left = binary_op;
+        get_next_token(parser);
+        ASTNode *right = parse_term(parser);
+        left = create_node(NODE_BINARY_OP, left, right, op);
     }
 
     return left;
@@ -453,6 +451,11 @@ static ASTNode *parse_term(Parser *parser)
             get_next_token(parser);
             break;
 
+        case TOKEN_BOOL:
+            node = create_node(NODE_BOOL_LITERAL, NULL, NULL, parser->current_token->value);
+            get_next_token(parser);
+            break;
+
         case TOKEN_IDENTIFIER:
             {
                 char *identifier = strdup(parser->current_token->value);
@@ -510,11 +513,13 @@ static ASTNode *parse_term(Parser *parser)
         case TOKEN_LPAREN:
             get_next_token(parser); // consume (
             node = parse_expression(parser);
-            if (!node) {
+            if (!node)
+            {
                 printf("[DEBUG] Error: Failed to parse expression in parentheses\n");
                 return NULL;
             }
-            if (parser->current_token->type != TOKEN_RPAREN) {
+            if (parser->current_token->type != TOKEN_RPAREN)
+            {
                 printf("[DEBUG] Error: Expected closing parenthesis\n");
                 free_ast(node);
                 return NULL;
@@ -529,14 +534,41 @@ static ASTNode *parse_term(Parser *parser)
             return NULL;
     }
 
-    return node;
+    ASTNode *left = node;
+
+    while (parser->current_token->type == TOKEN_MULTIPLY || 
+           parser->current_token->type == TOKEN_DIVIDE ||
+           parser->current_token->type == TOKEN_MODULUS)
+    {
+        Token *op_token = parser->current_token;
+        char *op = NULL;  // Initialize to NULL to fix warning
+        
+        if (op_token->type == TOKEN_MULTIPLY) 
+            op = "*";
+        else if (op_token->type == TOKEN_DIVIDE) 
+            op = "/";
+        else if (op_token->type == TOKEN_MODULUS) 
+            op = "%";
+        
+        if (op == NULL) {  // Safety check
+            printf("Error: Unknown operator\n");
+            return left;
+        }
+        
+        get_next_token(parser);
+        ASTNode *right = parse_power(parser);
+        left = create_node(NODE_BINARY_OP, left, right, op);
+    }
+
+    return left;
 }
 
 static ASTNode *parse_factor(Parser *parser)
 {
     Token *token = parser->current_token;
-    // printf("Debug: Parsing factor, token type: %d, value: %s\n", 
-    //        token->type, token->value ? token->value : "NULL");
+    printf("[DEBUG] Parsing factor, token type: %d, value: '%s'\n", 
+           token->type,
+           token->value ? token->value : "NULL");
 
     if (token->type == TOKEN_NOT)
     {
@@ -560,64 +592,53 @@ static ASTNode *parse_factor(Parser *parser)
     else if (token->type == TOKEN_STRING)
     {
         ASTNode *node = create_node(NODE_STRING_LITERAL, NULL, NULL, token->value);
-        // printf("Debug: Created string literal node: %s\n", token->value);
-        get_next_token(parser);
-        return node;
-    }
-    else if (token->type == TOKEN_CHAR)
-    {
-        ASTNode *node = create_node(NODE_CHAR_LITERAL, NULL, NULL, token->value);
         get_next_token(parser);
         return node;
     }
     else if (token->type == TOKEN_IDENTIFIER)
     {
-        ASTNode *node = create_node(NODE_LITERAL, NULL, NULL, token->value);
-        // printf("Debug: Created identifier node: %s\n", token->value);
-        get_next_token(parser);
-        return node;
+        // Check if it's a function call
+        Token *next_token = peek_next_token(parser->lexer);
+        if (next_token && next_token->type == TOKEN_LPAREN)
+        {
+            return parse_function_call(parser);
+        }
+        else
+        {
+            char *var_name = strdup(token->value);
+            get_next_token(parser);
+            return create_node(NODE_LITERAL, NULL, NULL, var_name);
+        }
     }
     else if (token->type == TOKEN_LPAREN)
     {
-        get_next_token(parser);  // consume '('
+        get_next_token(parser); // consume '('
         ASTNode *expr = parse_expression(parser);
-        
         if (!expr)
         {
             printf("Error: Invalid expression inside parentheses\n");
             return NULL;
         }
-        
+
         if (parser->current_token->type != TOKEN_RPAREN)
         {
             printf("Error: Expected closing parenthesis\n");
+            free_ast(expr);
             return NULL;
         }
-        
-        get_next_token(parser);  // consume ')'
+
+        get_next_token(parser); // consume ')'
         return expr;
     }
     else if (token->type == TOKEN_BOOL)
     {
         ASTNode *node = create_node(NODE_BOOL_LITERAL, NULL, NULL, token->value);
-        // printf("Debug: Created bool literal node: %s\n", token->value);
         get_next_token(parser);
         return node;
     }
 
-    if (token->type == TOKEN_INCREMENT || token->type == TOKEN_DECREMENT)
-    {
-        char *op = token->type == TOKEN_INCREMENT ? "++" : "--";
-        get_next_token(parser);
-        ASTNode *operand = parse_factor(parser);
-        if (!operand) {
-            printf("Error: Expected expression after %s\n", op);
-            return NULL;
-        }
-        return create_node(NODE_BINARY_OP, operand, NULL, op);
-    }
-
-    printf("Error: Unexpected token in factor: %d\n", token->type);
+    printf("[DEBUG] Error: Unexpected token in factor: type %d, value '%s'\n",
+           token->type, token->value ? token->value : "NULL");
     return NULL;
 }
 
