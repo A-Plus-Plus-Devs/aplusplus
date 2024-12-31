@@ -39,7 +39,7 @@ static Variable *get_variable(const char *name);
 static int evaluate_expression(ASTNode *node);
 static bool evaluate_bool_expression(ASTNode *node);
 static double evaluate_float_expression(ASTNode *node);
-static char* evaluate_string_expression(ASTNode *node);
+static char *evaluate_string_expression(ASTNode *node);
 static VariableType get_type_from_string(const char *type_str);
 static void register_function(char *name, char *return_type, ASTNode *parameters, ASTNode *body);
 static Function *find_function(const char *name);
@@ -100,7 +100,7 @@ static Function *find_function(const char *name) {
 }
 
 // Execute a function and return its result as a string
-static char *execute_function(const char *name, ASTNode *arguments) {
+static char* execute_function(const char *name, ASTNode *arguments) {
     Function *func = find_function(name);
     if (!func) {
         printf("Error: Function '%s' not found\n", name);

@@ -523,7 +523,7 @@ static ASTNode *parse_factor(Parser *parser)
             get_next_token(parser);  // consume ')'
             
             // Create function call node
-            ASTNode *node = create_node(NODE_FUNCTION_CALL, args, NULL, identifier);
+            ASTNode *node = create_function_call_node(identifier, args);
             free(identifier);
             return node;
         }
