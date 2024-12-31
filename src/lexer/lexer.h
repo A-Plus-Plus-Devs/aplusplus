@@ -154,4 +154,7 @@ char peek_char(Lexer *lexer);
  */
 Token *next_token(Lexer *lexer);
 
+// Get the next token without advancing the lexer
+Token *peek_next_token(Lexer *lexer);
+
 #endif // LEXER_H

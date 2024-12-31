@@ -575,3 +575,21 @@ Token *next_token(Lexer *lexer)
     advance(lexer);
     return token;
 }
+
+// Get the next token without advancing the lexer's state
+Token *peek_next_token(Lexer *lexer) {
+    // Save current lexer state
+    size_t saved_position = lexer->position;
+    size_t saved_read_position = lexer->read_position;
+    char saved_current_char = lexer->current_char;
+    
+    // Get next token
+    Token *token = next_token(lexer);
+    
+    // Restore lexer state
+    lexer->position = saved_position;
+    lexer->read_position = saved_read_position;
+    lexer->current_char = saved_current_char;
+    
+    return token;
+}
