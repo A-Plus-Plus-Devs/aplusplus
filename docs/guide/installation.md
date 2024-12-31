@@ -72,12 +72,6 @@ Now you can run A++ files from any directory:
 ```bash
 # Run a file
 a++ your_program.a++
-
-# Run with specific options
-a++ -o output_file your_program.a++
-
-# Run multiple files
-a++ file1.a++ file2.a++
 ```
 
 ## Troubleshooting

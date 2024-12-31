@@ -6,7 +6,7 @@ Let's write your first A++ program and understand the basics of the language.
 
 Create a new file called `hello.a++`:
 
-```a++
+```c
 // This is your first A++ program
 print("Hello, World!");
 ```
@@ -28,7 +28,7 @@ Let's break down what's happening:
 
 Let's write a program that demonstrates more features:
 
-```a++
+```c
 // Input/Output example
 string name = "Name";
 print("Hello, " + name + "!");
@@ -44,14 +44,6 @@ if (age >= 18) {
     print("You are a minor!");
 }
 
-// Functions
-int square(int x) {
-    return x * x;
-}
-
-// Using our function
-int result = square(5);
-print("5 squared is: " + result);
 
 // Loops
 for (int i = 1; i <= 5; i++) {
@@ -65,24 +57,12 @@ for (int i = 1; i <= 5; i++) {
 ```bash
 # Basic execution
 a++ yourprogram.a++
-
-# With debug information
-a++ --debug yourprogram.a++
-
-# With optimization
-a++ --optimize yourprogram.a++
 ```
-<!-- 
-### IDE Integration
-If you're using VS Code with the A++ extension:
-1. Open your `.a++` file
-2. Press F5 to run
-3. Use the integrated terminal for input/output -->
 
 ## Common Beginner Mistakes
 
 1. Forgetting semicolons
-```a++
+```c
 // Wrong
 print("Hello")
 
@@ -91,22 +71,13 @@ print("Hello");
 ```
 
 2. Using wrong boolean values
-```a++
+```c
 // Wrong
 boolean flag = true;
 
 // Correct
 boolean flag = yup;  // A++ uses yup/nope
 ```
-
-<!-- 3. Incorrect string concatenation
-```a++
-// Wrong
-print(5 + " is a number");
-
-// Correct
-print(toString(5) + " is a number");
-``` -->
 
 ## Next Steps
 

@@ -8,15 +8,13 @@ A++ is a modern programming language that combines simplicity with power. It fea
 
 - Clean, readable syntax
 - Strong type system
-- Modern control structures
-- Built-in error handling
 - Efficient memory management
 
 ## Quick Example
 
 Here's a simple A++ program:
 
-```a++
+```c
 // Hello World in A++
 yap("Hello, World!");
 

@@ -17,7 +17,7 @@ The A++ testing suite includes several key test files:
 ### Test Categories
 
 #### 1. Basic Operations
-```a++
+```c
 yap(42);         // Integer printing
 yap(3.14);       // Float printing
 yap("Hello");    // String printing
@@ -25,7 +25,7 @@ yap(yup);        // Boolean printing
 ```
 
 #### 2. Variable Operations
-```a++
+```c
 num x = 42;
 float pi = 3.14;
 text greeting = "Hello";
@@ -33,7 +33,7 @@ bool flag = yup;
 ```
 
 #### 3. Arithmetic Tests
-```a++
+```c
 echo(1 + 1);      // Addition
 echo(5 - 3);      // Subtraction
 echo(4 * 2);      // Multiplication
@@ -42,7 +42,7 @@ echo(7 % 3);      // Modulus
 ```
 
 #### 4. Control Flow
-```a++
+```c
 if (x > 0) {
     print("Positive";)
 } else {
@@ -87,7 +87,7 @@ Red X Variable Operations
 ## Writing Tests
 
 ### Test File Structure
-```a++
+```c
 // Test file header
 // Description: Basic arithmetic tests
 // Author: Your Name

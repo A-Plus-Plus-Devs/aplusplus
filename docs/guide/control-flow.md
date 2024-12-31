@@ -6,7 +6,7 @@ Control flow structures in A++ help you control the execution path of your progr
 
 ### If-Else Statement
 
-```a++
+```c
 if (condition) {
     // code when condition is yup
 } else if (another_condition) {
@@ -16,127 +16,21 @@ if (condition) {
 }
 ```
 
-<!-- ### Switch Statement
-
-```a++
-switch (value) {
-    case 1:
-        print("One");
-        break;
-    case 2:
-        print("Two");
-        break;
-    default:
-        print("Other");
-}
-``` -->
-
 ## Loops
 
 ### For Loop
 
-```a++
+```c
 // Basic for loop
 for (int i = 0; i < 5; i++) {
     print(i);
 }
 ```
-<!-- 
-### While Loop
-
-```a++
-// While loop
-while (condition) {
-    // code
-}
-
-// Do-while loop
-do {
-    // code
-} while (condition);
-``` -->
-
-## Control Statements
-
-### Break
-
-Exit a loop early:
-
-```a++
-for (int i = 0; i < 10; i++) {
-    if (i == 5) {
-        break;  // Exit loop when i is 5
-    }
-    print(i);
-}
-```
-<!-- 
-### Continue
-
-Skip to the next iteration:
-
-```a++
-for (int i = 0; i < 5; i++) {
-    if (i == 2) {
-        continue;  // Skip printing 2
-    }
-    print(i);
-}
-``` -->
-
-<!-- ### Return
-
-Exit a function and optionally return a value:
-
-```a++
-int findMax(int a, int b) {
-    if (a > b) {
-        return a;
-    }
-    return b;
-}
-``` -->
-
-<!-- ## Pattern Matching
-
-A++ supports modern pattern matching:
-
-```a++
-match (value) {
-    case 1 -> print("One");
-    case 2 -> print("Two");
-    case _ -> print("Other");
-}
-
-// Pattern matching with types
-match (obj) {
-    case string s -> print("String: " + s);
-    case int n -> print("Number: " + n);
-    case _ -> print("Unknown type");
-}
-``` -->
-
-<!-- ## Error Handling
-
-### Try-Catch Blocks
-
-```a++
-try {
-    // Code that might throw an error
-    riskyFunction();
-} catch (error) {
-    // Handle the error
-    print("An error occurred: " + error.message);
-} finally {
-    // Always executed
-    cleanup();
-}
-``` -->
 
 ## Best Practices
 
 1. **Keep Conditions Simple**
-```a++
+```c
 // Bad
 if (user.age >= 18 && user.hasLicense && !user.isRestricted) {
     // code
@@ -152,7 +46,7 @@ if (canDrive) {
 ```
 
 2. **Avoid Deep Nesting**
-```a++
+```c
 // Bad
 if (condition1) {
     if (condition2) {
@@ -168,65 +62,6 @@ if (!condition2) return;
 if (!condition3) return;
 // code
 ```
-
-<!-- 3. **Use Switch for Multiple Conditions**
-```a++
-// Bad
-if (value == 1) {
-    // code
-} else if (value == 2) {
-    // code
-} else if (value == 3) {
-    // code
-}
-
-// Good
-switch (value) {
-    case 1: // code; break;
-    case 2: // code; break;
-    case 3: // code; break;
-}
-``` -->
-<!-- 
-## Examples
-
-### Menu System
-```a++
-boolean running = yup;
-while (running) {
-    print("1. Start Game");
-    print("2. Settings");
-    print("3. Exit");
-    
-    int choice = parseInt(input("Choose option: "));
-    
-    switch (choice) {
-        case 1:
-            startGame();
-            break;
-        case 2:
-            showSettings();
-            break;
-        case 3:
-            running = nope;
-            break;
-        default:
-            print("Invalid option");
-    }
-}
-``` -->
-
-<!-- ### Data Processing
-```a++
-array<int> numbers = [1, 2, 3, 4, 5];
-array<int> evenNumbers = [];
-
-for (int num in numbers) {
-    if (num % 2 == 0) {
-        evenNumbers.push(num);
-    }
-}
-``` -->
 
 ## Next Steps
 
