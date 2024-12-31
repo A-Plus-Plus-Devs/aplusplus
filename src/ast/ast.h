@@ -22,7 +22,11 @@ typedef enum
     NODE_STRING_LITERAL,
     NODE_BINARY_OP,
     NODE_BOOL_LITERAL,
-    NODE_FOR
+    NODE_FOR,
+    NODE_FUNCTION_DEFINITION,
+    NODE_FUNCTION_PARAMETER,
+    NODE_YIELD_STATEMENT,
+    NODE_FUNCTION_CALL
 } ASTNodeType;
 
 typedef struct ASTNode
@@ -36,6 +40,13 @@ typedef struct ASTNode
     struct ASTNode *else_branch;
     struct ASTNode *elseif_branch;
 
+    // Function-specific fields
+    char *return_type;           // Return type for functions
+    char *function_name;         // Name of the function
+    struct ASTNode *parameters;  // Linked list of parameters
+    struct ASTNode *body;        // Function body
+    struct ASTNode *yield_expr;  // Expression to yield
+
     char *value;
     struct ASTNode *next;
     int int_value;
@@ -43,7 +54,6 @@ typedef struct ASTNode
     struct ASTNode *init;
     struct ASTNode *condition;
     struct ASTNode *increment;
-    struct ASTNode *body;
 } ASTNode;
 
 /**
@@ -93,5 +103,50 @@ void free_ast(ASTNode *node);
  * @return ASTNode* A pointer to the newly created for loop node.
  */
 ASTNode *create_for_node(ASTNode *init, ASTNode *condition, ASTNode *increment, ASTNode *body);
+
+/**
+ * @brief Creates a function definition node.
+ * 
+ * @param return_type The return type of the function.
+ * @param function_name The name of the function.
+ * @param parameters The list of parameters.
+ * @param body The function body.
+ * @return ASTNode* A pointer to the newly created function definition node.
+ */
+ASTNode *create_function_definition_node(char *return_type, char *function_name, ASTNode *parameters, ASTNode *body);
+
+/**
+ * @brief Creates a function parameter node.
+ * 
+ * @param param_type The type of the parameter.
+ * @param param_name The name of the parameter.
+ * @return ASTNode* A pointer to the newly created parameter node.
+ */
+ASTNode *create_function_parameter_node(char *param_type, char *param_name);
+
+/**
+ * @brief Creates a yield statement node.
+ * 
+ * @param expr The expression to yield.
+ * @return ASTNode* A pointer to the newly created yield node.
+ */
+ASTNode *create_yield_node(ASTNode *expr);
+
+/**
+ * @brief Creates a print statement node.
+ * 
+ * @param expr The expression to print.
+ * @return ASTNode* A pointer to the newly created print node.
+ */
+ASTNode *create_print_node(ASTNode *expr);
+
+/**
+ * @brief Creates a function call node.
+ * 
+ * @param function_name The name of the function to call.
+ * @param arguments The list of arguments.
+ * @return ASTNode* A pointer to the newly created function call node.
+ */
+ASTNode *create_function_call_node(char *function_name, ASTNode *arguments);
 
 #endif // AST_H

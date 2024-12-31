@@ -1,1 +1,35 @@
-print(22.1**2);
+// Basic function with no parameters
+#define string sayHello() {
+    yield "Hello, World!";
+}
+
+// Function with parameters
+#define int add(int a, int b) {
+    yield a + b;
+}
+
+// Function with multiple types
+#define float calculateArea(float radius) {
+    yield 3.14159 * radius * radius;
+}
+
+// Function with multiple statements
+#define string getFullName(string firstName, string lastName) {
+    string fullName = firstName + " " + lastName;
+    yield fullName;
+}
+
+// Function with conditional logic
+#define int max(int x, int y) {
+    if (x > y) {
+        yield x;
+    }
+    yield y;
+}
+
+// Testing the functions
+print(sayHello());                  // Prints: Hello, World!
+print(add(5, 3));                  // Prints: 8
+print(calculateArea(2.5));         // Prints: 19.634938
+print(getFullName("John", "Doe")); // Prints: John Doe
+print(max(10, 20));               // Prints: 20

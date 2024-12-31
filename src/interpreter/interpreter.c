@@ -8,6 +8,7 @@
 
 // This defines the maximum number of variables our program can handle
 #define MAX_VARIABLES 100
+#define MAX_FUNCTIONS 100
 
 // This structure represents a variable in our program
 typedef struct
@@ -24,16 +25,179 @@ typedef struct
     } value;
 } Variable;
 
-// This array stores all the variables in our program
-static Variable variables[MAX_VARIABLES];
-// This keeps track of how many variables we've created
-static int variable_count = 0;
+// Function definition structure
+typedef struct {
+    char *name;
+    char *return_type;
+    ASTNode *parameters;
+    ASTNode *body;
+} Function;
 
-// Add these declarations at the top of the file, after the includes and before any functions
+// Forward declarations
+static void set_variable(const char *name, VariableType type, void *value);
+static Variable *get_variable(const char *name);
 static int evaluate_expression(ASTNode *node);
 static bool evaluate_bool_expression(ASTNode *node);
 static double evaluate_float_expression(ASTNode *node);
 static char* evaluate_string_expression(ASTNode *node);
+static VariableType get_type_from_string(const char *type_str);
+static void register_function(char *name, char *return_type, ASTNode *parameters, ASTNode *body);
+static Function *find_function(const char *name);
+static char *execute_function(const char *name, ASTNode *arguments);
+
+// Global variables
+static Function functions[MAX_FUNCTIONS];
+static int function_count = 0;
+static Variable variables[MAX_VARIABLES];
+static int variable_count = 0;
+
+// Helper function to convert type string to VariableType
+static VariableType get_type_from_string(const char *type_str) {
+    if (strcmp(type_str, "int") == 0) {
+        return INT_TYPE;
+    } else if (strcmp(type_str, "float") == 0) {
+        return FLOAT_TYPE;
+    } else if (strcmp(type_str, "string") == 0) {
+        return STRING_TYPE;
+    } else if (strcmp(type_str, "boolean") == 0) {
+        return BOOL_TYPE;
+    } else if (strcmp(type_str, "char") == 0) {
+        return CHAR_TYPE;
+    }
+    return INT_TYPE; // Default to INT_TYPE
+}
+
+// Register a function definition
+static void register_function(char *name, char *return_type, ASTNode *parameters, ASTNode *body) {
+    if (function_count >= MAX_FUNCTIONS) {
+        printf("Error: Maximum number of functions reached\n");
+        return;
+    }
+    
+    // Check if function already exists
+    for (int i = 0; i < function_count; i++) {
+        if (strcmp(functions[i].name, name) == 0) {
+            printf("Error: Function '%s' already defined\n", name);
+            return;
+        }
+    }
+    
+    functions[function_count].name = strdup(name);
+    functions[function_count].return_type = strdup(return_type);
+    functions[function_count].parameters = parameters;
+    functions[function_count].body = body;
+    function_count++;
+}
+
+// Find a function by name
+static Function *find_function(const char *name) {
+    for (int i = 0; i < function_count; i++) {
+        if (strcmp(functions[i].name, name) == 0) {
+            return &functions[i];
+        }
+    }
+    return NULL;
+}
+
+// Execute a function and return its result as a string
+static char *execute_function(const char *name, ASTNode *arguments) {
+    Function *func = find_function(name);
+    if (!func) {
+        printf("Error: Function '%s' not found\n", name);
+        return NULL;
+    }
+    
+    // Save current variable count to restore after function execution
+    int saved_var_count = variable_count;
+    
+    // Create a new scope for function parameters
+    ASTNode *param = func->parameters;
+    ASTNode *arg = arguments;
+    
+    while (param && arg) {
+        // Evaluate argument
+        void *value = NULL;
+        int int_val;
+        double float_val;
+        bool bool_val;
+        char char_val;
+        char *str_val;
+        
+        if (strcmp(param->var_type, "int") == 0) {
+            int_val = evaluate_expression(arg);
+            value = &int_val;
+        } else if (strcmp(param->var_type, "float") == 0) {
+            float_val = evaluate_float_expression(arg);
+            value = &float_val;
+        } else if (strcmp(param->var_type, "string") == 0) {
+            str_val = evaluate_string_expression(arg);
+            value = str_val;
+        } else if (strcmp(param->var_type, "boolean") == 0) {
+            bool_val = evaluate_bool_expression(arg);
+            value = &bool_val;
+        } else if (strcmp(param->var_type, "char") == 0) {
+            char_val = (char)evaluate_expression(arg);
+            value = &char_val;
+        }
+        
+        // Set parameter value
+        if (value) {
+            set_variable(param->var_name, get_type_from_string(param->var_type), value);
+            if (strcmp(param->var_type, "string") == 0) {
+                free(str_val);
+            }
+        }
+        
+        param = param->next;
+        arg = arg->next;
+    }
+    
+    // Execute function body
+    ASTNode *current = func->body;
+    char *result = NULL;
+    
+    while (current) {
+        if (current->type == NODE_YIELD_STATEMENT) {
+            // Handle yield statement based on return type
+            if (strcmp(func->return_type, "int") == 0) {
+                int val = evaluate_expression(current->yield_expr);
+                char buf[32];
+                snprintf(buf, sizeof(buf), "%d", val);
+                result = strdup(buf);
+            } else if (strcmp(func->return_type, "float") == 0) {
+                double val = evaluate_float_expression(current->yield_expr);
+                char buf[32];
+                snprintf(buf, sizeof(buf), "%g", val);
+                result = strdup(buf);
+            } else if (strcmp(func->return_type, "string") == 0) {
+                result = evaluate_string_expression(current->yield_expr);
+            } else if (strcmp(func->return_type, "boolean") == 0) {
+                bool val = evaluate_bool_expression(current->yield_expr);
+                result = strdup(val ? "yup" : "nope");
+            } else if (strcmp(func->return_type, "char") == 0) {
+                char val = (char)evaluate_expression(current->yield_expr);
+                result = (char *)malloc(2);
+                result[0] = val;
+                result[1] = '\0';
+            }
+            break;
+        } else {
+            interpret(current);
+        }
+        current = current->next;
+    }
+    
+    // Restore variable count (clean up function scope)
+    while (variable_count > saved_var_count) {
+        variable_count--;
+        free(variables[variable_count].name);
+        if (variables[variable_count].type == STRING_TYPE) {
+            free(variables[variable_count].value.string_value);
+        }
+    }
+    
+    return result;
+}
 
 // This function sets the value of a variable
 static void set_variable(const char *name, VariableType type, void *value)
@@ -533,7 +697,7 @@ static double evaluate_float_expression(ASTNode *node)
 // This is the main function that interprets our AST
 void interpret(ASTNode *node)
 {
-    while (node != NULL)
+    while (node)
     {
         switch (node->type)
         {
@@ -839,6 +1003,19 @@ void interpret(ASTNode *node)
                 }
                 break;
             }
+            case NODE_FUNCTION_DEFINITION:
+                register_function(node->function_name, node->return_type, node->parameters, node->body);
+                break;
+                
+            case NODE_FUNCTION_CALL:
+                {
+                    char *result = execute_function(node->function_name, node->parameters);
+                    if (result) {
+                        printf("%s", result);
+                        free(result);
+                    }
+                }
+                break;
             default:
                 break;
         }

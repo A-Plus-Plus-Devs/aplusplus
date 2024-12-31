@@ -91,6 +91,55 @@ ASTNode *create_for_node(ASTNode *init, ASTNode *condition, ASTNode *increment, 
     return node;
 }
 
+// Create a function definition node
+ASTNode *create_function_definition_node(char *return_type, char *function_name, ASTNode *parameters, ASTNode *body)
+{
+    ASTNode *node = create_node(NODE_FUNCTION_DEFINITION, NULL, NULL, NULL);
+    node->return_type = strdup(return_type);
+    node->function_name = strdup(function_name);
+    node->parameters = parameters;
+    node->body = body;
+    return node;
+}
+
+// Create a function parameter node
+ASTNode *create_function_parameter_node(char *param_type, char *param_name)
+{
+    ASTNode *node = create_node(NODE_FUNCTION_PARAMETER, NULL, NULL, NULL);
+    node->var_type = strdup(param_type);
+    node->var_name = strdup(param_name);
+    return node;
+}
+
+// Create a yield statement node
+ASTNode *create_yield_node(ASTNode *expr)
+{
+    ASTNode *node = create_node(NODE_YIELD_STATEMENT, NULL, NULL, NULL);
+    node->yield_expr = expr;
+    return node;
+}
+
+// Creates a function call node
+ASTNode *create_function_call_node(char *function_name, ASTNode *arguments)
+{
+    ASTNode *node = (ASTNode *)malloc(sizeof(ASTNode));
+    node->type = NODE_FUNCTION_CALL;
+    node->function_name = strdup(function_name);
+    node->parameters = arguments;  // Reusing parameters field for arguments
+    node->left = NULL;
+    node->right = NULL;
+    node->value = NULL;
+    node->next = NULL;
+    return node;
+}
+
+// Create a print statement node
+ASTNode *create_print_node(ASTNode *expr)
+{
+    ASTNode *node = create_node(NODE_PRINT, expr, NULL, NULL);
+    return node;
+}
+
 // This function frees the memory allocated for an AST
 void free_ast(ASTNode *node)
 {
@@ -109,10 +158,16 @@ void free_ast(ASTNode *node)
         // Free the variable type if it exists
         free(node->var_type);
 
+        // Free function-specific fields
+        free(node->return_type);
+        free(node->function_name);
+        free_ast(node->parameters);
+        free_ast(node->body);
+        free_ast(node->yield_expr);
+
         free_ast(node->init);       
         free_ast(node->condition);  
         free_ast(node->increment);  
-        free_ast(node->body);   
 
         free_ast(node->else_branch);  
         free_ast(node->elseif_branch);

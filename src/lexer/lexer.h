@@ -70,6 +70,10 @@ typedef enum
     TOKEN_DECREMENT,    // --
     TOKEN_LOGICAL_AND,  // &&
     TOKEN_LOGICAL_OR,   // ||
+    TOKEN_DEFINE,       // #define
+    TOKEN_YIELD,        // yield
+    TOKEN_FUNCTION,     // function
+    TOKEN_TYPE,         // type declarations (int, float, string, etc.)
 } TokenType;
 
 // Define keywords
@@ -94,6 +98,9 @@ typedef enum
     KEYWORD_SIGNED,
     KEYWORD_DOUBLE,
     KEYWORD_STRING,
+    KEYWORD_DEFINE,    // #define keyword
+    KEYWORD_YIELD,     // yield keyword
+    KEYWORD_FUNCTION,  // function keyword
 } KeywordType;
 
 // Token structure

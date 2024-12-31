@@ -71,6 +71,8 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_FOR;
     else if (strcmp(buffer, "char") == 0)
         token->type = TOKEN_CHAR_TYPE;
+    else if (strcmp(buffer, "yield") == 0)
+        token->type = TOKEN_YIELD;
     else
         token->type = TOKEN_IDENTIFIER;
 
@@ -438,6 +440,27 @@ Token *next_token(Lexer *lexer)
     case '(': token->type = TOKEN_LPAREN; token->value = strdup("("); break;
     case ')': token->type = TOKEN_RPAREN; token->value = strdup(")"); break;
     case ';': token->type = TOKEN_SEMICOLON; token->value = strdup(";"); break;
+    case '#':
+        advance(lexer);
+        if (isalpha(lexer->current_char)) {
+            char buffer[256] = {0};
+            int i = 0;
+            while (isalpha(lexer->current_char)) {
+                buffer[i++] = lexer->current_char;
+                advance(lexer);
+            }
+            buffer[i] = '\0';
+            
+            if (strcmp(buffer, "define") == 0) {
+                token->type = TOKEN_DEFINE;
+                token->value = NULL;
+                return token;
+            }
+        }
+        token->type = TOKEN_UNKNOWN;
+        token->value = NULL;
+        return token;
+
     case '"': 
         free(token); // Free the token we created since string() creates its own
         return string(lexer);
