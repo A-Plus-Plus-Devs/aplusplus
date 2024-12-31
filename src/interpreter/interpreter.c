@@ -33,17 +33,16 @@ typedef struct {
     ASTNode *body;
 } Function;
 
-// Forward declarations
-static void set_variable(const char *name, VariableType type, void *value);
-static Variable *get_variable(const char *name);
+// Function declarations
 static int evaluate_expression(ASTNode *node);
 static bool evaluate_bool_expression(ASTNode *node);
 static double evaluate_float_expression(ASTNode *node);
 static char *evaluate_string_expression(ASTNode *node);
 static VariableType get_type_from_string(const char *type_str);
-static void register_function(char *name, char *return_type, ASTNode *parameters, ASTNode *body);
 static Function *find_function(const char *name);
 static char *execute_function(const char *name, ASTNode *arguments);
+static void set_variable(const char *name, VariableType type, void *value);
+static Variable *get_variable(const char *name);
 
 // Global variables
 static Function functions[MAX_FUNCTIONS];
@@ -68,7 +67,7 @@ static VariableType get_type_from_string(const char *type_str) {
 }
 
 // Register a function definition
-static void register_function(char *name, char *return_type, ASTNode *parameters, ASTNode *body) {
+void register_function(char *name, char *return_type, ASTNode *parameters, ASTNode *body) {
     if (function_count >= MAX_FUNCTIONS) {
         printf("Error: Maximum number of functions reached\n");
         return;
@@ -82,6 +81,7 @@ static void register_function(char *name, char *return_type, ASTNode *parameters
         }
     }
     
+    printf("[DEBUG] Registering function: %s with return type: %s\n", name, return_type);
     functions[function_count].name = strdup(name);
     functions[function_count].return_type = strdup(return_type);
     functions[function_count].parameters = parameters;
@@ -90,7 +90,7 @@ static void register_function(char *name, char *return_type, ASTNode *parameters
 }
 
 // Find a function by name
-static Function *find_function(const char *name) {
+Function *find_function(const char *name) {
     for (int i = 0; i < function_count; i++) {
         if (strcmp(functions[i].name, name) == 0) {
             return &functions[i];
@@ -100,13 +100,14 @@ static Function *find_function(const char *name) {
 }
 
 // Execute a function and return its result as a string
-static char* execute_function(const char *name, ASTNode *arguments) {
+char* execute_function(const char *name, ASTNode *arguments) {
     Function *func = find_function(name);
     if (!func) {
         printf("Error: Function '%s' not found\n", name);
         return NULL;
     }
     
+    printf("[DEBUG] Executing function: %s\n", name);
     // Save current variable count to restore after function execution
     int saved_var_count = variable_count;
     
@@ -158,27 +159,33 @@ static char* execute_function(const char *name, ASTNode *arguments) {
     
     while (current) {
         if (current->type == NODE_YIELD_STATEMENT) {
+            printf("[DEBUG] Processing yield statement in function with return type: %s\n", func->return_type);
             // Handle yield statement based on return type
             if (strcmp(func->return_type, "int") == 0) {
                 int val = evaluate_expression(current->yield_expr);
                 char buf[32];
                 snprintf(buf, sizeof(buf), "%d", val);
                 result = strdup(buf);
+                printf("[DEBUG] Yielding int value: %d\n", val);
             } else if (strcmp(func->return_type, "float") == 0) {
                 double val = evaluate_float_expression(current->yield_expr);
                 char buf[32];
                 snprintf(buf, sizeof(buf), "%g", val);
                 result = strdup(buf);
+                printf("[DEBUG] Yielding float value: %g\n", val);
             } else if (strcmp(func->return_type, "string") == 0) {
                 result = evaluate_string_expression(current->yield_expr);
+                printf("[DEBUG] Yielding string value: %s\n", result);
             } else if (strcmp(func->return_type, "boolean") == 0) {
                 bool val = evaluate_bool_expression(current->yield_expr);
                 result = strdup(val ? "yup" : "nope");
+                printf("[DEBUG] Yielding boolean value: %s\n", result);
             } else if (strcmp(func->return_type, "char") == 0) {
                 char val = (char)evaluate_expression(current->yield_expr);
                 result = (char *)malloc(2);
                 result[0] = val;
                 result[1] = '\0';
+                printf("[DEBUG] Yielding char value: %c\n", val);
             }
             break;
         } else {
@@ -499,7 +506,7 @@ static bool evaluate_bool_expression(ASTNode *node)
     return result != 0;
 }
 
-static char *evaluate_string_expression(ASTNode *node)
+char *evaluate_string_expression(ASTNode *node)
 {
     if (node == NULL) return strdup("");
 
@@ -705,6 +712,7 @@ void interpret(ASTNode *node)
             {
                 char *result = execute_function(node->function_name, node->arguments);
                 if (result) {
+                    printf("%s\n", result);  // Print the result
                     free(result);
                 }
                 break;
