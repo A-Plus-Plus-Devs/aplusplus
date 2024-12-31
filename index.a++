@@ -10,7 +10,7 @@
 
 // Function with multiple types
 #define float calculateArea(float radius) {
-    yield 3.14159 * radius * radius;
+    yield 3.14159 * radius ** 2;
 }
 
 // Function with multiple statements

@@ -81,7 +81,6 @@ void register_function(char *name, char *return_type, ASTNode *parameters, ASTNo
         }
     }
     
-    printf("[DEBUG] Registering function: %s with return type: %s\n", name, return_type);
     functions[function_count].name = strdup(name);
     functions[function_count].return_type = strdup(return_type);
     functions[function_count].parameters = parameters;
@@ -107,7 +106,6 @@ char* execute_function(const char *name, ASTNode *arguments) {
         return NULL;
     }
     
-    printf("[DEBUG] Executing function: %s\n", name);
     // Save current variable count to restore after function execution
     int saved_var_count = variable_count;
     
@@ -159,13 +157,9 @@ char* execute_function(const char *name, ASTNode *arguments) {
     
     while (current) {
         if (current->type == NODE_YIELD_STATEMENT) {
-            printf("[DEBUG] Processing yield statement in function with return type: %s\n", func->return_type);
             if (!current->left) {
-                printf("[DEBUG] Error: yield expression (left child) is NULL\n");
                 return strdup("");
             }
-            printf("[DEBUG] Yield expression type: %d\n", current->left->type);
-            printf("[DEBUG] Yield expression value: %s\n", current->left->value ? current->left->value : "NULL");
             
             // Handle yield statement based on return type
             if (strcmp(func->return_type, "int") == 0) {
@@ -173,36 +167,28 @@ char* execute_function(const char *name, ASTNode *arguments) {
                 char buf[32];
                 snprintf(buf, sizeof(buf), "%d", val);
                 result = strdup(buf);
-                printf("[DEBUG] Yielding int value: %d\n", val);
             } else if (strcmp(func->return_type, "float") == 0) {
                 double val = evaluate_float_expression(current->left);
                 char buf[32];
                 snprintf(buf, sizeof(buf), "%g", val);
                 result = strdup(buf);
-                printf("[DEBUG] Yielding float value: %g\n", val);
             } else if (strcmp(func->return_type, "string") == 0) {
                 if (current->left->type == NODE_STRING_LITERAL) {
-                    printf("[DEBUG] Direct string literal yield\n");
                     result = strdup(current->left->value);
                 } else {
-                    printf("[DEBUG] Evaluating string expression\n");
                     result = evaluate_string_expression(current->left);
                 }
                 if (!result) {
-                    printf("[DEBUG] String evaluation returned NULL\n");
                     result = strdup("");
                 }
-                printf("[DEBUG] Yielding string value: %s\n", result);
             } else if (strcmp(func->return_type, "boolean") == 0) {
                 bool val = evaluate_bool_expression(current->left);
                 result = strdup(val ? "yup" : "nope");
-                printf("[DEBUG] Yielding boolean value: %s\n", result);
             } else if (strcmp(func->return_type, "char") == 0) {
                 char val = (char)evaluate_expression(current->left);
                 result = (char *)malloc(2);
                 result[0] = val;
                 result[1] = '\0';
-                printf("[DEBUG] Yielding char value: %c\n", val);
             }
             break;
         } else {
@@ -529,7 +515,6 @@ char *evaluate_string_expression(ASTNode *node)
 
     if (node->type == NODE_STRING_LITERAL)
     {
-        printf("[DEBUG] Found string literal: %s\n", node->value);
         return strdup(node->value);
     }
     else if (node->type == NODE_LITERAL)

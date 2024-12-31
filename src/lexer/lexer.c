@@ -8,11 +8,11 @@
 // Initialise the lexer
 Lexer *init_lexer(const char *input)
 {
-    printf("[DEBUG] Initializing lexer with input starting with: %.20s...\n", input);
+    // printf("[DEBUG] Initializing lexer with input starting with: %.20s...\n", input);
     
     Lexer *lexer = (Lexer *)malloc(sizeof(Lexer)); // Allocate memory for a new Lexer structure
     if (!lexer) {
-        printf("[DEBUG] Error: Failed to allocate memory for lexer\n");
+        // printf("[DEBUG] Error: Failed to allocate memory for lexer\n");
         return NULL;
     }
 
@@ -21,7 +21,7 @@ Lexer *init_lexer(const char *input)
     lexer->read_position = 1;                      // Set the read position to the next character
     lexer->current_char = input[0];                // Set the current character to the first character of the input
 
-    printf("[DEBUG] Lexer initialized. First char: '%c'\n", lexer->current_char);
+    // printf("[DEBUG] Lexer initialized. First char: '%c'\n", lexer->current_char);
     return lexer;                                  // Return the newly created lexer
 }
 
@@ -29,7 +29,7 @@ Lexer *init_lexer(const char *input)
 void advance(Lexer *lexer)
 {
     if (!lexer) {
-        printf("[DEBUG] Error: Null lexer in advance\n");
+        // printf("[DEBUG] Error: Null lexer in advance\n");
         return;
     }
     
@@ -39,13 +39,13 @@ void advance(Lexer *lexer)
         lexer->position = lexer->read_position;              // Move the current position forward
         lexer->current_char = lexer->input[lexer->position]; // Set the current character to the next character
         lexer->read_position++;                              // Move the read position forward
-        printf("[DEBUG] Advanced to char: '%c'\n", lexer->current_char);
+        // printf("[DEBUG] Advanced to char: '%c'\n", lexer->current_char);
     }
     else
     {
         // If we've reached the end, set the current character to null
         lexer->current_char = '\0';
-        printf("[DEBUG] Advanced to end of input\n");
+        // printf("[DEBUG] Advanced to end of input\n");
     }
 }
 
