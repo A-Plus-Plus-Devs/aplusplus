@@ -475,8 +475,62 @@ static ASTNode *parse_factor(Parser *parser)
     }
     else if (token->type == TOKEN_IDENTIFIER)
     {
-        ASTNode *node = create_node(NODE_LITERAL, NULL, NULL, token->value);
-        get_next_token(parser);
+        char *identifier = strdup(token->value);
+        get_next_token(parser);  // consume identifier
+        
+        // Check if this is a function call
+        if (parser->current_token->type == TOKEN_LPAREN)
+        {
+            get_next_token(parser);  // consume '('
+            
+            // Parse arguments
+            ASTNode *args = NULL;
+            ASTNode *current_arg = NULL;
+            
+            // Handle empty argument list
+            if (parser->current_token->type != TOKEN_RPAREN)
+            {
+                // Parse first argument
+                args = parse_expression(parser);
+                if (!args)
+                {
+                    free(identifier);
+                    return NULL;
+                }
+                current_arg = args;
+                
+                // Parse remaining arguments
+                while (parser->current_token->type == TOKEN_COMMA)
+                {
+                    get_next_token(parser);  // consume comma
+                    ASTNode *next_arg = parse_expression(parser);
+                    if (!next_arg)
+                    {
+                        free(identifier);
+                        return NULL;
+                    }
+                    current_arg->next = next_arg;
+                    current_arg = next_arg;
+                }
+            }
+            
+            if (parser->current_token->type != TOKEN_RPAREN)
+            {
+                printf("Error: Expected ')' after function arguments\n");
+                free(identifier);
+                return NULL;
+            }
+            get_next_token(parser);  // consume ')'
+            
+            // Create function call node
+            ASTNode *node = create_node(NODE_FUNCTION_CALL, args, NULL, identifier);
+            free(identifier);
+            return node;
+        }
+        
+        // Not a function call, just a regular identifier
+        ASTNode *node = create_node(NODE_LITERAL, NULL, NULL, identifier);
+        free(identifier);
         return node;
     }
     else if (token->type == TOKEN_LPAREN)
