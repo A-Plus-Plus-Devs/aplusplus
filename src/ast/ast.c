@@ -94,20 +94,36 @@ ASTNode *create_for_node(ASTNode *init, ASTNode *condition, ASTNode *increment, 
 // Create a function definition node
 ASTNode *create_function_definition_node(char *return_type, char *function_name, ASTNode *parameters, ASTNode *body)
 {
-    ASTNode *node = create_node(NODE_FUNCTION_DEFINITION, NULL, NULL, NULL);
-    node->return_type = strdup(return_type);
-    node->function_name = strdup(function_name);
+    ASTNode *node = (ASTNode *)malloc(sizeof(ASTNode));
+    if (!node) return NULL;
+
+    node->type = NODE_FUNCTION_DEFINITION;
+    node->return_type = return_type ? strdup(return_type) : NULL;
+    node->function_name = function_name ? strdup(function_name) : NULL;
     node->parameters = parameters;
     node->body = body;
+    node->left = NULL;
+    node->right = NULL;
+    node->value = NULL;
+    node->next = NULL;
+
     return node;
 }
 
 // Create a function parameter node
 ASTNode *create_function_parameter_node(char *param_type, char *param_name)
 {
-    ASTNode *node = create_node(NODE_FUNCTION_PARAMETER, NULL, NULL, NULL);
+    ASTNode *node = (ASTNode *)malloc(sizeof(ASTNode));
+    if (!node) return NULL;
+    
+    node->type = NODE_FUNCTION_PARAMETER;
     node->var_type = strdup(param_type);
     node->var_name = strdup(param_name);
+    node->left = NULL;
+    node->right = NULL;
+    node->next = NULL;
+    node->value = NULL;
+    
     return node;
 }
 

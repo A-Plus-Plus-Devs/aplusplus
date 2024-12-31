@@ -8,28 +8,44 @@
 // Initialise the lexer
 Lexer *init_lexer(const char *input)
 {
+    printf("[DEBUG] Initializing lexer with input starting with: %.20s...\n", input);
+    
     Lexer *lexer = (Lexer *)malloc(sizeof(Lexer)); // Allocate memory for a new Lexer structure
+    if (!lexer) {
+        printf("[DEBUG] Error: Failed to allocate memory for lexer\n");
+        return NULL;
+    }
+
     lexer->input = input;                          // Set the input string for the lexer
     lexer->position = 0;                           // Initialize the current position to the start of the input
     lexer->read_position = 1;                      // Set the read position to the next character
     lexer->current_char = input[0];                // Set the current character to the first character of the input
+
+    printf("[DEBUG] Lexer initialized. First char: '%c'\n", lexer->current_char);
     return lexer;                                  // Return the newly created lexer
 }
 
 // This function moves the lexer to the next character
 void advance(Lexer *lexer)
 {
+    if (!lexer) {
+        printf("[DEBUG] Error: Null lexer in advance\n");
+        return;
+    }
+    
     // If we haven't reached the end of the input
     if (lexer->read_position < strlen(lexer->input))
     {
         lexer->position = lexer->read_position;              // Move the current position forward
         lexer->current_char = lexer->input[lexer->position]; // Set the current character to the next character
         lexer->read_position++;                              // Move the read position forward
+        printf("[DEBUG] Advanced to char: '%c'\n", lexer->current_char);
     }
     else
     {
         // If we've reached the end, set the current character to null
         lexer->current_char = '\0';
+        printf("[DEBUG] Advanced to end of input\n");
     }
 }
 
@@ -427,70 +443,71 @@ Token *next_token(Lexer *lexer)
         if (peek_char(lexer) == '*')
         {
             advance(lexer);
+            advance(lexer);
             token->type = TOKEN_POWER;
             token->value = strdup("**");
         }
         else
         {
+            advance(lexer);
             token->type = TOKEN_MULTIPLY;
             token->value = strdup("*");
         }
-        break;
-    case '/': token->type = TOKEN_DIVIDE; token->value = strdup("/"); break;
-    case '(': token->type = TOKEN_LPAREN; token->value = strdup("("); break;
-    case ')': token->type = TOKEN_RPAREN; token->value = strdup(")"); break;
-    case ';': token->type = TOKEN_SEMICOLON; token->value = strdup(";"); break;
-    case '#':
-        advance(lexer);
-        if (isalpha(lexer->current_char)) {
-            char buffer[256] = {0};
-            int i = 0;
-            while (isalpha(lexer->current_char)) {
-                buffer[i++] = lexer->current_char;
-                advance(lexer);
-            }
-            buffer[i] = '\0';
-            
-            if (strcmp(buffer, "define") == 0) {
-                token->type = TOKEN_DEFINE;
-                token->value = NULL;
-                return token;
-            }
-        }
-        token->type = TOKEN_UNKNOWN;
-        token->value = NULL;
         return token;
 
-    case '"': 
-        free(token); // Free the token we created since string() creates its own
-        return string(lexer);
-    case '\'':
-        free(token); // Free the token we created since char_literal() creates its own
-        return char_literal(lexer);
-    case '\n':
-    case '\r':
+    case '/': 
         advance(lexer);
-        return next_token(lexer); // Skip newlines and get next token
+        token->type = TOKEN_DIVIDE; 
+        token->value = strdup("/"); 
+        return token;
+
+    case '(': 
+        advance(lexer);
+        token->type = TOKEN_LPAREN; 
+        token->value = strdup("("); 
+        return token;
+
+    case ')': 
+        advance(lexer);
+        token->type = TOKEN_RPAREN; 
+        token->value = strdup(")"); 
+        return token;
+
+    case ';': 
+        advance(lexer);
+        token->type = TOKEN_SEMICOLON; 
+        token->value = strdup(";"); 
+        return token;
+
+    case ',':
+        advance(lexer);
+        token->type = TOKEN_COMMA;
+        token->value = strdup(",");
+        return token;
+
+    case '{':
+        advance(lexer);
+        token->type = TOKEN_LBRACE;
+        token->value = strdup("{");
+        return token;
+
+    case '}':
+        advance(lexer);
+        token->type = TOKEN_RBRACE;
+        token->value = strdup("}");
+        return token;
 
     case '?':
         token->type = TOKEN_QUESTION;
         token->value = strdup("?");
-        break;
+        advance(lexer);
+        return token;
             
     case ':':
         token->type = TOKEN_COLON;
         token->value = strdup(":");
-        break;
-
-    case '{':
-        token->type = TOKEN_LBRACE;
-        token->value = strdup("{");
-        break;
-
-    case '}':
-        token->type = TOKEN_RBRACE;
-        token->value = strdup("}");
-        break;
+        advance(lexer);
+        return token;
 
     case '!':
         if (peek_char(lexer) == '=')
@@ -512,6 +529,30 @@ Token *next_token(Lexer *lexer)
         token->type = TOKEN_MODULUS; 
         token->value = strdup("%"); 
         advance(lexer);
+        return token;
+
+    case '"': 
+        free(token); // Free the token we created since string() creates its own
+        return string(lexer);
+    case '\'':
+        free(token); // Free the token we created since char_literal() creates its own
+        return char_literal(lexer);
+    case '\n':
+    case '\r':
+        advance(lexer);
+        return next_token(lexer); // Skip newlines and get next token
+
+    case '#':
+        advance(lexer); // consume #
+        if (strncmp(lexer->input + lexer->position, "define", 6) == 0)
+        {
+            for (int i = 0; i < 6; i++) advance(lexer); // consume "define"
+            token->type = TOKEN_DEFINE;
+            token->value = strdup("#define");
+            return token;
+        }
+        token->type = TOKEN_UNKNOWN;
+        token->value = strdup("#");
         return token;
 
     default:
