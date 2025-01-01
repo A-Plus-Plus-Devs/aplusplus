@@ -489,7 +489,6 @@ static int evaluate_expression(ASTNode *node)
             if (var && var->type == INT_TYPE)
             {
                 left = var->value.int_value;
-                printf("[DEBUG] Left operand is variable %s with value %d\n", node->left->value, left);
             }
             else
             {
@@ -507,7 +506,6 @@ static int evaluate_expression(ASTNode *node)
             if (var && var->type == INT_TYPE)
             {
                 right = var->value.int_value;
-                printf("[DEBUG] Right operand is variable %s with value %d\n", node->right->value, right);
             }
             else
             {
@@ -519,7 +517,7 @@ static int evaluate_expression(ASTNode *node)
             right = evaluate_expression(node->right);
         }
 
-        printf("[DEBUG] Binary operation: %s, left=%d, right=%d\n", node->value, left, right);
+        // printf("[DEBUG] Binary operation: %s, left=%d, right=%d\n", node->value, left, right);
 
         // If either operand is a float, use float evaluation
         if (has_float)
@@ -555,7 +553,7 @@ static int evaluate_expression(ASTNode *node)
             }
             result = left % right;
         }
-        printf("[DEBUG] Binary operation result: %d\n", result);
+        // printf("[DEBUG] Binary operation result: %d\n", result);
         return result;
     }
 
