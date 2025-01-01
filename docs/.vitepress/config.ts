@@ -54,6 +54,12 @@ export default defineConfig({
             { text: 'Hello World', link: '/examples/hello-world' },
           ]
         },
+        {
+          text: 'Functions',
+          items: [
+            { text: 'Functions', link: 'guide/functions'}
+          ]
+        }
         // {
         //   text: 'Advanced Topics',
         //   items: [

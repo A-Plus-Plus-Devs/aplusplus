@@ -6,43 +6,56 @@ Functions are reusable blocks of code that perform specific tasks. A++ provides 
 
 ### Function Declaration
 
-```a++
+```c++
 // Basic function
-return_type function_name(parameter_type parameter) {
+#define yield_type function_name(parameter_type parameter) {
     // function body
-    return value;
+    yield value;
 }
 
 // Example
-int add(int a, int b) {
-    return a + b;
+#define int add(int a, int b) {
+    yield a + b;
 }
 ```
 
 ### Function Types
 
-```a++
-// Void function (no return value)
-void greet(string name) {
+```c++
+// Nothing function (no return value)
+#define nothing greet(string name) {
     print("Hello, " + name + "!");
 }
 
 // Function with return value
-int multiply(int x, int y) {
-    return x * y;
+#define int multiply(int x, int y) {
+    yield x * y;
 }
 
 // Function with multiple parameters
-string formatName(string firstName, string lastName) {
-    return firstName + " " + lastName;
+#define string formatName(string firstName, string lastName) {
+    yield firstName + " " + lastName;
 }
 ```
 
 ## Advanced Function Features
 
-### Default Parameters
+### Recursion
 
-```a++
+```c++
+// Recursive factorial function
+#define int factorial(int n) {
+    if (n <= 1) {
+        yield 1;
+    }
+    yield n * factorial(n - 1);
+}
+print("Factorial of 5: " + factorial(5)); //Ouput: factorial of 5: 120
+```
+
+<!-- ### Default Parameters
+
+```c++
 // Parameters with default values
 void configure(string host = "localhost", int port = 8080) {
     // ...
@@ -53,8 +66,9 @@ configure();               // Uses defaults
 configure("example.com"); // Uses custom host, default port
 configure("example.com", 3000); // Uses all custom values
 ```
+ -->
 
-### Named Parameters
+<!-- ### Named Parameters
 
 ```a++
 void createUser(string name, int age, boolean isAdmin = nope) {
@@ -67,9 +81,9 @@ createUser(
     age: 25,
     isAdmin: yup
 );
-```
+``` -->
 
-### Variable Arguments
+<!-- ### Variable Arguments
 
 ```a++
 // Function that accepts variable number of arguments
@@ -84,9 +98,9 @@ int sum(...int numbers) {
 // Usage
 sum(1, 2, 3);       // Returns 6
 sum(1, 2, 3, 4, 5); // Returns 15
-```
+``` -->
 
-## Function Overloading
+<!-- ## Function Overloading
 
 ```a++
 // Same function name, different parameters
@@ -101,9 +115,9 @@ float add(float a, float b) {
 string add(string a, string b) {
     return a + b;
 }
-```
+``` -->
 
-## Lambda Functions
+<!-- ## Lambda Functions
 
 ```a++
 // Anonymous function
@@ -112,8 +126,8 @@ var multiply = (int x, int y) => x * y;
 // Using lambda in array methods
 array<int> numbers = [1, 2, 3, 4, 5];
 array<int> doubled = numbers.map(n => n * 2);
-```
-
+``` -->
+<!-- 
 ## Higher-Order Functions
 
 ```a++
@@ -127,8 +141,8 @@ void processNumbers(array<int> numbers, function<int, int> processor) {
 // Usage
 array<int> nums = [1, 2, 3];
 processNumbers(nums, n => n * n);  // Prints squares
-```
-
+``` -->
+<!-- 
 ## Generators
 
 ```a++
@@ -143,9 +157,9 @@ generator<int> range(int start, int end) {
 for (int num in range(1, 5)) {
     print(num);  // Prints 1, 2, 3, 4, 5
 }
-```
+``` -->
 
-## Error Handling in Functions
+<!-- ## Error Handling in Functions
 
 ```a++
 // Function that might throw an error
@@ -162,55 +176,56 @@ try {
 } catch (DivisionError e) {
     print("Error: " + e.message);
 }
-```
+``` -->
 
 ## Best Practices
 
 1. **Single Responsibility**
-```a++
+```c++
 // Bad: Function does too much
-void processUser(User user) {
+#define nothing processUser(User user) {
     validateUser(user);
     saveToDatabase(user);
     sendEmail(user);
 }
 
 // Good: Separate concerns
-void validateUser(User user) { ... }
-void saveUser(User user) { ... }
-void notifyUser(User user) { ... }
+#define nothing  validateUser(User user) { ... }
+#define nothing  saveUser(User user) { ... }
+#define nothing  notifyUser(User user) { ... }
 ```
 
 2. **Descriptive Names**
-```a++
+```c++
 // Bad
-void p(string s) { ... }
+#define nothing  p(string s) { ... }
 
 // Good
-void printMessage(string message) { ... }
+#define nothing  printMessage(string message) { ... }
 ```
 
 3. **Parameter Validation**
-```a++
-int calculateArea(int width, int height) {
+```c++
+#define int calculateArea(int width, int height) {
     if (width <= 0 || height <= 0) {
-        throw new ValueError("Dimensions must be positive");
+        print("Dimensions must be positive");
+        yield 0;
     }
-    return width * height;
+    yield width * height;
 }
 ```
 
-4. **Return Early Pattern**
-```a++
-boolean validateUser(User user) {
-    if (!user.name) return nope;
-    if (!user.email) return nope;
-    if (user.age < 18) return nope;
-    return yup;
+4. **Yield Early Pattern**
+```c++
+#define boolean validateUser(User user) {
+    if (!user.name) yield nope;
+    if (!user.email) yield nope;
+    if (user.age < 18) yield nope;
+    yield yup;
 }
 ```
 
-## Examples
+<!-- ## Examples
 
 ### Working with Arrays
 ```a++
@@ -230,9 +245,9 @@ array<int> getEvenNumbers(array<int> numbers) {
 int calculateTotal(array<int> numbers) {
     return numbers.reduce((acc, curr) => acc + curr, 0);
 }
-```
+``` -->
 
-### Practical Example: Data Processing
+<!-- ### Practical Example: Data Processing
 ```a++
 // Define data structure
 struct UserData {
@@ -253,7 +268,7 @@ array<UserData> filterAndFormatUsers(array<UserData> users) {
             };
         });
 }
-```
+``` -->
 
 ## Next Steps
 

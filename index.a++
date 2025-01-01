@@ -1,5 +1,6 @@
-#define nothing sayHello() {
-    print("Hello World");
+#define string example(string name = "paul", int age=18) {
+    yield name + " is " + age + " years old";
+    // function body
 }
 
-sayHello();
+print(example());
