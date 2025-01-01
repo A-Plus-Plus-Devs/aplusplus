@@ -6,6 +6,11 @@
     yield message;
 }
 
-string test = stringTest(5, 10);
+int s = stringTest(5, 3);
 
-print(test);             // Prints: The sum of 5 and 10 is: 15
+print(s);
+
+int x = yup;
+
+print(x);
+
