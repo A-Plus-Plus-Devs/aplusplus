@@ -54,6 +54,8 @@ static Token *identifier_or_keyword(Lexer *lexer)
 {
     char buffer[256] = {0};
     int i = 0;
+    
+    // Consume the entire identifier
     while (isalnum(lexer->current_char) || lexer->current_char == '_')
     {
         buffer[i++] = lexer->current_char;
@@ -64,9 +66,7 @@ static Token *identifier_or_keyword(Lexer *lexer)
     Token *token = malloc(sizeof(Token));
     token->value = strdup(buffer);
 
-    // printf("DEBUG: Identifying token: '%s'\n", buffer);
-
-    // Add new keywords
+    // Check for keywords
     if (strcmp(buffer, "if") == 0)
         token->type = TOKEN_IF;
     else if (strcmp(buffer, "else") == 0)
@@ -102,7 +102,11 @@ static Token *identifier_or_keyword(Lexer *lexer)
     else
         token->type = TOKEN_IDENTIFIER;
 
-    // printf("DEBUG: Token type assigned: %d\n", token->type);
+    // Skip any whitespace after the identifier
+    while (isspace(lexer->current_char)) {
+        advance(lexer);
+    }
+
     return token;
 }
 
@@ -229,9 +233,25 @@ char peek_char(Lexer *lexer)
 {
     if (lexer->read_position >= strlen(lexer->input))
     {
-        return '\0'; // Return null if we've reached the end of the input
+        return '\0';
     }
-    return lexer->input[lexer->read_position]; // Return the next character
+    return lexer->input[lexer->read_position];
+}
+
+// Add this function to peek at the next non-whitespace character
+char peek_next_non_whitespace(Lexer *lexer)
+{
+    size_t pos = lexer->position;
+    while (pos < strlen(lexer->input))
+    {
+        char c = lexer->input[pos];
+        if (!isspace(c))
+        {
+            return c;
+        }
+        pos++;
+    }
+    return '\0';
 }
 
 static TokenType check_multi_char_operator(Lexer *lexer) __attribute__((unused));
@@ -386,11 +406,14 @@ Token *next_token(Lexer *lexer)
             advance(lexer);
             token->type = TOKEN_LESS_THAN_OR_EQUAL;
         } else {
-            token->type = TOKEN_LESS_THAN;
             // Check for array type annotation
             char next = peek_char(lexer);
             if (isalpha(next)) {
                 token->type = TOKEN_ARRAY_TYPE;
+                token->value = strdup("<");
+            } else {
+                token->type = TOKEN_LESS_THAN;
+                token->value = strdup("<");
             }
         }
         advance(lexer);
@@ -601,6 +624,18 @@ Token *next_token(Lexer *lexer)
         if (isalpha(peek_char(lexer))) {
             token->type = TOKEN_METHOD_CALL;
         }
+        advance(lexer);
+        return token;
+
+    case '[':
+        token->type = TOKEN_LBRACKET;
+        token->value = strdup("[");
+        advance(lexer);
+        return token;
+
+    case ']':
+        token->type = TOKEN_RBRACKET;
+        token->value = strdup("]");
         advance(lexer);
         return token;
 

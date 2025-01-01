@@ -1,9 +1,1 @@
-// String array
 names<string> = ["John", "Jane"];
-names.addLast("Bob");
-string first = names[0];
-
-// Integer array
-numbers<int> = [1, 2, 3];
-numbers.removeFirst();
-int len = numbers.length;

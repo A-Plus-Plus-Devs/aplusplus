@@ -159,6 +159,14 @@ void advance(Lexer *lexer);
 char peek_char(Lexer *lexer);
 
 /**
+ * @brief Peeks ahead to find the next non-whitespace character without advancing the lexer.
+ * 
+ * @param lexer A pointer to the Lexer structure.
+ * @return char The next non-whitespace character in the input.
+ */
+char peek_next_non_whitespace(Lexer *lexer);
+
+/**
  * @brief Retrieves the next token from the input.
  * 
  * @param lexer A pointer to the Lexer structure.
