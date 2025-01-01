@@ -89,6 +89,16 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_CHAR_TYPE;
     else if (strcmp(buffer, "yield") == 0)
         token->type = TOKEN_YIELD;
+    else if (strcmp(buffer, "addLast") == 0)
+        token->type = TOKEN_ADD_LAST;
+    else if (strcmp(buffer, "removeLast") == 0)
+        token->type = TOKEN_REMOVE_LAST;
+    else if (strcmp(buffer, "length") == 0)
+        token->type = TOKEN_LENGTH;
+    else if (strcmp(buffer, "addFirst") == 0)
+        token->type = TOKEN_ADD_FIRST;
+    else if (strcmp(buffer, "removeFirst") == 0)
+        token->type = TOKEN_REMOVE_FIRST;
     else
         token->type = TOKEN_IDENTIFIER;
 
@@ -372,19 +382,18 @@ Token *next_token(Lexer *lexer)
         return token;
 
     case '<':
-        if (peek_char(lexer) == '=')
-        {
+        if (peek_char(lexer) == '=') {
+            advance(lexer);
             token->type = TOKEN_LESS_THAN_OR_EQUAL;
-            token->value = strdup("<=");
-            advance(lexer);
-            advance(lexer);
-        }
-        else
-        {
+        } else {
             token->type = TOKEN_LESS_THAN;
-            token->value = strdup("<");
-            advance(lexer);
+            // Check for array type annotation
+            char next = peek_char(lexer);
+            if (isalpha(next)) {
+                token->type = TOKEN_ARRAY_TYPE;
+            }
         }
+        advance(lexer);
         return token;
 
     case '+':
@@ -584,6 +593,15 @@ Token *next_token(Lexer *lexer)
         }
         token->type = TOKEN_UNKNOWN;
         token->value = strdup("#");
+        return token;
+
+    case '.':
+        token->type = TOKEN_DOT;
+        // Check for method calls
+        if (isalpha(peek_char(lexer))) {
+            token->type = TOKEN_METHOD_CALL;
+        }
+        advance(lexer);
         return token;
 
     default:

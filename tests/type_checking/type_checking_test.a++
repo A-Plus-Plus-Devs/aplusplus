@@ -47,9 +47,9 @@ string result4 = greet("World");   // string -> string
 // 5. Invalid Type Assignments (Should Cause Errors)
 // Uncomment each line to test error handling
 
-/*
+
 // Direct invalid assignments
-int bad1 = 3.14;         // Error: float -> int
+// int bad1 = 3.14;         // Error: float -> int
 int bad2 = "42";         // Error: string -> int
 boolean bad3 = 1;        // Error: int -> bool
 char bad4 = 65;          // Error: int -> char
@@ -59,6 +59,6 @@ string bad5 = 42;        // Error: int -> string (without concatenation)
 int bad6 = divide(10, 2);    // Error: float -> int
 int bad7 = greet("World");   // Error: string -> int
 string bad8 = add(5, 3);     // Error: int -> string
-*/
+
 
 print("=== Type Checking Tests Complete ===");

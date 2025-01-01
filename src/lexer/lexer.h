@@ -79,6 +79,13 @@ typedef enum
     TOKEN_MUL_ASSIGN,   // *=
     TOKEN_DIV_ASSIGN,   // /=
     TOKEN_MOD_ASSIGN,   // %=
+    TOKEN_ARRAY_TYPE,   // <type>
+    TOKEN_METHOD_CALL,  // .methodName
+    TOKEN_ADD_LAST,     // .addLast
+    TOKEN_REMOVE_LAST,  // .removeLast
+    TOKEN_LENGTH,       // .length
+    TOKEN_ADD_FIRST,    // .addFirst
+    TOKEN_REMOVE_FIRST, // .removeFirst
 } TokenType;
 
 // Define keywords

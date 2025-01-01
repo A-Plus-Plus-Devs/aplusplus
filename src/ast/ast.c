@@ -157,6 +157,43 @@ ASTNode *create_print_node(ASTNode *expr)
     return node;
 }
 
+// Create an array declaration node
+ASTNode *create_array_declaration_node(char *array_type, char *var_name, ASTNode *elements)
+{
+    ASTNode *node = create_node(NODE_ARRAY_DECLARATION, NULL, NULL, NULL);
+    node->array_type = strdup(array_type);
+    node->var_name = strdup(var_name);
+    node->elements = elements;
+    return node;
+}
+
+// Create an array access node
+ASTNode *create_array_access_node(char *array_name, ASTNode *index)
+{
+    ASTNode *node = create_node(NODE_ARRAY_ACCESS, NULL, NULL, NULL);
+    node->var_name = strdup(array_name);
+    node->index = index;
+    return node;
+}
+
+// Create an array method call node
+ASTNode *create_array_method_call_node(char *array_name, char *method_name, ASTNode *argument)
+{
+    ASTNode *node = create_node(NODE_ARRAY_METHOD_CALL, NULL, NULL, NULL);
+    node->var_name = strdup(array_name);
+    node->method_name = strdup(method_name);
+    node->right = argument;  // Store argument in right child
+    return node;
+}
+
+// Create an array literal node
+ASTNode *create_array_literal_node(ASTNode *elements)
+{
+    ASTNode *node = create_node(NODE_ARRAY_LITERAL, NULL, NULL, NULL);
+    node->elements = elements;
+    return node;
+}
+
 // This function frees the memory allocated for an AST
 void free_ast(ASTNode *node)
 {
@@ -194,6 +231,12 @@ void free_ast(ASTNode *node)
         
         // Recursively free the next node in the list
         free_ast(node->next);
+        
+        // Free array-specific fields
+        free(node->array_type);
+        free_ast(node->elements);
+        free(node->method_name);
+        free_ast(node->index);
         
         // Finally, free the node itself
         free(node);
