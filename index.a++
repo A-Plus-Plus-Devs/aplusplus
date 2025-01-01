@@ -1,30 +1,5 @@
-// Simple for loop test
-// Author: Paul Kabulu
-
-print("=== For Loop Test - Basic ===");
-
-for (int i = 0; i < 3; i++) {
-    print(i);
+#define nothing sayHello() {
+    print("Hello, World!");
 }
 
-print("=== For Loop Test - Nested ===");
-
-for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < 3; j++) {
-        print(i * j);
-    }
-}
-
-
-print("=== For Loop Factorial ===");
-
-int res = 1;
-
-for (int i = 1; i <= 5; i++) {
-    res *= i;
-}
-
-print("Fact 5: "+ res);
-
-
-print("=== Test Complete ===");
+sayHello();

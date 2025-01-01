@@ -99,6 +99,10 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_ADD_FIRST;
     else if (strcmp(buffer, "removeFirst") == 0)
         token->type = TOKEN_REMOVE_FIRST;
+    else if (strcmp(buffer, "nothing") == 0)
+        token->type = TOKEN_NOTHING_TYPE;
+    else if (strcmp(buffer, "empty") == 0)
+        token->type = TOKEN_EMPTY;
     else
         token->type = TOKEN_IDENTIFIER;
 

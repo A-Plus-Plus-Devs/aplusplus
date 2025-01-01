@@ -86,6 +86,8 @@ typedef enum
     TOKEN_LENGTH,       // .length
     TOKEN_ADD_FIRST,    // .addFirst
     TOKEN_REMOVE_FIRST, // .removeFirst
+    TOKEN_NOTHING_TYPE,  // For 'nothing' keyword
+    TOKEN_EMPTY,        // For 'empty' keyword
 } TokenType;
 
 // Define keywords

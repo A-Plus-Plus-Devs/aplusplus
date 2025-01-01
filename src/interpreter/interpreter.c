@@ -243,6 +243,12 @@ char* execute_function(const char *name, ASTNode *arguments) {
         }
     }
     
+    if (func->return_type && strcmp(func->return_type, "nothing") == 0) {
+        // Execute function but return NULL for void functions
+        execute_function_body(func->return_type, func->body);
+        return NULL;
+    }
+    
     return result;
 }
 
