@@ -99,13 +99,13 @@ ASTNode *parse_tokens(Parser *parser)
 {
     if (!parser || !parser->current_token)
     {
-        printf("DEBUG: Parser or current token is NULL\n");
+        printf("Error: Parser or current token is NULL\n");
         return NULL;
     }
     
-    printf("DEBUG: Starting parse_tokens. First token type: %d, value: %s\n", 
-           parser->current_token->type,
-           parser->current_token->value ? parser->current_token->value : "NULL");
+    // printf("DEBUG: Starting parse_tokens. First token type: %d, value: %s\n", 
+    //        parser->current_token->type,
+    //        parser->current_token->value ? parser->current_token->value : "NULL");
     
     ASTNode *root = NULL;
     ASTNode *current = NULL;
@@ -115,7 +115,7 @@ ASTNode *parse_tokens(Parser *parser)
         ASTNode *statement = parse_statement(parser);
         if (!statement)
         {
-            printf("DEBUG: Failed to parse statement\n");
+            // printf("DEBUG: Failed to parse statement\n");
             free_ast(root);
             return NULL;
         }
@@ -137,9 +137,9 @@ ASTNode *parse_tokens(Parser *parser)
 
 static ASTNode *parse_statement(Parser *parser)
 {
-    printf("DEBUG: Parsing statement, current token type: %d, value: %s\n",
-           parser->current_token->type,
-           parser->current_token->value ? parser->current_token->value : "NULL");
+    // printf("DEBUG: Parsing statement, current token type: %d, value: %s\n",
+    //        parser->current_token->type,
+    //        parser->current_token->value ? parser->current_token->value : "NULL");
 
     ASTNode *node = NULL;
 
@@ -175,9 +175,10 @@ static ASTNode *parse_statement(Parser *parser)
             break;
 
         case TOKEN_IDENTIFIER:
-            printf("DEBUG: Found identifier: %s\n", parser->current_token->value);
+        {
+            // printf("DEBUG: Found identifier: %s\n", parser->current_token->value);
             char next_char = peek_next_non_whitespace(parser->lexer);
-            printf("DEBUG: Next non-whitespace character after identifier: '%c'\n", next_char);
+            // printf("DEBUG: Next non-whitespace character after identifier: '%c'\n", next_char);
             
             if (next_char == '(')
             {
@@ -193,19 +194,20 @@ static ASTNode *parse_statement(Parser *parser)
             }
             else if (next_char == '<')
             {
-                printf("DEBUG: Detected array declaration syntax\n");
+                // printf("DEBUG: Detected array declaration syntax\n");
                 node = parse_array_declaration(parser);
             }
             else
             {
-                printf("DEBUG: Treating as regular assignment\n");
+                // printf("DEBUG: Treating as regular assignment\n");
                 node = parse_assignment(parser);
             }
             
             if (!node) {
-                printf("DEBUG: Failed to parse identifier expression\n");
+                printf("Error: Failed to parse identifier expression\n");
             }
             break;
+        }
 
         case TOKEN_YIELD:
             // printf("[DEBUG] Found yield statement\n");
@@ -229,7 +231,7 @@ static ASTNode *parse_statement(Parser *parser)
     }
 
     if (!node) {
-        printf("DEBUG: Failed to create node for statement\n");
+        printf("Error: Failed to create node for statement\n");
     }
 
     return node;
@@ -1490,49 +1492,49 @@ static ASTNode *parse_var_declaration(Parser *parser)
 
 static ASTNode *parse_array_declaration(Parser *parser)
 {
-    printf("DEBUG: Starting array declaration parse\n");
+    // printf("DEBUG: Starting array declaration parse\n");
     
     // Store the variable name
     char *var_name = strdup(parser->current_token->value);
-    printf("DEBUG: Array name: %s\n", var_name);
+    // printf("DEBUG: Array name: %s\n", var_name);
     
     get_next_token(parser); // Consume identifier
-    printf("DEBUG: After identifier, token type: %d, value: %s\n", 
-           parser->current_token->type,
-           parser->current_token->value ? parser->current_token->value : "NULL");
+    // printf("DEBUG: After identifier, token type: %d, value: %s\n", 
+    //        parser->current_token->type,
+    //        parser->current_token->value ? parser->current_token->value : "NULL");
 
     // Check for array type annotation
     if (parser->current_token->type != TOKEN_ARRAY_TYPE && 
         parser->current_token->type != TOKEN_LESS_THAN)
     {
-        printf("DEBUG: Expected array type annotation, got token type: %d\n", 
-               parser->current_token->type);
+        // printf("DEBUG: Expected array type annotation, got token type: %d\n", 
+        //        parser->current_token->type);
         free(var_name);
         return NULL;
     }
 
     get_next_token(parser); // Consume <
-    printf("DEBUG: After <, token type: %d, value: %s\n",
-           parser->current_token->type,
-           parser->current_token->value ? parser->current_token->value : "NULL");
+    // printf("DEBUG: After <, token type: %d, value: %s\n",
+    //        parser->current_token->type,
+    //        parser->current_token->value ? parser->current_token->value : "NULL");
 
     // Get the array type
     if (!parser->current_token->value)
     {
-        printf("DEBUG: No type specified after <\n");
+        // printf("DEBUG: No type specified after <\n");
         free(var_name);
         return NULL;
     }
 
     char *array_type = strdup(parser->current_token->value);
-    printf("DEBUG: Array type: %s\n", array_type);
+    // printf("DEBUG: Array type: %s\n", array_type);
     
     get_next_token(parser); // Consume type
 
     // Check for closing >
     if (parser->current_token->type != TOKEN_GREATER_THAN)
     {
-        printf("DEBUG: Expected >, got token type: %d\n", parser->current_token->type);
+        // printf("DEBUG: Expected >, got token type: %d\n", parser->current_token->type);
         free(var_name);
         free(array_type);
         return NULL;
@@ -1543,7 +1545,7 @@ static ASTNode *parse_array_declaration(Parser *parser)
     // Check for assignment
     if (parser->current_token->type != TOKEN_ASSIGN)
     {
-        printf("DEBUG: Expected =, got token type: %d\n", parser->current_token->type);
+        // printf("DEBUG: Expected =, got token type: %d\n", parser->current_token->type);
         free(var_name);
         free(array_type);
         return NULL;
@@ -1551,11 +1553,11 @@ static ASTNode *parse_array_declaration(Parser *parser)
 
     get_next_token(parser); // Consume =
 
-    printf("DEBUG: About to parse array literal\n");
+    // printf("DEBUG: About to parse array literal\n");
     ASTNode *elements = parse_array_literal(parser);
     if (!elements)
     {
-        printf("DEBUG: Failed to parse array literal\n");
+        // printf("DEBUG: Failed to parse array literal\n");
         free(var_name);
         free(array_type);
         return NULL;
@@ -1564,8 +1566,8 @@ static ASTNode *parse_array_declaration(Parser *parser)
     // Check for semicolon
     if (parser->current_token->type != TOKEN_SEMICOLON)
     {
-        printf("DEBUG: Expected semicolon, got token type: %d\n", 
-               parser->current_token->type);
+        // printf("DEBUG: Expected semicolon, got token type: %d\n", 
+        //        parser->current_token->type);
         free(var_name);
         free(array_type);
         free_ast(elements);
@@ -1574,18 +1576,18 @@ static ASTNode *parse_array_declaration(Parser *parser)
 
     get_next_token(parser); // Consume ;
 
-    printf("DEBUG: Successfully parsed array declaration\n");
+    // printf("DEBUG: Successfully parsed array declaration\n");
     return create_array_declaration_node(array_type, var_name, elements);
 }
 
 static ASTNode *parse_array_literal(Parser *parser)
 {
-    printf("DEBUG: Entering parse_array_literal\n");
+    // printf("DEBUG: Entering parse_array_literal\n");
     
     if (parser->current_token->type != TOKEN_LBRACKET)
     {
-        printf("Error: Expected '[' at start of array literal, got token type %d\n",
-               parser->current_token->type);
+        // printf("Error: Expected '[' at start of array literal, got token type %d\n",
+        //        parser->current_token->type);
         return NULL;
     }
     get_next_token(parser); // Consume [
@@ -1602,11 +1604,11 @@ static ASTNode *parse_array_literal(Parser *parser)
 
     while (1)
     {
-        printf("DEBUG: Parsing array element\n");
+        // printf("DEBUG: Parsing array element\n");
         ASTNode *element = parse_expression(parser);
         if (!element)
         {
-            printf("DEBUG: Failed to parse array element\n");
+            // printf("DEBUG: Failed to parse array element\n");
             if (elements) free_ast(elements);
             return NULL;
         }
