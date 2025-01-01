@@ -603,6 +603,11 @@ char *evaluate_string_expression(ASTNode *node)
     {
         return strdup(node->value);
     }
+    else if (node->type == NODE_FUNCTION_CALL)
+    {
+        char *result = execute_function(node->function_name, node->arguments);
+        return result ? result : strdup("");
+    }
     else if (node->type == NODE_LITERAL)
     {
         Variable *var = get_variable(node->value);
@@ -841,17 +846,6 @@ void interpret(ASTNode *node)
                     Function *func = find_function(node->left->function_name);
                     if (!func) {
                         printf("Error: Undefined function '%s'\n", node->left->function_name);
-                        exit(1);
-                    }
-
-                    // Get function's return type
-                    VariableType func_return_type = get_function_return_type(func->return_type);
-                    
-                    // Check if return type is compatible with variable type
-                    if (func_return_type != INT_TYPE && !can_implicitly_convert(func_return_type, INT_TYPE)) {
-                        printf("Error: Type mismatch - Cannot assign return value of function '%s' (%s) to variable '%s' (%s)\n",
-                               node->left->function_name, type_to_string(func_return_type), 
-                               node->var_name, type_to_string(INT_TYPE));
                         exit(1);
                     }
 

@@ -1,0 +1,23 @@
+// Type Checking Test Suite for A++ - Error Cases
+// Note: Only one error case is uncommented at a time
+print("=== Type Error Tests ===");
+
+// Test 1: float to int conversion
+// int x1 = 3.14;         // Error: float -> int
+
+ // Test 2: string to int conversion
+int x2 = "42";         // Error: string -> int 
+
+/* // Test 3: int to bool conversion
+boolean b1 = 1;        // Error: int -> bool */
+
+/* // Test 4: int to string without concatenation
+string s1 = 42;        // Error: int -> string */
+
+/* // Test 5: float function return to int
+#define float getFloat() {
+    yield 3.14;
+}
+int bad1 = getFloat();     // Error: float -> int */
+
+print("=== Type Error Tests Complete ===");

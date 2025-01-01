@@ -1,0 +1,16 @@
+=== Valid Type Conversion Tests ===
+--- Basic Assignments ---
+42
+3.14
+Hello
+yup
+--- Valid Implicit Conversions ---
+42
+66
+1
+0
+--- String Concatenation ---
+Number: 42
+Pi: 3.14
+Flag: yup
+=== Valid Type Conversion Tests Complete ===

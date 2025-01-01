@@ -1,0 +1,55 @@
+=== Basic Print Tests ===
+42
+3.14
+Hello, World!
+yup
+=== Variable Tests ===
+10
+20.5
+Testing
+yup
+=== Arithmetic Tests ===
+20
+10
+75
+3
+0
+759375
+=== Order of Operations Tests ===
+14
+7
+10
+14
+26
+11
+19
+20
+5
+5
+70
+30
+10
+3
+0
+15
+=== Loop Tests ===
+0
+1
+2
+3
+4
+=== Conditional Tests ===
+Condition is yup
+10 is greater than 5
+=== Comparison Tests ===
+yup
+nope
+yup
+yup
+yup
+nope
+=== Logical Operator Tests ===
+yup
+nope
+yup
+nope

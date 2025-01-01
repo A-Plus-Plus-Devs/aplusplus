@@ -1,0 +1,100 @@
+// Function Test Suite for A++ Language
+// Tests various aspects of function definition and usage
+
+// 1. Basic Function Tests
+print("=== Basic Function Tests ===");
+
+// Simple function with no parameters
+#define string sayHello() {
+    yield "Hello from function!";
+}
+print(sayHello());
+
+// Function with parameters
+#define int add(int a, int b) {
+    yield a + b;
+}
+print("Sum: " + add(5, 3));
+
+// 2. Return Type Tests
+print("\n=== Return Type Tests ===");
+
+#define int getNumber() {
+    yield 42;
+}
+print("Integer return: " + getNumber());
+
+#define float getFloat() {
+    yield 3.14;
+}
+print("Float return: " + getFloat());
+
+#define string getString() {
+    yield "test string";
+}
+print("String return: " + getString());
+
+#define boolean getBoolean() {
+    yield yup;
+}
+print("Boolean return: " + getBoolean());
+
+// 3. Parameter Type Tests
+print("\n=== Parameter Type Tests ===");
+
+#define string combineStrings(string s1, string s2) {
+    yield s1 + s2;
+}
+print("Combined string: " + combineStrings("Hello, ", "World!"));
+
+#define float addNumbers(float x, float y) {
+    yield x + y;
+}
+print("Float sum: " + addNumbers(3.14, 2.86));
+
+// 4. Recursive Function Tests
+print("\n=== Recursive Function Tests ===");
+
+#define int factorial(int n) {
+    if (n <= 1) {
+        yield 1;
+    }
+    yield n * factorial(n - 1);
+}
+print("Factorial of 5: " + factorial(5));
+
+// 5. Function Call Chain Tests
+print("\n=== Function Call Chain Tests ===");
+
+#define int double(int x) {
+    yield x * 2;
+}
+
+#define int triple(int x) {
+    yield x * 3;
+}
+
+#define int quadruple(int x) {
+    yield double(double(x));
+}
+
+print("Double 5: " + double(5));
+print("Triple 5: " + triple(5));
+print("Quadruple 5: " + quadruple(5));
+
+// 6. Scope Tests
+print("\n=== Scope Tests ===");
+
+int globalVar = 10;
+
+#define string testScope() {
+    int localVar = 20;
+    print("Global var inside function: " + globalVar);
+    print("Local var inside function: " + localVar);
+    yield "Scope test complete";
+}
+
+print(testScope());
+print("Global var outside function: " + globalVar);
+
+print("\n=== Function Tests Complete ===");

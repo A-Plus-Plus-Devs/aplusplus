@@ -1,0 +1,6 @@
+Error: Type mismatch - Cannot convert from 'float' to 'int' for variable 'x1'
+Error: Type mismatch - Cannot convert from 'string' to 'int' for variable 'x2'
+Error: Type mismatch - Cannot convert from 'int' to 'boolean' for variable 'x3'
+Error: Type mismatch - Cannot convert to string. Use string concatenation (+) for conversion for variable 'x4'
+Error: Type mismatch - Cannot convert from 'float' to 'int' for variable 'x5'
+Error: Type mismatch - Cannot convert to string. Use string concatenation (+) for conversion for variable 'x6'

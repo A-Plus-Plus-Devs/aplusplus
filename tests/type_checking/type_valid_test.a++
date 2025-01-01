@@ -1,0 +1,35 @@
+// Type Checking Test Suite for A++ - Valid Conversions
+print("=== Valid Type Conversion Tests ===");
+
+// 1. Basic Type Assignment Tests
+print("--- Basic Assignments ---");
+int x1 = 42;
+print(x1);
+float y1 = 3.14;
+print(y1);
+string s1 = "Hello";
+print(s1);
+boolean b1 = yup;
+print(b1);
+
+// 2. Valid Implicit Conversions
+print("--- Valid Implicit Conversions ---");
+float f2 = 42;        // int -> float
+print(f2);
+int i2 = 'B';         // char -> int (ASCII value of 'B' is 66)
+print(i2);
+int i3 = yup;         // bool -> int (should be 1)
+print(i3);
+int i4 = nope;        // bool -> int (should be 0)
+print(i4);
+
+// 3. String Concatenation Tests
+print("--- String Concatenation ---");
+string s2 = "Number: " + 42;
+print(s2);
+string s3 = "Pi: " + 3.14;
+print(s3);
+string s4 = "Flag: " + yup;
+print(s4);
+
+print("=== Valid Type Conversion Tests Complete ===");
