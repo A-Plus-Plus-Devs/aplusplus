@@ -997,10 +997,10 @@ static ASTNode *parse_for_statement(Parser *parser)
 // Parse a function definition
 static ASTNode *parse_function_definition(Parser *parser)
 {
-    printf("[DEBUG] Entering parse_function_definition\n");
-    printf("[DEBUG] Current token type: %d, value: %s\n", 
-           parser->current_token->type,
-           parser->current_token->value ? parser->current_token->value : "NULL");
+    // printf("[DEBUG] Entering parse_function_definition\n");
+    // printf("[DEBUG] Current token type: %d, value: %s\n", 
+    //        parser->current_token->type,
+    //        parser->current_token->value ? parser->current_token->value : "NULL");
     
     // Check for #define
     if (parser->current_token->type != TOKEN_DEFINE) {
@@ -1009,14 +1009,14 @@ static ASTNode *parse_function_definition(Parser *parser)
         return NULL;
     }
     get_next_token(parser); // consume #define
-    printf("[DEBUG] After #define, token type: %d, value: %s\n",
-           parser->current_token->type,
-           parser->current_token->value ? parser->current_token->value : "NULL");
+    // printf("[DEBUG] After #define, token type: %d, value: %s\n",
+    //        parser->current_token->type,
+    //        parser->current_token->value ? parser->current_token->value : "NULL");
 
     // Get return type
     char *return_type = NULL;
     if (parser->current_token->type == TOKEN_NOTHING_TYPE) {
-        printf("[DEBUG] Found 'nothing' return type\n");
+        // printf("[DEBUG] Found 'nothing' return type\n");
         return_type = strdup("nothing");
         get_next_token(parser);
     } else if (parser->current_token->type == TOKEN_INT_TYPE ||
@@ -1024,35 +1024,35 @@ static ASTNode *parse_function_definition(Parser *parser)
                parser->current_token->type == TOKEN_FLOAT_TYPE ||
                parser->current_token->type == TOKEN_BOOL_TYPE ||
                parser->current_token->type == TOKEN_CHAR_TYPE) {
-        printf("[DEBUG] Found standard return type: %s\n", parser->current_token->value);
+        // printf("[DEBUG] Found standard return type: %s\n", parser->current_token->value);
         return_type = strdup(parser->current_token->value);
         get_next_token(parser);
     } else {
-        printf("[DEBUG] Error: Expected return type, got token type %d\n", 
-               parser->current_token->type);
+        // printf("[DEBUG] Error: Expected return type, got token type %d\n", 
+        //        parser->current_token->type);
         return NULL;
     }
 
-    printf("[DEBUG] After return type, current token type: %d, value: %s\n",
-           parser->current_token->type,
-           parser->current_token->value ? parser->current_token->value : "NULL");
+    // printf("[DEBUG] After return type, current token type: %d, value: %s\n",
+    //        parser->current_token->type,
+    //        parser->current_token->value ? parser->current_token->value : "NULL");
 
     // Get function name
     if (parser->current_token->type != TOKEN_IDENTIFIER) {
-        printf("[DEBUG] Error: Expected function name identifier, got token type %d\n",
-               parser->current_token->type);
+        // printf("[DEBUG] Error: Expected function name identifier, got token type %d\n",
+        //        parser->current_token->type);
         free(return_type);
         return NULL;
     }
 
     char *function_name = strdup(parser->current_token->value);
-    printf("[DEBUG] Found function name: %s\n", function_name);
+    // printf("[DEBUG] Found function name: %s\n", function_name);
     get_next_token(parser);
 
     // Parse parameters
-    printf("[DEBUG] Parsing parameters, current token: %d\n", parser->current_token->type);
+    // printf("[DEBUG] Parsing parameters, current token: %d\n", parser->current_token->type);
     if (parser->current_token->type != TOKEN_LPAREN) {
-        printf("[DEBUG] Error: Expected '(' after function name\n");
+        // printf("[DEBUG] Error: Expected '(' after function name\n");
         free(return_type);
         free(function_name);
         return NULL;
@@ -1060,17 +1060,17 @@ static ASTNode *parse_function_definition(Parser *parser)
     get_next_token(parser); // consume (
 
     ASTNode *parameters = parse_function_parameters(parser);
-    printf("[DEBUG] Finished parsing parameters\n");
+    // printf("[DEBUG] Finished parsing parameters\n");
 
-    // Parse function body
-    printf("[DEBUG] Starting to parse function body\n");
-    printf("[DEBUG] Current token type: %d, value: %s\n",
-           parser->current_token->type,
-           parser->current_token->value ? parser->current_token->value : "NULL");
+    // // Parse function body
+    // printf("[DEBUG] Starting to parse function body\n");
+    // printf("[DEBUG] Current token type: %d, value: %s\n",
+    //        parser->current_token->type,
+    //        parser->current_token->value ? parser->current_token->value : "NULL");
 
     if (parser->current_token->type != TOKEN_LBRACE) {
-        printf("[DEBUG] Error: Expected '{' to start function body, got token type %d\n",
-               parser->current_token->type);
+        // printf("[DEBUG] Error: Expected '{' to start function body, got token type %d\n",
+        //        parser->current_token->type);
         free(return_type);
         free(function_name);
         return NULL;
@@ -1080,15 +1080,15 @@ static ASTNode *parse_function_definition(Parser *parser)
     ASTNode *body = NULL;
     ASTNode *current = NULL;
 
-    printf("[DEBUG] Parsing function body statements\n");
+    // printf("[DEBUG] Parsing function body statements\n");
     while (parser->current_token->type != TOKEN_RBRACE && 
            parser->current_token->type != TOKEN_EOF) {
-        printf("[DEBUG] Parsing statement in function body, token type: %d\n",
-               parser->current_token->type);
+        // printf("[DEBUG] Parsing statement in function body, token type: %d\n",
+        //        parser->current_token->type);
         
         ASTNode *statement = parse_statement(parser);
         if (!statement) {
-            printf("[DEBUG] Failed to parse statement in function body\n");
+            // printf("[DEBUG] Failed to parse statement in function body\n");
             free(return_type);
             free(function_name);
             // Free any previously parsed body statements
@@ -1106,7 +1106,7 @@ static ASTNode *parse_function_definition(Parser *parser)
     }
 
     if (parser->current_token->type != TOKEN_RBRACE) {
-        printf("[DEBUG] Error: Expected '}' to end function body\n");
+        // printf("[DEBUG] Error: Expected '}' to end function body\n");
         free(return_type);
         free(function_name);
         free_ast(body);
@@ -1114,7 +1114,7 @@ static ASTNode *parse_function_definition(Parser *parser)
     }
     get_next_token(parser); // consume }
 
-    printf("[DEBUG] Successfully parsed function definition for %s\n", function_name);
+    // printf("[DEBUG] Successfully parsed function definition for %s\n", function_name);
     return create_function_definition_node(return_type, function_name, parameters, body);
 }
 
@@ -1286,15 +1286,15 @@ static ASTNode *parse_yield_statement(Parser *parser)
 // Parse function call
 static ASTNode *parse_function_call(Parser *parser)
 {
-    printf("[DEBUG] Parsing function call\n");
+    // printf("[DEBUG] Parsing function call\n");
     
     char *function_name = strdup(parser->current_token->value);
-    printf("[DEBUG] Function name: %s\n", function_name);
+    // printf("[DEBUG] Function name: %s\n", function_name);
     get_next_token(parser); // Consume function name
     
     if (parser->current_token->type != TOKEN_LPAREN) {
-        printf("[DEBUG] Error: Expected '(' after function name %s, got %s\n", 
-               function_name, parser->current_token->value);
+        // printf("[DEBUG] Error: Expected '(' after function name %s, got %s\n", 
+        //        function_name, parser->current_token->value);
         free(function_name);
         return NULL;
     }
@@ -1305,13 +1305,13 @@ static ASTNode *parse_function_call(Parser *parser)
 
     // Handle empty argument list
     if (parser->current_token->type == TOKEN_RPAREN) {
-        printf("[DEBUG] Empty argument list\n");
+        // printf("[DEBUG] Empty argument list\n");
         get_next_token(parser); // Consume )
         
         // Check for semicolon
         if (parser->current_token->type != TOKEN_SEMICOLON) {
-            printf("[DEBUG] Error: Expected ';' after function call, got token type %d\n",
-                   parser->current_token->type);
+            // printf("[DEBUG] Error: Expected ';' after function call, got token type %d\n",
+            //        parser->current_token->type);
             free(function_name);
             return NULL;
         }
@@ -1319,16 +1319,16 @@ static ASTNode *parse_function_call(Parser *parser)
         
         ASTNode *node = create_function_call_node(function_name, NULL);
         free(function_name);
-        printf("[DEBUG] Successfully parsed function call with no arguments\n");
+        // printf("[DEBUG] Successfully parsed function call with no arguments\n");
         return node;
     }
 
     while (1) {
-        printf("[DEBUG] Parsing argument. Current token: %s\n", parser->current_token->value);
+        // printf("[DEBUG] Parsing argument. Current token: %s\n", parser->current_token->value);
         
         ASTNode *arg = parse_expression(parser);
         if (!arg) {
-            printf("[DEBUG] Error: Invalid function argument\n");
+            // printf("[DEBUG] Error: Invalid function argument\n");
             free(function_name);
             if (first_arg) free_ast(first_arg);
             return NULL;
@@ -1342,17 +1342,17 @@ static ASTNode *parse_function_call(Parser *parser)
             current_arg = arg;
         }
 
-        printf("[DEBUG] Successfully parsed argument\n");
+        // printf("[DEBUG] Successfully parsed argument\n");
 
         if (parser->current_token->type == TOKEN_RPAREN) {
-            printf("[DEBUG] End of argument list\n");
+            // printf("[DEBUG] End of argument list\n");
             get_next_token(parser); // Consume )
             break;
         }
 
         if (parser->current_token->type != TOKEN_COMMA) {
-            printf("[DEBUG] Error: Expected ',' or ')' after argument, got %s\n", 
-                   parser->current_token->value);
+            // printf("[DEBUG] Error: Expected ',' or ')' after argument, got %s\n", 
+            //        parser->current_token->value);
             free(function_name);
             free_ast(first_arg);
             return NULL;
@@ -1362,28 +1362,28 @@ static ASTNode *parse_function_call(Parser *parser)
 
     // Check for semicolon after function call
     if (parser->current_token->type != TOKEN_SEMICOLON) {
-        printf("[DEBUG] Error: Expected ';' after function call, got token type %d\n",
-               parser->current_token->type);
+        // printf("[DEBUG] Error: Expected ';' after function call, got token type %d\n",
+        //        parser->current_token->type);
         free(function_name);
         if (first_arg) free_ast(first_arg);
         return NULL;
     }
     get_next_token(parser); // Consume ;
 
-    printf("[DEBUG] Successfully parsed function call to %s\n", function_name);
+    // printf("[DEBUG] Successfully parsed function call to %s\n", function_name);
     return create_function_call_node(function_name, first_arg);
 }
 
 static ASTNode *parse_print(Parser *parser)
 {
-    printf("[DEBUG] Parsing print statement\n");
+    //  printf("[DEBUG] Parsing print statement\n");
     get_next_token(parser); // Consume 'print' token
 
     if (parser->current_token->type != TOKEN_LPAREN)
     {
-        printf("[DEBUG] Error: Expected '(' after print, got token type %d with value '%s'\n",
-               parser->current_token->type,
-               parser->current_token->value ? parser->current_token->value : "NULL");
+        // printf("[DEBUG] Error: Expected '(' after print, got token type %d with value '%s'\n",
+        //        parser->current_token->type,
+        //        parser->current_token->value ? parser->current_token->value : "NULL");
         return NULL;
     }
     get_next_token(parser);
@@ -1391,15 +1391,15 @@ static ASTNode *parse_print(Parser *parser)
     ASTNode *expression = parse_expression(parser);
     if (!expression)
     {
-        printf("[DEBUG] Error: Failed to parse print expression\n");
+        // printf("[DEBUG] Error: Failed to parse print expression\n");
         return NULL;
     }
 
     if (parser->current_token->type != TOKEN_RPAREN)
     {
-        printf("[DEBUG] Error: Expected ')' after print argument, got token type %d with value '%s'\n",
-               parser->current_token->type,
-               parser->current_token->value ? parser->current_token->value : "NULL");
+        // printf("[DEBUG] Error: Expected ')' after print argument, got token type %d with value '%s'\n",
+        //        parser->current_token->type,
+        //        parser->current_token->value ? parser->current_token->value : "NULL");
         free_ast(expression);
         return NULL;
     }
@@ -1407,15 +1407,15 @@ static ASTNode *parse_print(Parser *parser)
 
     if (parser->current_token->type != TOKEN_SEMICOLON)
     {
-        printf("[DEBUG] Error: Expected ';' after print statement, got token type %d with value '%s'\n",
-               parser->current_token->type,
-               parser->current_token->value ? parser->current_token->value : "NULL");
+        // printf("[DEBUG] Error: Expected ';' after print statement, got token type %d with value '%s'\n",
+        //        parser->current_token->type,
+        //        parser->current_token->value ? parser->current_token->value : "NULL");
         free_ast(expression);
         return NULL;
     }
     get_next_token(parser); // consume ';'
 
-    printf("[DEBUG] Successfully parsed print statement\n");
+    // printf("[DEBUG] Successfully parsed print statement\n");
     return create_node(NODE_PRINT, expression, NULL, NULL);
 }
 

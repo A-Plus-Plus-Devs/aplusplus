@@ -1,0 +1,43 @@
+{
+  "name": "a-plus-plus",
+  "displayName": "A++",
+  "description": "A++ Language Support",
+  "version": "0.0.3",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+
+  "contributes": {
+    "languages": [
+      {
+        "id": "aplusplus",
+        "aliases": [
+          "A++",
+          "aplusplus"
+        ],
+        "extensions": [
+          ".a++",
+          ".app",
+          ".aplusplus"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "aplusplus",
+        "path": "./snippets/aplusplus.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "aplusplus",
+        "scopeName": "source.aplusplus",
+        "path": "./syntaxes/aplusplus.tmLanguage.json"
+      }
+    ]
+  }
+}

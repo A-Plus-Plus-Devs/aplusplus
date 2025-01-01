@@ -1,0 +1,72 @@
+{
+    "If Statement": {
+        "prefix": "if",
+        "body": [
+            "if ($1) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "If statement"
+    },
+    "If-Else Statement": {
+        "prefix": "ifelse",
+        "body": [
+            "if ($1) {",
+            "\t$2",
+            "} else {",
+            "\t$0",
+            "}"
+        ],
+        "description": "If-else statement"
+    },
+    "For Loop": {
+        "prefix": "for",
+        "body": [
+            "for (int ${1:i} = 0; ${1:i} < ${2:count}; ${1:i}++) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "For loop"
+    },
+    "Function Definition": {
+        "prefix": "func",
+        "body": [
+            "${1|int,string,float,boolean,void|} ${2:functionName}(${3:parameters}) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "Function definition"
+    },
+    "Print Statement": {
+        "prefix": "print",
+        "body": [
+            "print($0);"
+        ],
+        "description": "Print statement"
+    },
+    "Variable Declaration": {
+        "prefix": ["var", "let"],
+        "body": [
+            "${1|int,string,float,boolean|} ${2:variableName} = $0;"
+        ],
+        "description": "Variable declaration"
+    },
+    "While Loop": {
+        "prefix": "while",
+        "body": [
+            "while ($1) {",
+            "\t$0",
+            "}"
+        ],
+        "description": "While loop"
+    },
+    "Do-While Loop": {
+        "prefix": "dowhile",
+        "body": [
+            "do {",
+            "\t$0",
+            "} while ($1);"
+        ],
+        "description": "Do-while loop"
+    }
+}
