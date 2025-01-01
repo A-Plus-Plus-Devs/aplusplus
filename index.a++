@@ -1,22 +1,3 @@
-
-// Function with conditional logic
-#define int max(int x, int y) {
-    if (x > y) {
-        yield x;
-    } else {
-        yield y;
-
-    }
-}
-
-
-#define int min(int x, int y) {
-    if (x < y) {
-        yield x;
-    } 
-    yield y;
-}
-
 #define string stringTest(int a, int b) {
     int result = a + b;
 
@@ -25,8 +6,6 @@
     yield message;
 }
 
-print(stringTest(5, 10));             // Prints: The sum of 5 and 10 is: 15
+string test = stringTest(5, 10);
 
-print(max(30, 60));               // Prints: 30
-
-print(min(60, 40));               // Prints: 30
+print(test);             // Prints: The sum of 5 and 10 is: 15

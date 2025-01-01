@@ -903,7 +903,39 @@ void interpret(ASTNode *node)
                     break;
                 }
 
-                if (var->type == FLOAT_TYPE)
+                if (node->left->type == NODE_FUNCTION_CALL)
+                {
+                    char *result = execute_function(node->left->function_name, node->left->arguments);
+                    if (result)
+                    {
+                        if (var->type == STRING_TYPE)
+                        {
+                            set_variable(node->var_name, STRING_TYPE, result);
+                        }
+                        else if (var->type == INT_TYPE)
+                        {
+                            int value = atoi(result);
+                            set_variable(node->var_name, INT_TYPE, &value);
+                        }
+                        else if (var->type == FLOAT_TYPE)
+                        {
+                            double value = atof(result);
+                            set_variable(node->var_name, FLOAT_TYPE, &value);
+                        }
+                        else if (var->type == BOOL_TYPE)
+                        {
+                            bool value = strtobool(result);
+                            set_variable(node->var_name, BOOL_TYPE, &value);
+                        }
+                        else if (var->type == CHAR_TYPE)
+                        {
+                            char value = result[0];
+                            set_variable(node->var_name, CHAR_TYPE, &value);
+                        }
+                        free(result);
+                    }
+                }
+                else if (var->type == FLOAT_TYPE)
                 {
                     double value = evaluate_float_expression(node->left);
                     set_variable(node->var_name, FLOAT_TYPE, &value);
@@ -1029,7 +1061,39 @@ void interpret(ASTNode *node)
                 
             case NODE_VAR_DECLARATION:
             {
-                if (strcmp(node->var_type, "float") == 0)
+                if (node->left && node->left->type == NODE_FUNCTION_CALL)
+                {
+                    char *result = execute_function(node->left->function_name, node->left->arguments);
+                    if (result)
+                    {
+                        if (strcmp(node->var_type, "string") == 0)
+                        {
+                            set_variable(node->var_name, STRING_TYPE, result);
+                        }
+                        else if (strcmp(node->var_type, "int") == 0)
+                        {
+                            int value = atoi(result);
+                            set_variable(node->var_name, INT_TYPE, &value);
+                        }
+                        else if (strcmp(node->var_type, "float") == 0)
+                        {
+                            double value = atof(result);
+                            set_variable(node->var_name, FLOAT_TYPE, &value);
+                        }
+                        else if (strcmp(node->var_type, "boolean") == 0)
+                        {
+                            bool value = strtobool(result);
+                            set_variable(node->var_name, BOOL_TYPE, &value);
+                        }
+                        else if (strcmp(node->var_type, "char") == 0)
+                        {
+                            char value = result[0];
+                            set_variable(node->var_name, CHAR_TYPE, &value);
+                        }
+                        free(result);
+                    }
+                }
+                else if (strcmp(node->var_type, "float") == 0)
                 {
                     double value = node->left ? evaluate_float_expression(node->left) : 0.0;
                     set_variable(node->var_name, FLOAT_TYPE, &value);
@@ -1081,15 +1145,7 @@ void interpret(ASTNode *node)
                 }
                 else if (strcmp(node->var_type, "boolean") == 0)
                 {
-                    bool value;
-                    if (node->left && node->left->type == NODE_BOOL_LITERAL)
-                    {
-                        value = strtobool(node->left->value);
-                    }
-                    else
-                    {
-                        value = false;
-                    }
+                    bool value = node->left ? evaluate_bool_expression(node->left) : false;
                     set_variable(node->var_name, BOOL_TYPE, &value);
                 }
                 else if (strcmp(node->var_type, "string") == 0)
