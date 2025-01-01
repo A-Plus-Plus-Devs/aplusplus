@@ -438,6 +438,16 @@ static int evaluate_expression(ASTNode *node)
         }
         return 0;
     }
+    else if (node->type == NODE_FUNCTION_CALL)
+    {
+        char *result = execute_function(node->function_name, node->arguments);
+        if (result) {
+            int value = atoi(result);
+            free(result);
+            return value;
+        }
+        return 0;
+    }
     else if (node->type == NODE_BINARY_OP)
     {
         // Handle boolean negation specially
