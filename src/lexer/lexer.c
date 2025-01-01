@@ -393,6 +393,11 @@ Token *next_token(Lexer *lexer)
             token->value = strdup("++");
             advance(lexer); // consume first '+'
             advance(lexer); // consume second '+'
+        } else if (peek_char(lexer) == '=') {
+            token->type = TOKEN_PLUS_ASSIGN;
+            token->value = strdup("+=");
+            advance(lexer); // consume '+'
+            advance(lexer); // consume '='
         } else {
             token->type = TOKEN_PLUS;
             token->value = strdup("+");
@@ -406,9 +411,66 @@ Token *next_token(Lexer *lexer)
             token->value = strdup("--");
             advance(lexer); // consume first '-'
             advance(lexer); // consume second '-'
+        } else if (peek_char(lexer) == '=') {
+            token->type = TOKEN_MINUS_ASSIGN;
+            token->value = strdup("-=");
+            advance(lexer); // consume '-'
+            advance(lexer); // consume '='
         } else {
             token->type = TOKEN_MINUS;
             token->value = strdup("-");
+            advance(lexer);
+        }
+        return token;
+
+    case '*':
+        if (peek_char(lexer) == '*') {
+            token->type = TOKEN_POWER;
+            token->value = strdup("**");
+            advance(lexer); // consume first '*'
+            advance(lexer); // consume second '*'
+        } else if (peek_char(lexer) == '=') {
+            token->type = TOKEN_MUL_ASSIGN;
+            token->value = strdup("*=");
+            advance(lexer); // consume '*'
+            advance(lexer); // consume '='
+        } else {
+            token->type = TOKEN_MULTIPLY;
+            token->value = strdup("*");
+            advance(lexer);
+        }
+        return token;
+
+    case '/':
+        if (peek_char(lexer) == '/') {
+            skip_comments(lexer);
+            free(token);
+            return next_token(lexer);
+        } else if (peek_char(lexer) == '*') {
+            skip_comments(lexer);
+            free(token);
+            return next_token(lexer);
+        } else if (peek_char(lexer) == '=') {
+            token->type = TOKEN_DIV_ASSIGN;
+            token->value = strdup("/=");
+            advance(lexer); // consume '/'
+            advance(lexer); // consume '='
+        } else {
+            token->type = TOKEN_DIVIDE;
+            token->value = strdup("/");
+            advance(lexer);
+        }
+        return token;
+
+    case '%':
+        if (peek_char(lexer) == '=') {
+            token->type = TOKEN_MOD_ASSIGN;
+            token->value = strdup("%=");
+            advance(lexer); // consume '%'
+            advance(lexer); // consume '='
+        } else {
+            token->type = TOKEN_MODULUS;
+            token->value = strdup("%");
             advance(lexer);
         }
         return token;
@@ -439,44 +501,22 @@ Token *next_token(Lexer *lexer)
         }
         return token;
 
-    case '*': 
-        if (peek_char(lexer) == '*')
-        {
-            advance(lexer);
-            advance(lexer);
-            token->type = TOKEN_POWER;
-            token->value = strdup("**");
-        }
-        else
-        {
-            advance(lexer);
-            token->type = TOKEN_MULTIPLY;
-            token->value = strdup("*");
-        }
+    case '(':
+        advance(lexer);
+        token->type = TOKEN_LPAREN;
+        token->value = strdup("(");
         return token;
 
-    case '/': 
+    case ')':
         advance(lexer);
-        token->type = TOKEN_DIVIDE; 
-        token->value = strdup("/"); 
+        token->type = TOKEN_RPAREN;
+        token->value = strdup(")");
         return token;
 
-    case '(': 
+    case ';':
         advance(lexer);
-        token->type = TOKEN_LPAREN; 
-        token->value = strdup("("); 
-        return token;
-
-    case ')': 
-        advance(lexer);
-        token->type = TOKEN_RPAREN; 
-        token->value = strdup(")"); 
-        return token;
-
-    case ';': 
-        advance(lexer);
-        token->type = TOKEN_SEMICOLON; 
-        token->value = strdup(";"); 
+        token->type = TOKEN_SEMICOLON;
+        token->value = strdup(";");
         return token;
 
     case ',':
@@ -510,28 +550,19 @@ Token *next_token(Lexer *lexer)
         return token;
 
     case '!':
-        if (peek_char(lexer) == '=')
-        {
+        if (peek_char(lexer) == '=') {
             token->type = TOKEN_NOT_EQUAL;
             token->value = strdup("!=");
             advance(lexer); // consume '!'
             advance(lexer); // consume '='
-        }
-        else
-        {
+        } else {
             token->type = TOKEN_NOT;
             token->value = strdup("!");
             advance(lexer);
         }
         return token;
 
-    case '%': 
-        token->type = TOKEN_MODULUS; 
-        token->value = strdup("%"); 
-        advance(lexer);
-        return token;
-
-    case '"': 
+    case '"':
         free(token); // Free the token we created since string() creates its own
         return string(lexer);
     case '\'':

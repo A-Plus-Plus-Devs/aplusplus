@@ -435,6 +435,10 @@ static int evaluate_expression(ASTNode *node)
             {
                 return var->value.char_value;
             }
+            else if (var->type == STRING_TYPE)
+            {
+                return 0;
+            }
         }
         return 0;
     }
@@ -476,40 +480,83 @@ static int evaluate_expression(ASTNode *node)
             has_float = true;
         }
 
+        // Get values for both operands, handling variables specially
+        int left = 0, right = 0;
+        
+        if (node->left->type == NODE_LITERAL)
+        {
+            Variable *var = get_variable(node->left->value);
+            if (var && var->type == INT_TYPE)
+            {
+                left = var->value.int_value;
+                printf("[DEBUG] Left operand is variable %s with value %d\n", node->left->value, left);
+            }
+            else
+            {
+                left = evaluate_expression(node->left);
+            }
+        }
+        else
+        {
+            left = evaluate_expression(node->left);
+        }
+
+        if (node->right->type == NODE_LITERAL)
+        {
+            Variable *var = get_variable(node->right->value);
+            if (var && var->type == INT_TYPE)
+            {
+                right = var->value.int_value;
+                printf("[DEBUG] Right operand is variable %s with value %d\n", node->right->value, right);
+            }
+            else
+            {
+                right = evaluate_expression(node->right);
+            }
+        }
+        else
+        {
+            right = evaluate_expression(node->right);
+        }
+
+        printf("[DEBUG] Binary operation: %s, left=%d, right=%d\n", node->value, left, right);
+
+        // If either operand is a float, use float evaluation
         if (has_float)
         {
             return (int)evaluate_float_expression(node);
         }
 
-        int left = evaluate_expression(node->left);
-        int right = evaluate_expression(node->right);
-
+        int result = 0;
+        // Otherwise proceed with integer operations
         if (strcmp(node->value, "+") == 0)
-            return left + right;
-        if (strcmp(node->value, "-") == 0)
-            return left - right;
-        if (strcmp(node->value, "*") == 0)
-            return left * right;
-        if (strcmp(node->value, "/") == 0)
+            result = left + right;
+        else if (strcmp(node->value, "-") == 0)
+            result = left - right;
+        else if (strcmp(node->value, "*") == 0)
+            result = left * right;
+        else if (strcmp(node->value, "/") == 0)
         {
             if (right == 0)
             {
                 printf("Error: Division by zero\n");
                 return 0;
             }
-            return left / right;
+            result = left / right;
         }
-        if (strcmp(node->value, "**") == 0)
-            return (int)pow(left, right);
-        if (strcmp(node->value, "%") == 0)
+        else if (strcmp(node->value, "**") == 0)
+            result = (int)pow(left, right);
+        else if (strcmp(node->value, "%") == 0)
         {
             if (right == 0)
             {
                 printf("Error: Modulus by zero\n");
                 return 0;
             }
-            return left % right;
+            result = left % right;
         }
+        printf("[DEBUG] Binary operation result: %d\n", result);
+        return result;
     }
 
     return 0;
@@ -1109,7 +1156,6 @@ void interpret(ASTNode *node)
                 {
                     if (node->left->type != NODE_STRING_LITERAL && 
                         !(node->left->type == NODE_LITERAL && 
-                          get_variable(node->left->value) && 
                           get_variable(node->left->value)->type == STRING_TYPE) &&
                         !(node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "+") == 0)) {
                         printf("Error: Type mismatch - Cannot convert to string for variable '%s'. Use string concatenation (+) for conversion.\n", 
@@ -1159,6 +1205,10 @@ void interpret(ASTNode *node)
                 // Execute initialisation
                 interpret(node->init);
 
+                // Save variable count before loop
+                int saved_var_count = variable_count;
+                int loop_var_count = variable_count;
+
                 // Loop while condition is true
                 while (evaluate_bool_expression(node->condition))
                 {
@@ -1167,6 +1217,65 @@ void interpret(ASTNode *node)
                     
                     // Execute increment
                     interpret(node->increment);
+
+                    // Restore loop variables to their state after initialization
+                    // but keep any variables created inside the loop
+                    for (int i = saved_var_count; i < loop_var_count; i++)
+                    {
+                        Variable *var = &variables[i];
+                        // Find the original variable
+                        for (int j = loop_var_count; j < variable_count; j++)
+                        {
+                            if (strcmp(variables[j].name, var->name) == 0)
+                            {
+                                // Copy the value back
+                                if (var->type == INT_TYPE)
+                                {
+                                    var->value.int_value = variables[j].value.int_value;
+                                }
+                                else if (var->type == FLOAT_TYPE)
+                                {
+                                    var->value.float_value = variables[j].value.float_value;
+                                }
+                                else if (var->type == BOOL_TYPE)
+                                {
+                                    var->value.bool_value = variables[j].value.bool_value;
+                                }
+                                else if (var->type == CHAR_TYPE)
+                                {
+                                    var->value.char_value = variables[j].value.char_value;
+                                }
+                                else if (var->type == STRING_TYPE)
+                                {
+                                    free(var->value.string_value);
+                                    var->value.string_value = strdup(variables[j].value.string_value);
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    // Clean up variables created inside the loop
+                    while (variable_count > loop_var_count)
+                    {
+                        variable_count--;
+                        free(variables[variable_count].name);
+                        if (variables[variable_count].type == STRING_TYPE)
+                        {
+                            free(variables[variable_count].value.string_value);
+                        }
+                    }
+                }
+
+                // Restore variable count after loop (clean up loop scope)
+                while (variable_count > saved_var_count)
+                {
+                    variable_count--;
+                    free(variables[variable_count].name);
+                    if (variables[variable_count].type == STRING_TYPE)
+                    {
+                        free(variables[variable_count].value.string_value);
+                    }
                 }
                 break;
             }
@@ -1310,7 +1419,6 @@ void interpret(ASTNode *node)
                 {
                     if (node->left->type != NODE_STRING_LITERAL && 
                         !(node->left->type == NODE_LITERAL && 
-                          get_variable(node->left->value) && 
                           get_variable(node->left->value)->type == STRING_TYPE) &&
                         !(node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "+") == 0)) {
                         printf("Error: Type mismatch - Cannot convert to string for variable '%s'. Use string concatenation (+) for conversion.\n", 

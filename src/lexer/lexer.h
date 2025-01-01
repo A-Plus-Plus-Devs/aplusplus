@@ -74,6 +74,11 @@ typedef enum
     TOKEN_YIELD,        // yield
     TOKEN_FUNCTION,     // function
     TOKEN_TYPE,         // type declarations (int, float, string, etc.)
+    TOKEN_PLUS_ASSIGN,  // +=
+    TOKEN_MINUS_ASSIGN, // -=
+    TOKEN_MUL_ASSIGN,   // *=
+    TOKEN_DIV_ASSIGN,   // /=
+    TOKEN_MOD_ASSIGN,   // %=
 } TokenType;
 
 // Define keywords

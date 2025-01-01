@@ -266,22 +266,36 @@ static ASTNode *parse_assignment(Parser *parser)
     char *var_name = strdup(parser->current_token->value);
     get_next_token(parser);
 
-    if (parser->current_token->type != TOKEN_ASSIGN)
+    TokenType assign_type = parser->current_token->type;
+    if (assign_type != TOKEN_ASSIGN && 
+        assign_type != TOKEN_PLUS_ASSIGN && 
+        assign_type != TOKEN_MINUS_ASSIGN && 
+        assign_type != TOKEN_MUL_ASSIGN && 
+        assign_type != TOKEN_DIV_ASSIGN && 
+        assign_type != TOKEN_MOD_ASSIGN)
     {
         free(var_name);
         return NULL;
     }
 
-    get_next_token(parser); // consume '='
+    char *op = NULL;
+    if (assign_type == TOKEN_PLUS_ASSIGN) op = "+";
+    else if (assign_type == TOKEN_MINUS_ASSIGN) op = "-";
+    else if (assign_type == TOKEN_MUL_ASSIGN) op = "*";
+    else if (assign_type == TOKEN_DIV_ASSIGN) op = "/";
+    else if (assign_type == TOKEN_MOD_ASSIGN) op = "%";
+
+    get_next_token(parser); // consume assignment operator
     
     // Parse the full expression
-    ASTNode *value = parse_expression(parser);
-
+    ASTNode *value = NULL;
     if (parser->current_token->type == TOKEN_BOOL)
     {
         value = create_node(NODE_BOOL_LITERAL, NULL, NULL, parser->current_token->value);
         get_next_token(parser);
-    } else {
+    } 
+    else 
+    {
         value = parse_expression(parser);
     }
 
@@ -291,7 +305,15 @@ static ASTNode *parse_assignment(Parser *parser)
         return NULL;
     }
 
-    return create_assignment_node(var_name, value);
+    if (op) {
+        // For compound assignments (+=, -=, etc.), create a binary operation node
+        ASTNode *var_node = create_node(NODE_LITERAL, NULL, NULL, var_name);
+        ASTNode *op_node = create_node(NODE_BINARY_OP, var_node, value, op);
+        return create_assignment_node(var_name, op_node);
+    } else {
+        // For simple assignment (=)
+        return create_assignment_node(var_name, value);
+    }
 }
 
 static ASTNode *parse_expression(Parser *parser)
