@@ -1,16 +1,14 @@
 #define string stringTest(int a, int b) {
     int result = a + b;
-
     string message = "The sum of " + a + " and " + b + " is: " + result;
-
     yield message;
 }
 
-int s = stringTest(5, 3);
+#define int intTest(int a, int b) {
+    yield a + b;
+}
 
-print(s);
-
-int x = yup;
-
-print(x);
-
+string s1 = stringTest(5, 3);    // OK - matching types
+int x1 = intTest(5, 3);         // OK - matching types
+// int x2 = stringTest(5, 3);      // Error - can't assign string to int
+float f1 = intTest(5, 3);       // OK - int can be implicitly converted to float

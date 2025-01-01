@@ -72,6 +72,21 @@ static VariableType get_type_from_string(const char *type_str) {
     return INT_TYPE; // Default to INT_TYPE
 }
 
+static VariableType get_function_return_type(const char *return_type_str) {
+    if (strcmp(return_type_str, "int") == 0) {
+        return INT_TYPE;
+    } else if (strcmp(return_type_str, "float") == 0) {
+        return FLOAT_TYPE;
+    } else if (strcmp(return_type_str, "string") == 0) {
+        return STRING_TYPE;
+    } else if (strcmp(return_type_str, "boolean") == 0) {
+        return BOOL_TYPE;
+    } else if (strcmp(return_type_str, "char") == 0) {
+        return CHAR_TYPE;
+    }
+    return INT_TYPE; // Default
+}
+
 // Register a function definition
 void register_function(char *name, char *return_type, ASTNode *parameters, ASTNode *body) {
     if (function_count >= MAX_FUNCTIONS) {
@@ -823,6 +838,23 @@ void interpret(ASTNode *node)
             {
                 if (node->left->type == NODE_FUNCTION_CALL)
                 {
+                    Function *func = find_function(node->left->function_name);
+                    if (!func) {
+                        printf("Error: Undefined function '%s'\n", node->left->function_name);
+                        exit(1);
+                    }
+
+                    // Get function's return type
+                    VariableType func_return_type = get_function_return_type(func->return_type);
+                    
+                    // Check if return type is compatible with variable type
+                    if (func_return_type != INT_TYPE && !can_implicitly_convert(func_return_type, INT_TYPE)) {
+                        printf("Error: Type mismatch - Cannot assign return value of function '%s' (%s) to variable '%s' (%s)\n",
+                               node->left->function_name, type_to_string(func_return_type), 
+                               node->var_name, type_to_string(INT_TYPE));
+                        exit(1);
+                    }
+
                     char *result = execute_function(node->left->function_name, node->left->arguments);
                     if (result) {
                         printf("%s\n", result);
@@ -933,6 +965,23 @@ void interpret(ASTNode *node)
 
                 if (node->left->type == NODE_FUNCTION_CALL)
                 {
+                    Function *func = find_function(node->left->function_name);
+                    if (!func) {
+                        printf("Error: Undefined function '%s'\n", node->left->function_name);
+                        exit(1);
+                    }
+
+                    // Get function's return type
+                    VariableType func_return_type = get_function_return_type(func->return_type);
+                    
+                    // Check if return type is compatible with variable type
+                    if (func_return_type != var->type && !can_implicitly_convert(func_return_type, var->type)) {
+                        printf("Error: Type mismatch - Cannot assign return value of function '%s' (%s) to variable '%s' (%s)\n",
+                               node->left->function_name, type_to_string(func_return_type), 
+                               node->var_name, type_to_string(var->type));
+                        exit(1);
+                    }
+
                     char *result = execute_function(node->left->function_name, node->left->arguments);
                     if (result)
                     {
@@ -1125,6 +1174,23 @@ void interpret(ASTNode *node)
             {
                 if (node->left && node->left->type == NODE_FUNCTION_CALL)
                 {
+                    Function *func = find_function(node->left->function_name);
+                    if (!func) {
+                        printf("Error: Undefined function '%s'\n", node->left->function_name);
+                        exit(1);
+                    }
+
+                    // Get function's return type
+                    VariableType func_return_type = get_function_return_type(func->return_type);
+                    
+                    // Check if return type is compatible with variable type
+                    if (func_return_type != get_type_from_string(node->var_type) && !can_implicitly_convert(func_return_type, get_type_from_string(node->var_type))) {
+                        printf("Error: Type mismatch - Cannot assign return value of function '%s' (%s) to variable '%s' (%s)\n",
+                               node->left->function_name, type_to_string(func_return_type), 
+                               node->var_name, type_to_string(get_type_from_string(node->var_type)));
+                        exit(1);
+                    }
+
                     char *result = execute_function(node->left->function_name, node->left->arguments);
                     if (result)
                     {
