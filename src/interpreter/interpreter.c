@@ -44,6 +44,12 @@ static char *execute_function(const char *name, ASTNode *arguments);
 static void set_variable(const char *name, VariableType type, void *value);
 static Variable *get_variable(const char *name);
 
+static Function *find_function(const char *name);
+static char *execute_function(const char *name, ASTNode *arguments);
+static void set_variable(const char *name, VariableType type, void *value);
+static Variable *get_variable(const char *name);
+static char *execute_function_body(const char *return_type, ASTNode *body);
+
 // Global variables
 static Function functions[MAX_FUNCTIONS];
 static int function_count = 0;
@@ -191,10 +197,26 @@ char* execute_function(const char *name, ASTNode *arguments) {
                 result[1] = '\0';
             }
             break;
+        } else if (current->type == NODE_IF) {
+            bool condition = evaluate_bool_expression(current->left);
+            if (condition) {
+                char *if_result = execute_function_body(func->return_type, current->right);
+                if (if_result) {
+                    result = if_result;
+                    break;
+                }
+            } else if (current->else_branch) {
+                char *else_result = execute_function_body(func->return_type, current->else_branch);
+                if (else_result) {
+                    result = else_result;
+                    break;
+                }
+            }
+            current = current->next;
         } else {
             interpret(current);
+            current = current->next;
         }
-        current = current->next;
     }
     
     // Restore variable count (clean up function scope)
@@ -203,6 +225,55 @@ char* execute_function(const char *name, ASTNode *arguments) {
         free(variables[variable_count].name);
         if (variables[variable_count].type == STRING_TYPE) {
             free(variables[variable_count].value.string_value);
+        }
+    }
+    
+    return result;
+}
+
+static char *execute_function_body(const char *return_type, ASTNode *body) {
+    ASTNode *current = body;
+    char *result = NULL;
+    
+    while (current) {
+        if (current->type == NODE_YIELD_STATEMENT) {
+            if (!current->left) {
+                return strdup("");
+            }
+            
+            // Handle yield statement based on return type
+            if (strcmp(return_type, "int") == 0) {
+                int val = evaluate_expression(current->left);
+                char buf[32];
+                snprintf(buf, sizeof(buf), "%d", val);
+                result = strdup(buf);
+            } else if (strcmp(return_type, "float") == 0) {
+                double val = evaluate_float_expression(current->left);
+                char buf[32];
+                snprintf(buf, sizeof(buf), "%g", val);
+                result = strdup(buf);
+            } else if (strcmp(return_type, "string") == 0) {
+                if (current->left->type == NODE_STRING_LITERAL) {
+                    result = strdup(current->left->value);
+                } else {
+                    result = evaluate_string_expression(current->left);
+                }
+                if (!result) {
+                    result = strdup("");
+                }
+            } else if (strcmp(return_type, "boolean") == 0) {
+                bool val = evaluate_bool_expression(current->left);
+                result = strdup(val ? "yup" : "nope");
+            } else if (strcmp(return_type, "char") == 0) {
+                char val = (char)evaluate_expression(current->left);
+                result = (char *)malloc(2);
+                result[0] = val;
+                result[1] = '\0';
+            }
+            break;
+        } else {
+            interpret(current);
+            current = current->next;
         }
     }
     

@@ -1,35 +1,32 @@
-// Basic function with no parameters
-#define string sayHello() {
-    yield "Hello, World!";
-}
-
-// Function with parameters
-#define int add(int a, int b) {
-    yield a + b;
-}
-
-// Function with multiple types
-#define float calculateArea(float radius) {
-    yield 3.14159 * radius ** 2;
-}
-
-// Function with multiple statements
-#define string getFullName(string firstName, string lastName) {
-    string fullName = firstName + " " + lastName;
-    yield fullName;
-}
 
 // Function with conditional logic
 #define int max(int x, int y) {
     if (x > y) {
         yield x;
+    } else {
+        yield y;
+
     }
+}
+
+
+#define int min(int x, int y) {
+    if (x < y) {
+        yield x;
+    } 
     yield y;
 }
 
-// Testing the functions
-print(sayHello());                  // Prints: Hello, World!
-print(add(5, 3));                  // Prints: 8
-print(calculateArea(2.5));         // Prints: 19.634938
-print(getFullName("John", "Doe")); // Prints: John Doe
-print(max(10, 20));               // Prints: 20
+#define string stringTest(int a, int b) {
+    int result = a + b;
+
+    string message = "The sum of " + a + " and " + b + " is: " + result;
+
+    yield message;
+}
+
+print(stringTest(5, 10));             // Prints: The sum of 5 and 10 is: 15
+
+print(max(30, 60));               // Prints: 30
+
+print(min(60, 40));               // Prints: 30
