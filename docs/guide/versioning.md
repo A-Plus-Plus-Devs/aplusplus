@@ -17,40 +17,74 @@ For example, version `1.2.3`:
 
 ## Version Management Tool
 
-A++ includes a version management script that handles version updates and Git tags automatically.
+A++ includes version management scripts for different shells that handle version updates and Git tags automatically.
 
 ### Basic Commands
 
 1. **View Current Version**
 ```bash
+# On Bash/Zsh
 a++version current
+
+# On Windows (PowerShell)
+a++version.ps1 current
+
+# On Windows (CMD)
+a++version.cmd current
 ```
 
 2. **List All Available Versions**
 ```bash
+# On Bash/Zsh
 a++version list
+
+# On Windows (PowerShell)
+a++version.ps1 list
+
+# On Windows (CMD)
+a++version.cmd list
 ```
 
 3. **Increment Version Numbers**
 ```bash
-# Bump major version (e.g., 1.2.3 -> 2.0.0)
-a++version bump major
+# On Bash/Zsh
+a++version bump major   # e.g., 1.2.3 -> 2.0.0
+a++version bump minor   # e.g., 1.2.3 -> 1.3.0
+a++version bump patch   # e.g., 1.2.3 -> 1.2.4
 
-# Bump minor version (e.g., 1.2.3 -> 1.3.0)
-a++version bump minor
+# On Windows (PowerShell)
+a++version.ps1 bump major
+a++version.ps1 bump minor
+a++version.ps1 bump patch
 
-# Bump patch version (e.g., 1.2.3 -> 1.2.4)
-a++version bump patch
+# On Windows (CMD)
+a++version.cmd bump major
+a++version.cmd bump minor
+a++version.cmd bump patch
 ```
 
 4. **Set Specific Version**
 ```bash
+# On Bash/Zsh
 a++version set 1.2.3
+
+# On Windows (PowerShell)
+a++version.ps1 set 1.2.3
+
+# On Windows (CMD)
+a++version.cmd set 1.2.3
 ```
 
 5. **Switch to a Different Version**
 ```bash
+# On Bash/Zsh
 a++version checkout 1.2.3
+
+# On Windows (PowerShell)
+a++version.ps1 checkout 1.2.3
+
+# On Windows (CMD)
+a++version.cmd checkout 1.2.3
 ```
 
 ## How Version Control Works
@@ -68,6 +102,23 @@ When you run a version update command:
 2. A new Git commit is created with the version change
 3. A Git tag is created for that version
 4. The changes are saved in your Git history
+
+### Shell-Specific Notes
+
+#### Windows PowerShell
+- Requires PowerShell 5.0 or later
+- May need to run `Set-ExecutionPolicy RemoteSigned` as administrator
+- Uses PowerShell-specific path handling
+
+#### Windows CMD
+- Must be run from a command prompt with administrator privileges
+- Uses Windows-style path separators
+- Maintains compatibility with older Windows systems
+
+#### Bash/Zsh
+- Scripts are interchangeable between Bash and Zsh
+- Uses POSIX-compliant path handling
+- Requires execute permissions (`chmod +x`)
 
 ### Reverting to Previous Versions
 
@@ -148,6 +199,11 @@ a++version bump major
    - Always use the version script
    - If conflicts occur, resolve them and run the version script again
 
-3. **Lost Changes**:
+3. **Shell-Specific Issues**:
+   - **PowerShell**: If scripts won't run, check execution policy
+   - **CMD**: Run as administrator for symbolic link operations
+   - **Bash/Zsh**: Ensure scripts have execute permissions
+
+4. **Lost Changes**:
    - Always commit your changes before switching versions
    - Create branches for changes to old versions

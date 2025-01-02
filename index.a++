@@ -1,2 +1,7 @@
+#define string sayHello(string name) {
+    yield "Hello " + name ;
+}
+
 string name = input("What is your name? ");
-print(name);
+
+print(sayHello(name));

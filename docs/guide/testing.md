@@ -2,7 +2,7 @@
 
 ## Overview
 
-A++ comes with a comprehensive testing framework that helps ensure the reliability of your code. This guide will walk you through the testing system and show you how to write and run tests.
+A++ comes with a comprehensive testing framework that helps ensure the reliability of your code. The testing system supports multiple shells and operating systems.
 
 ## Test Structure
 
@@ -14,74 +14,60 @@ The A++ testing suite includes several key test files:
 - `edge_cases_test.a++`: Tests for boundary conditions and error cases
 - `for_loop_test.a++`: Specific tests for loop functionality
 
-### Test Categories
-
-#### 1. Basic Operations
-```c
-yap(42);         // Integer printing
-yap(3.14);       // Float printing
-yap("Hello");    // String printing
-yap(yup);        // Boolean printing
-```
-
-#### 2. Variable Operations
-```c
-num x = 42;
-float pi = 3.14;
-text greeting = "Hello";
-bool flag = yup;
-```
-
-#### 3. Arithmetic Tests
-```c
-echo(1 + 1);      // Addition
-echo(5 - 3);      // Subtraction
-echo(4 * 2);      // Multiplication
-echo(8 / 2);      // Division
-echo(7 % 3);      // Modulus
-```
-
-#### 4. Control Flow
-```c
-if (x > 0) {
-    print("Positive";)
-} else {
-    print("Non-positive");
-}
-
-for (num i = 0; i < 5; i = i + 1) {
-    print(i);
-}
-```
-
 ## Running Tests
 
 ### Using the Test Runner
-The `run_tests.sh` script automates test execution:
+
+Choose the appropriate test runner for your shell:
 
 ```bash
+# On Bash (Linux/macOS)
 ./run_tests.sh            # Run all tests
 ./run_tests.sh basic      # Run basic tests only
 ./run_tests.sh -v        # Run with verbose output
+
+# On Zsh (macOS default)
+./run_tests.zsh          # Run all tests
+./run_tests.zsh basic    # Run basic tests only
+./run_tests.zsh -v      # Run with verbose output
+
+# On Windows (PowerShell)
+.\run_tests.ps1          # Run all tests
+.\run_tests.ps1 basic    # Run basic tests only
+.\run_tests.ps1 -v      # Run with verbose output
+
+# On Windows (CMD)
+run_tests.cmd           # Run all tests
+run_tests.cmd basic     # Run basic tests only
+run_tests.cmd -v       # Run with verbose output
 ```
 
 ### Test Output
-Tests produce color-coded output:
-- Green checkmark for passed tests
-- Red X for failed tests
+Tests produce color-coded output across all shells:
+- 🟢 Green text for passed tests
+- 🔴 Red text for failed tests
+- 🟡 Yellow text for warnings/info
 - Detailed error messages for failures
 
 Example output:
 ```
 Running A++ Test Suite...
-Green checkmark Basic Operations
-  Green checkmark Integer printing
-  Green checkmark Float printing
-  Green checkmark String printing
-Red X Variable Operations
-  Red X Assignment failed
+✅ Basic Operations
+  ✅ Integer printing
+  ✅ Float printing
+  ✅ String printing
+❌ Variable Operations
+  ❌ Assignment failed
     Expected: 42
     Got: 41
+```
+
+### Log Files
+Test results are automatically logged with timestamps:
+```
+logs/
+  test_run_20240101_120000.log     # Test output log
+  test_run_20240101_120000.failures # Failure details
 ```
 
 ## Writing Tests
@@ -101,12 +87,42 @@ print(a + b);  // Expected: 8
 print(a * b);  // Expected: 15
 ```
 
-### Best Practices
-1. Comment expected outputs
-2. Group related tests together
-3. Include edge cases
-4. Test error conditions
-5. Keep test cases focused
+### Expected Output Files
+Each test can have two associated files:
+- `testname.expected`: Contains expected output patterns
+- `testname.errors`: Contains expected error messages
+
+Example:
+```
+# basic_test.expected
+Result: 8
+Result: 15
+
+# basic_test.errors
+Division by zero
+```
+
+## Shell-Specific Notes
+
+### PowerShell
+- Requires PowerShell 5.0 or later
+- May need execution policy adjustment:
+```powershell
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+### CMD
+- Run as administrator for certain operations
+- Uses Windows-style path separators
+- Compatible with Windows 7 and later
+
+### Bash/Zsh
+- Requires execute permissions:
+```bash
+chmod +x run_tests.sh
+chmod +x run_tests.zsh
+```
+- Uses POSIX-style paths
 
 ## Error Handling
 
@@ -118,20 +134,48 @@ The testing framework handles various types of errors:
 - Stack overflow
 - Memory limits
 
-## Recent Updates
+### Error Output Format
+Errors are reported consistently across shells:
+```
+Error in test_file.a++ (line 42):
+  Expected: <expected_output>
+  Got: <actual_output>
+  Details: <error_message>
+```
 
-- Added timing information for test runs
-- Improved error reporting
-- Enhanced log file generation
-- Added test categorization
+## Test Configuration
+
+### Environment Variables
+```bash
+A_PLUS_PLUS_TEST_TIMEOUT=30    # Test timeout in seconds
+A_PLUS_PLUS_TEST_VERBOSE=1     # Enable verbose output
+A_PLUS_PLUS_TEST_COLOR=1       # Enable colored output
+```
+
+### Command Line Options
+```
+-v, --verbose    Enable verbose output
+-q, --quiet      Suppress all output except errors
+-t, --timeout    Set test timeout (seconds)
+-f, --filter     Run tests matching pattern
+```
 
 ## Contributing
 
 To contribute new tests:
 
 1. Create a new test file in the `tests` directory
-2. Follow the test file structure
-3. Update `run_tests.sh` if needed
+2. Create corresponding `.expected` and `.errors` files
+3. Test on multiple shells if possible
 4. Submit a pull request
+
+### Testing Best Practices
+1. Comment expected outputs
+2. Group related tests together
+3. Include edge cases
+4. Test error conditions
+5. Keep test cases focused
+6. Test across different shells
+7. Use appropriate line endings for each OS
 
 For more information, check the [A++ GitHub repository](https://github.com/A-Plus-Plus-Devs/aplusplus).

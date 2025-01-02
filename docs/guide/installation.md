@@ -58,6 +58,41 @@ a++ --version
 # Test version manager
 a++version current
 ```
+
+#### macOS/Linux
+1. Create symbolic links:
+```bash
+# Link the A++ compiler
+sudo ln -s "$(pwd)/src/scripts/a++" /usr/local/bin/a++
+
+# Link the version manager
+sudo ln -s "$(pwd)/scripts/version.sh" /usr/local/bin/a++version
+
+# Make both scripts executable
+chmod +x src/scripts/a++
+chmod +x scripts/version.sh
+```
+
+#### Windows (PowerShell)
+1. Create symbolic links (run PowerShell as Administrator):
+```powershell
+# Create a symbolic link in a directory that's in your PATH
+New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\AppData\Local\Microsoft\WindowsApps\a++.ps1" -Target "$(Get-Location)\src\scripts\a++.ps1"
+
+# Optional: Create version manager link
+New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\AppData\Local\Microsoft\WindowsApps\a++version.ps1" -Target "$(Get-Location)\scripts\version.ps1"
+```
+
+2. Test the installation:
+```bash
+# On macOS/Linux
+a++ --version
+a++version current
+
+# On Windows
+a++.ps1 --version
+a++version.ps1 current
+```
 <!-- 
 #### Linux (Ubuntu/Debian)
 ```bash
@@ -80,7 +115,14 @@ a++ your_program.a++
 
 1. If you get a "Permission denied" error:
 ```bash
+# On Bash/Zsh
 chmod +x /usr/local/bin/a++
+
+# On Windows (PowerShell as Administrator)
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# On Windows (CMD)
+# No action needed, .cmd files are executable by default
 ```
 
 2. If the compiler isn't found:
@@ -89,18 +131,35 @@ chmod +x /usr/local/bin/a++
 make clean && make
 ```
 
-3. If `/usr/local/bin` doesn't exist:
+3. If `/usr/local/bin` doesn't exist (macOS/Linux):
 ```bash
 sudo mkdir -p /usr/local/bin
 ```
+
+4. On Windows, if you can't create symbolic links:
+- Make sure you're running PowerShell as Administrator
+- Enable Developer Mode in Windows Settings > Update & Security > For developers
 
 ## Uninstallation
 
 To uninstall A++:
 
 ```bash
-# Remove the symbolic link
+# On Bash
 sudo rm /usr/local/bin/a++
+sudo rm /usr/local/bin/a++version
+
+# On Zsh
+sudo rm /usr/local/bin/a++
+sudo rm /usr/local/bin/a++version
+
+# On Windows (PowerShell as Administrator)
+Remove-Item "$env:USERPROFILE\AppData\Local\Microsoft\WindowsApps\a++.ps1"
+Remove-Item "$env:USERPROFILE\AppData\Local\Microsoft\WindowsApps\a++version.ps1"
+
+# On Windows (CMD as Administrator)
+del "%USERPROFILE%\AppData\Local\Microsoft\WindowsApps\a++.cmd"
+del "%USERPROFILE%\AppData\Local\Microsoft\WindowsApps\a++version.cmd"
 
 # Optionally, remove the entire project
 rm -rf path/to/aplusplus

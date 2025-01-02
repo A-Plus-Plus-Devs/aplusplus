@@ -64,11 +64,13 @@ A++ has several reserved keywords:
 - `float`: Floating-point numbers
 - `string`: Text strings
 - `boolean`: Boolean values
+- `char`: Character
 
 ### Control Flow Keywords
 - `if`: Conditional statements
 - `else`: Alternative conditional branch
 - `for`: Loop construct
+- `#define`: Function definition
 
 ### Boolean Values
 - `yup`: True value
@@ -78,6 +80,7 @@ A++ has several reserved keywords:
 - `print`: Output to console
 - `yap`: Alternative output
 - `echo`: Alternative output
+- `input`: Get user input
 
 ## Built-in Functions
 
@@ -87,3 +90,11 @@ print("Hello");     // Standard output
 yap("Hello");       // Alternative output
 echo("Hello");      // Alternative output
 ```
+
+### Input Function
+
+```c
+string name = input("What is your name?"); // Standard input
+
+print("Hello, " + name);
+``` 
