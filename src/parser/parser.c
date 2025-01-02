@@ -28,6 +28,7 @@ static ASTNode *parse_array_declaration(Parser *parser);
 static ASTNode *parse_array_literal(Parser *parser);
 static ASTNode *parse_array_access(Parser *parser, char *array_name);
 static ASTNode *parse_array_method_call(Parser *parser, char *array_name);
+static ASTNode *parse_input(Parser *parser);
 
 // This function is used to get the next token from the lexer
 static Token *get_next_token(Parser *parser)
@@ -601,6 +602,10 @@ static ASTNode *parse_factor(Parser *parser)
         ASTNode *node = create_node(NODE_BOOL_LITERAL, NULL, NULL, token->value);
         get_next_token(parser);
         return node;
+    }
+    else if (token->type == TOKEN_INPUT)
+    {
+        return parse_input(parser);
     }
 
     printf("Error: Unexpected token in factor: %d\n", token->type);
@@ -1682,4 +1687,37 @@ static ASTNode *parse_array_method_call(Parser *parser, char *array_name)
     }
 
     return create_array_method_call_node(array_name, method_name, argument);
+}
+
+static ASTNode *parse_input(Parser *parser)
+{
+    get_next_token(parser); // consume 'input'
+
+    // Check for opening parenthesis
+    if (parser->current_token->type != TOKEN_LPAREN)
+    {
+        printf("Error: Expected '(' after input\n");
+        return NULL;
+    }
+    get_next_token(parser); // consume '('
+
+    // Parse the prompt string
+    if (parser->current_token->type != TOKEN_STRING)
+    {
+        printf("Error: Expected string prompt in input()\n");
+        return NULL;
+    }
+    char *prompt = strdup(parser->current_token->value);
+    get_next_token(parser); // consume string
+
+    // Check for closing parenthesis
+    if (parser->current_token->type != TOKEN_RPAREN)
+    {
+        printf("Error: Expected ')' after input prompt\n");
+        free(prompt);
+        return NULL;
+    }
+    get_next_token(parser); // consume ')'
+
+    return create_node(NODE_INPUT, NULL, NULL, prompt);
 }

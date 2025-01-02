@@ -88,6 +88,7 @@ typedef enum
     TOKEN_REMOVE_FIRST, // .removeFirst
     TOKEN_NOTHING_TYPE,  // For 'nothing' keyword
     TOKEN_EMPTY,        // For 'empty' keyword
+    TOKEN_INPUT,
 } TokenType;
 
 // Define keywords

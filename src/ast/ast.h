@@ -31,7 +31,8 @@ typedef enum
     NODE_ARRAY_DECLARATION,
     NODE_ARRAY_ACCESS,
     NODE_ARRAY_METHOD_CALL,
-    NODE_ARRAY_LITERAL
+    NODE_ARRAY_LITERAL,
+    NODE_INPUT
 } ASTNodeType;
 
 typedef struct ASTNode

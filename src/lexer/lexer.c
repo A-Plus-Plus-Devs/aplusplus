@@ -103,6 +103,8 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_NOTHING_TYPE;
     else if (strcmp(buffer, "empty") == 0)
         token->type = TOKEN_EMPTY;
+    else if (strcmp(buffer, "input") == 0)
+        token->type = TOKEN_INPUT;
     else
         token->type = TOKEN_IDENTIFIER;
 

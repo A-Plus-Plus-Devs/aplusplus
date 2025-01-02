@@ -1,6 +1,2 @@
-#define string example(string name = "paul", int age=18) {
-    yield name + " is " + age + " years old";
-    // function body
-}
-
-print(example());
+string name = input("What is your name? ");
+print(name);

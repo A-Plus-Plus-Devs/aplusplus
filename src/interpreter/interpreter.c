@@ -49,6 +49,7 @@ static char *execute_function(const char *name, ASTNode *arguments);
 static void set_variable(const char *name, VariableType type, void *value);
 static Variable *get_variable(const char *name);
 static char *execute_function_body(const char *return_type, ASTNode *body);
+static char* evaluate_input(const char* prompt);
 
 // Global variables
 static Function functions[MAX_FUNCTIONS];
@@ -754,6 +755,10 @@ char *evaluate_string_expression(ASTNode *node)
         buffer[1] = '\0';
         return strdup(buffer);
     }
+    else if (node->type == NODE_INPUT)
+    {
+        return evaluate_input(node->value);
+    }
 
     return strdup("");
 }
@@ -881,6 +886,28 @@ static const char* type_to_string(VariableType type) {
         case CHAR_TYPE: return "char";
         default: return "unknown";
     }
+}
+
+static char* evaluate_input(const char* prompt) {
+    printf("%s", prompt);
+    
+    char* line = NULL;
+    size_t len = 0;
+    ssize_t read;
+    
+    read = getline(&line, &len, stdin);
+    
+    if (read == -1) {
+        free(line);
+        return strdup("");
+    }
+    
+    // Remove trailing newline if present
+    if (read > 0 && line[read-1] == '\n') {
+        line[read-1] = '\0';
+    }
+    
+    return line;
 }
 
 // This is the main function that interprets our AST
@@ -1157,7 +1184,13 @@ void interpret(ASTNode *node)
                 }
                 else if (var->type == STRING_TYPE)
                 {
-                    if (node->left->type != NODE_STRING_LITERAL && 
+                    if (node->left->type == NODE_INPUT) {
+                        // Handle input function specially
+                        char *value = evaluate_input(node->left->value);
+                        set_variable(node->var_name, STRING_TYPE, value);
+                        free(value);
+                    }
+                    else if (node->left->type != NODE_STRING_LITERAL && 
                         !(node->left->type == NODE_LITERAL && 
                           get_variable(node->left->value)->type == STRING_TYPE) &&
                         !(node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "+") == 0)) {
@@ -1165,9 +1198,11 @@ void interpret(ASTNode *node)
                                node->var_name);
                         exit(1);
                     }
-                    char *value = evaluate_string_expression(node->left);
-                    set_variable(node->var_name, STRING_TYPE, value);
-                    free(value);
+                    else {
+                        char *value = evaluate_string_expression(node->left);
+                        set_variable(node->var_name, STRING_TYPE, value);
+                        free(value);
+                    }
                 }
                 else if (var->type == CHAR_TYPE)
                 {
@@ -1420,7 +1455,13 @@ void interpret(ASTNode *node)
                 }
                 else if (strcmp(node->var_type, "string") == 0)
                 {
-                    if (node->left->type != NODE_STRING_LITERAL && 
+                    if (node->left->type == NODE_INPUT) {
+                        // Handle input function specially
+                        char *value = evaluate_input(node->left->value);
+                        set_variable(node->var_name, STRING_TYPE, value);
+                        free(value);
+                    }
+                    else if (node->left->type != NODE_STRING_LITERAL && 
                         !(node->left->type == NODE_LITERAL && 
                           get_variable(node->left->value)->type == STRING_TYPE) &&
                         !(node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "+") == 0)) {
@@ -1428,9 +1469,11 @@ void interpret(ASTNode *node)
                                node->var_name);
                         exit(1);
                     }
-                    char *value = evaluate_string_expression(node->left);
-                    set_variable(node->var_name, STRING_TYPE, value);
-                    free(value);
+                    else {
+                        char *value = evaluate_string_expression(node->left);
+                        set_variable(node->var_name, STRING_TYPE, value);
+                        free(value);
+                    }
                 }
                 else if (strcmp(node->var_type, "char") == 0)
                 {
