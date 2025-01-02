@@ -575,6 +575,31 @@ static bool evaluate_bool_expression(ASTNode *node)
 
     if (node->type == NODE_BINARY_OP)
     {
+        // Add special handling for string comparison
+        if (strcmp(node->value, "==") == 0)
+        {
+            // If either operand is a string literal or string variable
+            if ((node->left->type == NODE_STRING_LITERAL || 
+                 (node->left->type == NODE_LITERAL && 
+                  get_variable(node->left->value) && 
+                  get_variable(node->left->value)->type == STRING_TYPE)) ||
+                (node->right->type == NODE_STRING_LITERAL || 
+                 (node->right->type == NODE_LITERAL && 
+                  get_variable(node->right->value) && 
+                  get_variable(node->right->value)->type == STRING_TYPE)))
+            {
+                char *left_str = evaluate_string_expression(node->left);
+                char *right_str = evaluate_string_expression(node->right);
+                bool result = (strcmp(left_str, right_str) == 0);
+                free(left_str);
+                free(right_str);
+                return result;
+            }
+            // For non-string comparisons, use existing logic
+            int left = evaluate_expression(node->left);
+            int right = evaluate_expression(node->right);
+            return left == right;
+        }
         // For comparison operators
         if (strcmp(node->value, ">") == 0)
         {
@@ -599,12 +624,6 @@ static bool evaluate_bool_expression(ASTNode *node)
             int left = evaluate_expression(node->left);
             int right = evaluate_expression(node->right);
             return left >= right;
-        }
-        else if (strcmp(node->value, "==") == 0)
-        {
-            int left = evaluate_expression(node->left);
-            int right = evaluate_expression(node->right);
-            return left == right;
         }
         else if (strcmp(node->value, "!=") == 0)
         {

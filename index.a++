@@ -4,4 +4,7 @@
 
 string name = input("What is your name? ");
 
+print("Paul" == "Paul"); // should print "yup"
+print("Paul" == "Jake"); // should print "nope"
+
 print(sayHello(name));
