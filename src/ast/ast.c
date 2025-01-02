@@ -242,3 +242,18 @@ void free_ast(ASTNode *node)
         free(node);
     }
 }
+
+ASTNode *create_type_cast_node(const char *target_type, ASTNode *expr)
+{
+    ASTNode *node = (ASTNode *)malloc(sizeof(ASTNode));
+    if (!node) return NULL;
+    
+    node->type = NODE_TYPE_CAST;
+    node->target_type = target_type ? strdup(target_type) : NULL;
+    node->left = expr;
+    node->right = NULL;
+    node->value = NULL;
+    node->next = NULL;
+    
+    return node;
+}

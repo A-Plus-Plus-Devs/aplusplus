@@ -50,6 +50,7 @@ static void set_variable(const char *name, VariableType type, void *value);
 static Variable *get_variable(const char *name);
 static char *execute_function_body(const char *return_type, ASTNode *body);
 static char* evaluate_input(const char* prompt);
+static void handle_type_cast(ASTNode *node);
 
 // Global variables
 static Function functions[MAX_FUNCTIONS];
@@ -1342,168 +1343,334 @@ void interpret(ASTNode *node)
                 
             case NODE_VAR_DECLARATION:
             {
-                if (node->left && node->left->type == NODE_FUNCTION_CALL)
-                {
-                    Function *func = find_function(node->left->function_name);
-                    if (!func) {
-                        printf("Error: Undefined function '%s'\n", node->left->function_name);
-                        exit(1);
+                if (node->left && node->left->type == NODE_TYPE_CAST) {
+                    // Handle type cast in variable declaration
+                    if (strcmp(node->var_type, "string") == 0) {
+                        char buffer[256];
+                        switch (node->left->left->type) {
+                            case NODE_INT_LITERAL:        // type 7
+                            case NODE_LITERAL:            // type 5
+                                snprintf(buffer, sizeof(buffer), "%s", node->left->left->value);
+                                break;
+                            case NODE_FLOAT_LITERAL:      // type 6
+                                snprintf(buffer, sizeof(buffer), "%g", atof(node->left->left->value));
+                                break;
+                            case NODE_BOOL_LITERAL:       // type 5 for true/false
+                            case NODE_STRING_LITERAL:     // type 13
+                                strncpy(buffer, node->left->left->value, sizeof(buffer) - 1);
+                                buffer[sizeof(buffer) - 1] = '\0';
+                                break;
+                            case NODE_INPUT: {            // type 26
+                                printf("%s", node->left->left->value);
+                                fflush(stdout);
+                                if (fgets(buffer, sizeof(buffer), stdin)) {
+                                    buffer[strcspn(buffer, "\n")] = 0;
+                                }
+                                break;
+                            }
+                            default:
+                                snprintf(buffer, sizeof(buffer), "%s", node->left->left->value);
+                                break;
+                        }
+                        set_variable(node->var_name, STRING_TYPE, buffer);
                     }
-
-                    // Get function's return type
-                    VariableType func_return_type = get_function_return_type(func->return_type);
-                    
-                    // Check if return type is compatible with variable type
-                    if (func_return_type != get_type_from_string(node->var_type) && !can_implicitly_convert(func_return_type, get_type_from_string(node->var_type))) {
-                        printf("Error: Type mismatch - Cannot assign return value of function '%s' (%s) to variable '%s' (%s)\n",
-                               node->left->function_name, type_to_string(func_return_type), 
-                               node->var_name, type_to_string(get_type_from_string(node->var_type)));
-                        exit(1);
+                    else if (strcmp(node->var_type, "int") == 0) {
+                        int value = 0;
+                        switch (node->left->left->type) {
+                            case NODE_STRING_LITERAL:
+                                value = atoi(node->left->left->value);
+                                break;
+                            case NODE_INPUT: {
+                                char input[256];
+                                printf("%s", node->left->left->value);
+                                fflush(stdout);
+                                if (fgets(input, sizeof(input), stdin)) {
+                                    input[strcspn(input, "\n")] = 0;
+                                    value = atoi(input);
+                                }
+                                break;
+                            }
+                            case NODE_FLOAT_LITERAL:
+                                value = (int)atof(node->left->left->value);
+                                break;
+                            case NODE_INT_LITERAL:
+                                value = atoi(node->left->left->value);
+                                break;
+                            case NODE_BOOL_LITERAL:
+                                value = (strcmp(node->left->left->value, "true") == 0) ? 1 : 0;
+                                break;
+                            default:
+                                printf("Error: Cannot convert type to int\n");
+                                exit(1);
+                        }
+                        set_variable(node->var_name, INT_TYPE, &value);
                     }
-
-                    char *result = execute_function(node->left->function_name, node->left->arguments);
-                    if (result)
+                    else if (strcmp(node->var_type, "float") == 0) {
+                        float value = 0.0f;
+                        switch (node->left->left->type) {
+                            case NODE_STRING_LITERAL:
+                                value = atof(node->left->left->value);
+                                break;
+                            case NODE_INPUT: {
+                                char input[256];
+                                printf("%s", node->left->left->value);
+                                fflush(stdout);
+                                if (fgets(input, sizeof(input), stdin)) {
+                                    input[strcspn(input, "\n")] = 0;
+                                    value = atof(input);
+                                }
+                                break;
+                            }
+                            case NODE_INT_LITERAL:
+                                value = (float)atoi(node->left->left->value);
+                                break;
+                            case NODE_FLOAT_LITERAL:
+                                value = atof(node->left->left->value);
+                                break;
+                            case NODE_BOOL_LITERAL:
+                                value = (strcmp(node->left->left->value, "true") == 0) ? 1.0f : 0.0f;
+                                break;
+                            default:
+                                printf("Error: Cannot convert type to float\n");
+                                exit(1);
+                        }
+                        set_variable(node->var_name, FLOAT_TYPE, &value);
+                    }
+                    else if (strcmp(node->var_type, "boolean") == 0) {
+                        bool value = false;
+                        switch (node->left->left->type) {
+                            case NODE_INT_LITERAL:
+                                value = atoi(node->left->left->value) != 0;
+                                break;
+                            case NODE_FLOAT_LITERAL:
+                                value = atof(node->left->left->value) != 0.0;
+                                break;
+                            case NODE_STRING_LITERAL:
+                                value = strlen(node->left->left->value) > 0 && 
+                                       strcmp(node->left->left->value, "false") != 0 && 
+                                       strcmp(node->left->left->value, "0") != 0;
+                                break;
+                            case NODE_BOOL_LITERAL:
+                                value = strcmp(node->left->left->value, "true") == 0;
+                                break;
+                            case NODE_INPUT: {
+                                char input[256];
+                                printf("%s", node->left->left->value);
+                                fflush(stdout);
+                                if (fgets(input, sizeof(input), stdin)) {
+                                    input[strcspn(input, "\n")] = 0;
+                                    value = strlen(input) > 0 && 
+                                           strcmp(input, "false") != 0 && 
+                                           strcmp(input, "0") != 0;
+                                }
+                                break;
+                            }
+                            default:
+                                printf("Error: Cannot convert type to boolean\n");
+                                exit(1);
+                        }
+                        set_variable(node->var_name, BOOL_TYPE, &value);
+                    }
+                } else {
+                    if (node->left && node->left->type == NODE_FUNCTION_CALL)
                     {
-                        if (strcmp(node->var_type, "string") == 0)
-                        {
-                            set_variable(node->var_name, STRING_TYPE, result);
+                        Function *func = find_function(node->left->function_name);
+                        if (!func) {
+                            printf("Error: Undefined function '%s'\n", node->left->function_name);
+                            exit(1);
                         }
-                        else if (strcmp(node->var_type, "int") == 0)
-                        {
-                            int value = atoi(result);
-                            set_variable(node->var_name, INT_TYPE, &value);
+
+                        // Get function's return type
+                        VariableType func_return_type = get_function_return_type(func->return_type);
+                        
+                        // Check if return type is compatible with variable type
+                        if (func_return_type != get_type_from_string(node->var_type) && !can_implicitly_convert(func_return_type, get_type_from_string(node->var_type))) {
+                            printf("Error: Type mismatch - Cannot assign return value of function '%s' (%s) to variable '%s' (%s)\n",
+                                   node->left->function_name, type_to_string(func_return_type), 
+                                   node->var_name, type_to_string(get_type_from_string(node->var_type)));
+                            exit(1);
                         }
-                        else if (strcmp(node->var_type, "float") == 0)
+
+                        char *result = execute_function(node->left->function_name, node->left->arguments);
+                        if (result)
                         {
-                            double value = atof(result);
+                            if (strcmp(node->var_type, "string") == 0)
+                            {
+                                set_variable(node->var_name, STRING_TYPE, result);
+                            }
+                            else if (strcmp(node->var_type, "int") == 0)
+                            {
+                                int value = atoi(result);
+                                set_variable(node->var_name, INT_TYPE, &value);
+                            }
+                            else if (strcmp(node->var_type, "float") == 0)
+                            {
+                                double value = atof(result);
+                                set_variable(node->var_name, FLOAT_TYPE, &value);
+                            }
+                            else if (strcmp(node->var_type, "boolean") == 0)
+                            {
+                                bool value = strtobool(result);
+                                set_variable(node->var_name, BOOL_TYPE, &value);
+                            }
+                            else if (strcmp(node->var_type, "char") == 0)
+                            {
+                                char value = result[0];
+                                set_variable(node->var_name, CHAR_TYPE, &value);
+                            }
+                            free(result);
+                        }
+                    }
+                    else if (strcmp(node->var_type, "float") == 0)
+                    {
+                        VariableType expr_type;
+                        
+                        // Determine expression type
+                        if (node->left->type == NODE_STRING_LITERAL) {
+                            expr_type = STRING_TYPE;
+                        } else if (node->left->type == NODE_FLOAT_LITERAL) {
+                            expr_type = FLOAT_TYPE;
+                        } else if (node->left->type == NODE_BOOL_LITERAL) {
+                            expr_type = BOOL_TYPE;
+                        } else if (node->left->type == NODE_CHAR_LITERAL) {
+                            expr_type = CHAR_TYPE;
+                        } else if (node->left->type == NODE_LITERAL && get_variable(node->left->value)) {
+                            expr_type = get_variable(node->left->value)->type;
+                        } else {
+                            expr_type = INT_TYPE;  // Default for numeric expressions
+                        }
+
+                        // Check type compatibility
+                        if (expr_type != FLOAT_TYPE && !can_implicitly_convert(expr_type, FLOAT_TYPE)) {
+                            printf("Error: Type mismatch - Cannot convert from '%s' to 'float' for variable '%s'\n", 
+                                   type_to_string(expr_type), node->var_name);
+                            exit(1);
+                        }
+
+                        // Handle the conversion
+                        if (expr_type == INT_TYPE) {
+                            int int_val = evaluate_expression(node->left);
+                            double value = (double)int_val;
+                            set_variable(node->var_name, FLOAT_TYPE, &value);
+                        } else {
+                            double value = evaluate_float_expression(node->left);
                             set_variable(node->var_name, FLOAT_TYPE, &value);
                         }
-                        else if (strcmp(node->var_type, "boolean") == 0)
-                        {
-                            bool value = strtobool(result);
-                            set_variable(node->var_name, BOOL_TYPE, &value);
+                    }
+                    else if (strcmp(node->var_type, "int") == 0)
+                    {
+                        VariableType expr_type;
+                        
+                        // Determine expression type
+                        if (node->left->type == NODE_STRING_LITERAL) {
+                            expr_type = STRING_TYPE;
+                        } else if (node->left->type == NODE_FLOAT_LITERAL) {
+                            expr_type = FLOAT_TYPE;
+                        } else if (node->left->type == NODE_BOOL_LITERAL) {
+                            expr_type = BOOL_TYPE;
+                        } else if (node->left->type == NODE_CHAR_LITERAL) {
+                            expr_type = CHAR_TYPE;
+                        } else if (node->left->type == NODE_LITERAL && get_variable(node->left->value)) {
+                            expr_type = get_variable(node->left->value)->type;
+                        } else {
+                            expr_type = INT_TYPE;  // Default for numeric expressions
                         }
-                        else if (strcmp(node->var_type, "char") == 0)
-                        {
-                            char value = result[0];
-                            set_variable(node->var_name, CHAR_TYPE, &value);
+
+                        // Check type compatibility
+                        if (expr_type != INT_TYPE && !can_implicitly_convert(expr_type, INT_TYPE)) {
+                            printf("Error: Type mismatch - Cannot convert from '%s' to 'int' for variable '%s'\n", 
+                                   type_to_string(expr_type), node->var_name);
+                            exit(1);
                         }
-                        free(result);
-                    }
-                }
-                else if (strcmp(node->var_type, "float") == 0)
-                {
-                    VariableType expr_type;
-                    
-                    // Determine expression type
-                    if (node->left->type == NODE_STRING_LITERAL) {
-                        expr_type = STRING_TYPE;
-                    } else if (node->left->type == NODE_FLOAT_LITERAL) {
-                        expr_type = FLOAT_TYPE;
-                    } else if (node->left->type == NODE_BOOL_LITERAL) {
-                        expr_type = BOOL_TYPE;
-                    } else if (node->left->type == NODE_CHAR_LITERAL) {
-                        expr_type = CHAR_TYPE;
-                    } else if (node->left->type == NODE_LITERAL && get_variable(node->left->value)) {
-                        expr_type = get_variable(node->left->value)->type;
-                    } else {
-                        expr_type = INT_TYPE;  // Default for numeric expressions
-                    }
 
-                    // Check type compatibility
-                    if (expr_type != FLOAT_TYPE && !can_implicitly_convert(expr_type, FLOAT_TYPE)) {
-                        printf("Error: Type mismatch - Cannot convert from '%s' to 'float' for variable '%s'\n", 
-                               type_to_string(expr_type), node->var_name);
-                        exit(1);
+                        // Handle the conversion
+                        if (expr_type == BOOL_TYPE) {
+                            bool bool_val = evaluate_bool_expression(node->left);
+                            int value = bool_val ? 1 : 0;
+                            set_variable(node->var_name, INT_TYPE, &value);
+                        } else if (expr_type == CHAR_TYPE) {
+                            char char_val = node->left->value[0];
+                            int value = (int)char_val;
+                            set_variable(node->var_name, INT_TYPE, &value);
+                        } else {
+                            int value = evaluate_expression(node->left);
+                            set_variable(node->var_name, INT_TYPE, &value);
+                        }
                     }
-
-                    // Handle the conversion
-                    if (expr_type == INT_TYPE) {
-                        int int_val = evaluate_expression(node->left);
-                        double value = (double)int_val;
-                        set_variable(node->var_name, FLOAT_TYPE, &value);
-                    } else {
-                        double value = evaluate_float_expression(node->left);
-                        set_variable(node->var_name, FLOAT_TYPE, &value);
+                    else if (strcmp(node->var_type, "boolean") == 0)
+                    {
+                        bool value = node->left ? evaluate_bool_expression(node->left) : false;
+                        set_variable(node->var_name, BOOL_TYPE, &value);
                     }
+                    else if (strcmp(node->var_type, "string") == 0)
+                    {
+                        if (node->left->type == NODE_INPUT) {
+                            // Handle input function specially
+                            char *value = evaluate_input(node->left->value);
+                            set_variable(node->var_name, STRING_TYPE, value);
+                            free(value);
+                        }
+                        else if (node->left->type != NODE_STRING_LITERAL && 
+                            !(node->left->type == NODE_LITERAL && 
+                              get_variable(node->left->value)->type == STRING_TYPE) &&
+                            !(node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "+") == 0)) {
+                            printf("Error: Type mismatch - Cannot convert to string for variable '%s'. Use string concatenation (+) for conversion.\n", 
+                                   node->var_name);
+                            exit(1);
+                        }
+                        else {
+                            char *value = evaluate_string_expression(node->left);
+                            set_variable(node->var_name, STRING_TYPE, value);
+                            free(value);
+                        }
+                    }
+                    else if (strcmp(node->var_type, "char") == 0)
+                    {
+                        char value = node->left ? node->left->value[0] : '\0';
+                        set_variable(node->var_name, CHAR_TYPE, &value);
+                    }
+                    break;
                 }
-                else if (strcmp(node->var_type, "int") == 0)
-                {
-                    VariableType expr_type;
-                    
-                    // Determine expression type
-                    if (node->left->type == NODE_STRING_LITERAL) {
-                        expr_type = STRING_TYPE;
-                    } else if (node->left->type == NODE_FLOAT_LITERAL) {
-                        expr_type = FLOAT_TYPE;
-                    } else if (node->left->type == NODE_BOOL_LITERAL) {
-                        expr_type = BOOL_TYPE;
-                    } else if (node->left->type == NODE_CHAR_LITERAL) {
-                        expr_type = CHAR_TYPE;
-                    } else if (node->left->type == NODE_LITERAL && get_variable(node->left->value)) {
-                        expr_type = get_variable(node->left->value)->type;
-                    } else {
-                        expr_type = INT_TYPE;  // Default for numeric expressions
-                    }
-
-                    // Check type compatibility
-                    if (expr_type != INT_TYPE && !can_implicitly_convert(expr_type, INT_TYPE)) {
-                        printf("Error: Type mismatch - Cannot convert from '%s' to 'int' for variable '%s'\n", 
-                               type_to_string(expr_type), node->var_name);
-                        exit(1);
-                    }
-
-                    // Handle the conversion
-                    if (expr_type == BOOL_TYPE) {
-                        bool bool_val = evaluate_bool_expression(node->left);
-                        int value = bool_val ? 1 : 0;
-                        set_variable(node->var_name, INT_TYPE, &value);
-                    } else if (expr_type == CHAR_TYPE) {
-                        char char_val = node->left->value[0];
-                        int value = (int)char_val;
-                        set_variable(node->var_name, INT_TYPE, &value);
-                    } else {
-                        int value = evaluate_expression(node->left);
-                        set_variable(node->var_name, INT_TYPE, &value);
-                    }
-                }
-                else if (strcmp(node->var_type, "boolean") == 0)
-                {
-                    bool value = node->left ? evaluate_bool_expression(node->left) : false;
-                    set_variable(node->var_name, BOOL_TYPE, &value);
-                }
-                else if (strcmp(node->var_type, "string") == 0)
-                {
-                    if (node->left->type == NODE_INPUT) {
-                        // Handle input function specially
-                        char *value = evaluate_input(node->left->value);
-                        set_variable(node->var_name, STRING_TYPE, value);
-                        free(value);
-                    }
-                    else if (node->left->type != NODE_STRING_LITERAL && 
-                        !(node->left->type == NODE_LITERAL && 
-                          get_variable(node->left->value)->type == STRING_TYPE) &&
-                        !(node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "+") == 0)) {
-                        printf("Error: Type mismatch - Cannot convert to string for variable '%s'. Use string concatenation (+) for conversion.\n", 
-                               node->var_name);
-                        exit(1);
-                    }
-                    else {
-                        char *value = evaluate_string_expression(node->left);
-                        set_variable(node->var_name, STRING_TYPE, value);
-                        free(value);
-                    }
-                }
-                else if (strcmp(node->var_type, "char") == 0)
-                {
-                    char value = node->left ? node->left->value[0] : '\0';
-                    set_variable(node->var_name, CHAR_TYPE, &value);
-                }
-                break;
             }
+            case NODE_TYPE_CAST:
+                handle_type_cast(node);
+                break;
             default:
                 break;
         }
         node = node->next;
     }
+}
+
+// Add type conversion validation and execution
+static void handle_type_cast(ASTNode *node)
+{
+    if (!node->target_type || !node->left) {
+        return;
+    }
+
+    printf("DEBUG: Starting type cast for variable '%s'\n", node->var_name);
+
+    // Handle casting to int
+    if (strcmp(node->target_type, "int") == 0) {
+        int value = 0;
+        
+        if (node->left->type == NODE_STRING_LITERAL) {
+            value = atoi(node->left->value);
+            printf("DEBUG: Converting string '%s' to int: %d\n", node->left->value, value);
+            set_variable(node->var_name, INT_TYPE, &value);
+            printf("DEBUG: After set_variable, value should be: %d\n", value);
+            
+            // Verify the value was set correctly
+            Variable *var = get_variable(node->var_name);
+            if (var) {
+                printf("DEBUG: Variable '%s' now has value: %d\n", node->var_name, var->value.int_value);
+            } else {
+                printf("DEBUG: Failed to retrieve variable '%s'\n", node->var_name);
+            }
+        } else {
+            printf("DEBUG: Unhandled node type: %d\n", node->left->type);
+        }
+    }
+    // ... rest of type casting logic ...
 }

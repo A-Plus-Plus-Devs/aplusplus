@@ -32,7 +32,8 @@ typedef enum
     NODE_ARRAY_ACCESS,
     NODE_ARRAY_METHOD_CALL,
     NODE_ARRAY_LITERAL,
-    NODE_INPUT
+    NODE_INPUT,
+    NODE_TYPE_CAST
 } ASTNodeType;
 
 typedef struct ASTNode
@@ -67,6 +68,8 @@ typedef struct ASTNode
     struct ASTNode *init;
     struct ASTNode *condition;
     struct ASTNode *increment;
+
+    char *target_type;  // For type casting operations
 } ASTNode;
 
 /**
@@ -198,5 +201,14 @@ ASTNode *create_array_method_call_node(char *array_name, char *method_name, ASTN
  * @return ASTNode* A pointer to the newly created array literal node.
  */
 ASTNode *create_array_literal_node(ASTNode *elements);
+
+/**
+ * @brief Creates a type cast node.
+ * 
+ * @param target_type The type to cast to (e.g., "int", "float", "string").
+ * @param expr The expression to be cast.
+ * @return ASTNode* A pointer to the newly created type cast node.
+ */
+ASTNode *create_type_cast_node(const char *target_type, ASTNode *expr);
 
 #endif // AST_H

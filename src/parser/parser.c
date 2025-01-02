@@ -579,22 +579,59 @@ static ASTNode *parse_factor(Parser *parser)
     }
     else if (token->type == TOKEN_LPAREN)
     {
-        get_next_token(parser);  // consume '('
-        ASTNode *expr = parse_expression(parser);
+        get_next_token(parser); // consume '('
         
+        // Check if this is a type cast
+        if (parser->current_token->value && 
+            (strcmp(parser->current_token->value, "int") == 0 || 
+             strcmp(parser->current_token->value, "float") == 0 || 
+             strcmp(parser->current_token->value, "string") == 0 || 
+             strcmp(parser->current_token->value, "boolean") == 0 ||
+             strcmp(parser->current_token->value, "char") == 0))
+        {
+            char *target_type = strdup(parser->current_token->value);
+            get_next_token(parser); // consume type
+            
+            if (parser->current_token->type != TOKEN_RPAREN)
+            {
+                printf("Error: Expected ')' after type in cast\n");
+                free(target_type);
+                return NULL;
+            }
+            get_next_token(parser); // consume ')'
+            
+            // Debug print
+            printf("Parsing type cast to %s\n", target_type);
+            
+            ASTNode *expr = parse_expression(parser);
+            if (!expr)
+            {
+                printf("Error: Invalid expression in type cast\n");
+                free(target_type);
+                return NULL;
+            }
+            
+            // Debug print
+            printf("Expression type: %d, value: %s\n", expr->type, expr->value ? expr->value : "NULL");
+            
+            return create_type_cast_node(target_type, expr);
+        }
+        
+        // If it's not a type cast, parse as normal parentheses
+        ASTNode *expr = parse_expression(parser);
         if (!expr)
         {
-            printf("Error: Invalid expression inside parentheses\n");
             return NULL;
         }
-        
+
         if (parser->current_token->type != TOKEN_RPAREN)
         {
-            printf("Error: Expected closing parenthesis\n");
+            printf("Error: Expected ')'\n");
+            free_ast(expr);
             return NULL;
         }
-        
-        get_next_token(parser);  // consume ')'
+
+        get_next_token(parser); // consume ')'
         return expr;
     }
     else if (token->type == TOKEN_BOOL)
