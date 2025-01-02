@@ -600,13 +600,26 @@ static ASTNode *parse_factor(Parser *parser)
             }
             get_next_token(parser); // consume ')'
             
-            // Parse the expression to be cast, which could be another cast
-            ASTNode *expr = parse_factor(parser);  // Changed from parse_expression to parse_factor
+            // Parse the expression to be cast
+            ASTNode *expr = parse_factor(parser);
             if (!expr)
             {
                 printf("Error: Invalid expression in type cast\n");
                 free(target_type);
                 return NULL;
+            }
+
+            // Validate boolean casts
+            if (strcmp(target_type, "boolean") == 0) {
+                if (expr->type == NODE_INT_LITERAL) {
+                    int value = atoi(expr->value);
+                    if (value != 0 && value != 1) {
+                        printf("Error: Cannot cast %d to boolean. Only 0 and 1 are valid values.\n", value);
+                        free(target_type);
+                        free_ast(expr);
+                        return NULL;
+                    }
+                }
             }
             
             return create_type_cast_node(target_type, expr);

@@ -666,7 +666,13 @@ static bool evaluate_bool_expression(ASTNode *node)
             }
             else if (var->type == INT_TYPE)
             {
-                return var->value.int_value != 0;
+                // Only allow 0 and 1 for integer to boolean conversion
+                if (var->value.int_value != 0 && var->value.int_value != 1) {
+                    printf("Error: Cannot convert integer %d to boolean. Only 0 and 1 are valid values.\n", 
+                           var->value.int_value);
+                    exit(1);
+                }
+                return var->value.int_value == 1;
             }
             else if (var->type == CHAR_TYPE)
             {
@@ -676,12 +682,21 @@ static bool evaluate_bool_expression(ASTNode *node)
     }
     else if (node->type == NODE_INT_LITERAL)
     {
-        return atoi(node->value) != 0;
+        int value = atoi(node->value);
+        if (value != 0 && value != 1) {
+            printf("Error: Cannot convert integer %d to boolean. Only 0 and 1 are valid values.\n", value);
+            exit(1);
+        }
+        return value == 1;
     }
 
     // For any other expression, evaluate it and convert to boolean
     int result = evaluate_expression(node);
-    return result != 0;
+    if (result != 0 && result != 1) {
+        printf("Error: Cannot convert integer %d to boolean. Only 0 and 1 are valid values.\n", result);
+        exit(1);
+    }
+    return result == 1;
 }
 
 char *evaluate_string_expression(ASTNode *node)
@@ -1505,7 +1520,7 @@ void interpret(ASTNode *node)
                                 value = atoi(node->left->left->value);
                                 break;
                             case NODE_BOOL_LITERAL:
-                                value = (strcmp(node->left->left->value, "true") == 0) ? 1 : 0;
+                                value = (strcmp(node->left->left->value, "yup") == 0) ? 1 : 0;
                                 break;
                             default:
                                 printf("Error: Cannot convert type to int\n");
@@ -1754,7 +1769,6 @@ static void handle_type_cast(ASTNode *node)
         return;
     }
 
-    // printf("DEBUG: Starting type cast for variable '%s'\n", node->var_name);
 
     // Handle casting to int
     if (strcmp(node->target_type, "int") == 0) {
@@ -1777,7 +1791,45 @@ static void handle_type_cast(ASTNode *node)
             printf("DEBUG: Unhandled node type: %d\n", node->left->type);
         }
     }
-}
+
+  // Handle casting to boolean
+    if (strcmp(node->target_type, "boolean") == 0) {
+        int value;
+        
+        // Get the integer value regardless of source type
+        if (node->left->type == NODE_INT_LITERAL) {
+            value = atoi(node->left->value);
+        } else if (node->left->type == NODE_FLOAT_LITERAL) {
+            value = (int)atof(node->left->value);
+        } else if (node->left->type == NODE_LITERAL) {
+            Variable *var = get_variable(node->left->value);
+            if (var) {
+                if (var->type == INT_TYPE) {
+                    value = var->value.int_value;
+                } else if (var->type == FLOAT_TYPE) {
+                    value = (int)var->value.float_value;
+                } else {
+                    printf("Error: Cannot cast type to boolean\n");
+                    exit(1);
+                }
+            } else {
+                printf("Error: Undefined variable in cast\n");
+                exit(1);
+            }
+        } else {
+            value = evaluate_expression(node->left);
+        }
+        
+        // Strict validation for boolean conversion
+        if (value != 0 && value != 1) {
+            printf("Error: Cannot cast %d to boolean. Only 0 and 1 are valid values.\n", value);
+            exit(1);
+        }
+        
+        bool bool_value = (value == 1);
+        set_variable(node->var_name, BOOL_TYPE, &bool_value);
+        return;
+    }}
 
 /*static char* evaluate_string_concat(ASTNode *left, ASTNode *right)  {
     char buffer[1024] = {0};

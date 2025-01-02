@@ -1,49 +1,5 @@
-// Test string conversions
-string str1 = (string) 42;
-print(str1);  // Should print "42"
+int x = (int) 42.9;  // 42 (truncates decimal)
+boolean isValid = (boolean) 0;  // yup
 
-string str2 = (string) 3.14;
-print(str2);  // Should print "3.14"
-
-string str3 = (string) true;
-print(str3);  // Should print "true"
-
-// Test int conversions
-int num1 = (int) "42";
-print(num1);  // Should print 42
-
-int num2 = (int) 3.14;
-print(num2);  // Should print 3
-
-int num3 = (int) yup;
-print(num3);  // Should print 1
-
-// Test float conversions
-float f1 = (float) "3.14";
-print(f1);  // Should print 3.14
-
-float f2 = (float) 42;
-print(f2);  // Should print 42.0
-
-float f3 = (float) yup;
-print(f3);  // Should print 1.0
-
-// Test boolean conversions
-boolean b1 = (boolean) 1;
-print(b1);  // Should print yup
-
-boolean b2 = (boolean) 0;
-print(b2);  // Should print nope
-
-boolean b3 = (boolean) "yup";
-print(b3);  // Should print true
-
-boolean b4 = (boolean) "";
-print(b4);  // Should print nope
-
-// Test with input
-float age = (float) input("Enter your age: ");
-print("Your age in years: " + age);
-
-float ageInMonths = age * 12;
-print("Your age in months: " + ageInMonths);
+print(x);
+print(isValid);
