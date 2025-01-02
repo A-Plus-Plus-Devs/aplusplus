@@ -486,6 +486,19 @@ static ASTNode *parse_factor(Parser *parser)
     // printf("[DEBUG] Parsing factor, token type: %d, value: '%s'\n", 
     //        token->type, token->value ? token->value : "NULL");
 
+    // Add handling for unary minus
+    if (token->type == TOKEN_MINUS)
+    {
+        get_next_token(parser); // consume '-'
+        ASTNode *operand = parse_factor(parser);
+        if (!operand) {
+            return NULL;
+        }
+        // Create a binary operation node that multiplies by -1
+        ASTNode *minus_one = create_node(NODE_INT_LITERAL, NULL, NULL, "-1");
+        return create_node(NODE_BINARY_OP, minus_one, operand, "*");
+    }
+
     if (token->type == TOKEN_NOT)
     {
         get_next_token(parser); // consume '!'

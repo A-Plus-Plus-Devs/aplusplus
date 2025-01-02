@@ -51,6 +51,7 @@ static Variable *get_variable(const char *name);
 static char *execute_function_body(const char *return_type, ASTNode *body);
 static char* evaluate_input(const char* prompt);
 static void handle_type_cast(ASTNode *node);
+static bool evaluate_comparison(ASTNode *node);
 
 // Global variables
 static Function functions[MAX_FUNCTIONS];
@@ -575,128 +576,59 @@ static int evaluate_expression(ASTNode *node)
     return 0;
 }
 
-static bool evaluate_bool_expression(ASTNode *node)
-{
-    if (node == NULL)
-    {
-        return false;
+static bool evaluate_bool_expression(ASTNode *node) {
+    if (!node) return false;
+
+    // Handle comparison operators that return boolean values
+    if (node->type == NODE_BINARY_OP) {
+        if (strcmp(node->value, "==") == 0 ||
+            strcmp(node->value, "!=") == 0 ||
+            strcmp(node->value, "<") == 0 ||
+            strcmp(node->value, ">") == 0 ||
+            strcmp(node->value, "<=") == 0 ||
+            strcmp(node->value, ">=") == 0) {
+            // These operators naturally return boolean results
+            return evaluate_comparison(node);
+        } else if (strcmp(node->value, "&&") == 0) {
+            return evaluate_bool_expression(node->left) && evaluate_bool_expression(node->right);
+        } else if (strcmp(node->value, "||") == 0) {
+            return evaluate_bool_expression(node->left) || evaluate_bool_expression(node->right);
+        }
     }
 
-    if (node->type == NODE_BINARY_OP)
-    {
-        // Add special handling for string comparison
-        if (strcmp(node->value, "==") == 0)
-        {
-            // If either operand is a string literal or string variable
-            if ((node->left->type == NODE_STRING_LITERAL || 
-                 (node->left->type == NODE_LITERAL && 
-                  get_variable(node->left->value) && 
-                  get_variable(node->left->value)->type == STRING_TYPE)) ||
-                (node->right->type == NODE_STRING_LITERAL || 
-                 (node->right->type == NODE_LITERAL && 
-                  get_variable(node->right->value) && 
-                  get_variable(node->right->value)->type == STRING_TYPE)))
-            {
-                char *left_str = evaluate_string_expression(node->left);
-                char *right_str = evaluate_string_expression(node->right);
-                bool result = (strcmp(left_str, right_str) == 0);
-                free(left_str);
-                free(right_str);
-                return result;
-            }
-            // For non-string comparisons, use existing logic
-            int left = evaluate_expression(node->left);
-            int right = evaluate_expression(node->right);
-            return left == right;
-        }
-        // For comparison operators
-        if (strcmp(node->value, ">") == 0)
-        {
-            int left = evaluate_expression(node->left);
-            int right = evaluate_expression(node->right);
-            return left > right;
-        }
-        else if (strcmp(node->value, "<") == 0)
-        {
-            int left = evaluate_expression(node->left);
-            int right = evaluate_expression(node->right);
-            return left < right;
-        }
-        else if (strcmp(node->value, "<=") == 0)
-        {
-            int left = evaluate_expression(node->left);
-            int right = evaluate_expression(node->right);
-            return left <= right;
-        }
-        else if (strcmp(node->value, ">=") == 0)
-        {
-            int left = evaluate_expression(node->left);
-            int right = evaluate_expression(node->right);
-            return left >= right;
-        }
-        else if (strcmp(node->value, "!=") == 0)
-        {
-            int left = evaluate_expression(node->left);
-            int right = evaluate_expression(node->right);
-            return left != right;
-        }
-        else if (strcmp(node->value, "&&") == 0)
-        {
-            bool left = evaluate_bool_expression(node->left);
-            if (!left) return false; // Short circuit
-            bool right = evaluate_bool_expression(node->right);
-            return right;
-        }
-        else if (strcmp(node->value, "||") == 0)
-        {
-            bool left = evaluate_bool_expression(node->left);
-            if (left) return true; // Short circuit
-            bool right = evaluate_bool_expression(node->right);
-            return right;
-        }
+    // For direct boolean values
+    if (node->type == NODE_BOOL_LITERAL) {
+        return strcmp(node->value, "yup") == 0;
     }
-    else if (node->type == NODE_LITERAL)
-    {
+
+    // For variables
+    if (node->type == NODE_LITERAL) {
         Variable *var = get_variable(node->value);
-        if (var)
-        {
-            if (var->type == BOOL_TYPE)
-            {
-                return var->value.bool_value;
-            }
-            else if (var->type == INT_TYPE)
-            {
-                // Only allow 0 and 1 for integer to boolean conversion
-                if (var->value.int_value != 0 && var->value.int_value != 1) {
-                    printf("Error: Cannot convert integer %d to boolean. Only 0 and 1 are valid values.\n", 
-                           var->value.int_value);
-                    exit(1);
-                }
-                return var->value.int_value == 1;
-            }
-            else if (var->type == CHAR_TYPE)
-            {
-                return var->value.char_value != '\0';
-            }
+        if (var && var->type == BOOL_TYPE) {
+            return var->value.bool_value;
         }
-    }
-    else if (node->type == NODE_INT_LITERAL)
-    {
-        int value = atoi(node->value);
-        if (value != 0 && value != 1) {
-            printf("Error: Cannot convert integer %d to boolean. Only 0 and 1 are valid values.\n", value);
-            exit(1);
-        }
-        return value == 1;
     }
 
-    // For any other expression, evaluate it and convert to boolean
-    int result = evaluate_expression(node);
-    if (result != 0 && result != 1) {
-        printf("Error: Cannot convert integer %d to boolean. Only 0 and 1 are valid values.\n", result);
-        exit(1);
-    }
-    return result == 1;
+    // For numeric expressions that need to be converted to boolean
+    int value = evaluate_expression(node);
+    return value != 0;  // Any non-zero value is considered true
+}
+
+// Helper function to evaluate comparisons
+bool evaluate_comparison(ASTNode *node) {
+    if (!node || node->type != NODE_BINARY_OP) return false;
+
+    int left = evaluate_expression(node->left);
+    int right = evaluate_expression(node->right);
+
+    if (strcmp(node->value, "==") == 0) return left == right;
+    if (strcmp(node->value, "!=") == 0) return left != right;
+    if (strcmp(node->value, "<") == 0) return left < right;
+    if (strcmp(node->value, ">") == 0) return left > right;
+    if (strcmp(node->value, "<=") == 0) return left <= right;
+    if (strcmp(node->value, ">=") == 0) return left >= right;
+
+    return false;
 }
 
 char *evaluate_string_expression(ASTNode *node)
