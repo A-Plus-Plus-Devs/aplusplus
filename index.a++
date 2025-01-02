@@ -44,4 +44,6 @@ print(b4);  // Should print nope
 // Test with input
 float age = (float) input("Enter your age: ");
 print("Your age in years: " + age);
-print("Your age in months: " + (float)(age * 12));
+
+float ageInMonths = age * 12;
+print("Your age in months: " + ageInMonths);

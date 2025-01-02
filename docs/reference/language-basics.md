@@ -21,6 +21,68 @@ boolean isValid = yup;   // Boolean (yup/nope)
 - Type inference is not supported
 - No implicit type conversion
 
+## Type Casting
+
+A++ supports explicit type casting using the following syntax:
+```c
+(target_type) expression
+```
+
+### Basic Type Casting
+```c
+// String to Number conversions
+int num1 = (int) "42";        // 42
+float num2 = (float) "3.14";  // 3.14
+
+// Number to String
+string str1 = "Number: " + (string) 42;      // "Number: 42"
+string str2 = "Pi: " + (string) 3.14;        // "Pi: 3.14"
+
+// Float to Int (truncates decimal)
+int num3 = (int) 3.14;        // 3
+
+// Int to Float
+float num4 = (float) 42;      // 42.0
+
+// Boolean conversions
+boolean b1 = (boolean) 1;     // yup
+boolean b2 = (boolean) 0;     // nope
+string str3 = (string) yup;   // "yup"
+```
+
+### Type Casting Rules
+
+1. **Integer Casting**
+   - From float: Truncates decimal portion
+   - From string: Parses numeric content
+   - From boolean: `yup` → 1, `nope` → 0
+
+2. **Float Casting**
+   - From int: Adds .0 for whole numbers
+   - From string: Parses decimal number
+   - From boolean: `yup` → 1.0, `nope` → 0.0
+
+3. **String Casting**
+   - From int: Direct conversion ("42")
+   - From float: Preserves decimals ("3.14")
+   - From boolean: "yup" or "nope"
+
+4. **Boolean Casting**
+   - From int: 0 → `nope`, non-zero → `yup`
+   - From string: Empty → `nope`, non-empty → `yup`
+   - From float: 0.0 → `nope`, non-zero → `yup`
+
+### Examples
+```c
+// Input conversion
+float age = (float) input("Enter your age: ");  // "20" → 20.0
+float ageIn5Years = age * 5;
+print("In 5 years you will be: " + ageIn5Years);  // "25.0"
+
+int x = (int) 42.9;  // 42 (truncates decimal)
+boolean isValid = (boolean) 1;  // yup
+```
+
 ## Operators
 
 ### Arithmetic Operators

@@ -600,19 +600,14 @@ static ASTNode *parse_factor(Parser *parser)
             }
             get_next_token(parser); // consume ')'
             
-            // Debug print
-            printf("Parsing type cast to %s\n", target_type);
-            
-            ASTNode *expr = parse_expression(parser);
+            // Parse the expression to be cast, which could be another cast
+            ASTNode *expr = parse_factor(parser);  // Changed from parse_expression to parse_factor
             if (!expr)
             {
                 printf("Error: Invalid expression in type cast\n");
                 free(target_type);
                 return NULL;
             }
-            
-            // Debug print
-            printf("Expression type: %d, value: %s\n", expr->type, expr->value ? expr->value : "NULL");
             
             return create_type_cast_node(target_type, expr);
         }
@@ -684,7 +679,7 @@ static ASTNode *parse_if_statement(Parser *parser)
     get_next_token(parser); // consume '{'
 
     ASTNode *if_body = NULL;
-    ASTNode *else_body = NULL;
+    ASTNode *else_body = NULL; __attribute__((unused))
     ASTNode *current = NULL;
 
     // Parse the if body

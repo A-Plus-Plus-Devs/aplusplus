@@ -193,7 +193,11 @@ char* execute_function(const char *name, ASTNode *arguments) {
             } else if (strcmp(func->return_type, "float") == 0) {
                 double val = evaluate_float_expression(current->left);
                 char buf[32];
-                snprintf(buf, sizeof(buf), "%g", val);
+                if (val == (int)val) {
+                    snprintf(buf, sizeof(buf), "%.1f", val);  // Force .0 for whole numbers
+                } else {
+                    snprintf(buf, sizeof(buf), "%g", val);    // Use original precision for decimals
+                }
                 result = strdup(buf);
             } else if (strcmp(func->return_type, "string") == 0) {
                 if (current->left->type == NODE_STRING_LITERAL) {
@@ -272,7 +276,11 @@ static char *execute_function_body(const char *return_type, ASTNode *body) {
             } else if (strcmp(return_type, "float") == 0) {
                 double val = evaluate_float_expression(current->left);
                 char buf[32];
-                snprintf(buf, sizeof(buf), "%g", val);
+                if (val == (int)val) {
+                    snprintf(buf, sizeof(buf), "%.1f", val);  // Force .0 for whole numbers
+                } else {
+                    snprintf(buf, sizeof(buf), "%g", val);    // Use original precision for decimals
+                }
                 result = strdup(buf);
             } else if (strcmp(return_type, "string") == 0) {
                 if (current->left->type == NODE_STRING_LITERAL) {
@@ -734,15 +742,39 @@ char *evaluate_string_expression(ASTNode *node)
         char *left = evaluate_string_expression(node->left);
         char *right = evaluate_string_expression(node->right);
         
+        // Check if right operand is a float variable or float literal
+        if (node->right->type == NODE_LITERAL) {
+            Variable *var = get_variable(node->right->value);
+            if (var && var->type == FLOAT_TYPE) {
+                double val = var->value.float_value;
+                char float_str[32];
+                if (val == (int)val) {
+                    snprintf(float_str, sizeof(float_str), "%.1f", val);  // Force .0 for whole numbers
+                } else {
+                    snprintf(float_str, sizeof(float_str), "%g", val);    // Use original precision for decimals
+                }
+                free(right);
+                right = strdup(float_str);
+            }
+        } else if (node->right->type == NODE_FLOAT_LITERAL) {
+            double val = atof(node->right->value);
+            char float_str[32];
+            if (val == (int)val) {
+                snprintf(float_str, sizeof(float_str), "%.1f", val);
+            } else {
+                snprintf(float_str, sizeof(float_str), "%g", val);
+            }
+            free(right);
+            right = strdup(float_str);
+        }
+        
         // Allocate space for concatenated string
         char *result = malloc(strlen(left) + strlen(right) + 1);
-        if (result)
-        {
+        if (result) {
             strcpy(result, left);
             strcat(result, right);
         }
         
-        // Free temporary strings
         free(left);
         free(right);
         
@@ -966,7 +998,12 @@ void interpret(ASTNode *node)
                     (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == FLOAT_TYPE))
                 {
                     double result = evaluate_float_expression(node->left);
-                    printf("%g\n", result);
+                    // Check if the number is a whole number
+                    if (result == (int)result) {
+                        printf("%.1f\n", result);  // Force .0 for whole numbers
+                    } else {
+                        printf("%g\n", result);    // Use original precision for decimals
+                    }
                 }
                 else if (node->left->type == NODE_BOOL_LITERAL ||
                          (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == BOOL_TYPE))
@@ -1717,7 +1754,7 @@ static void handle_type_cast(ASTNode *node)
         return;
     }
 
-    printf("DEBUG: Starting type cast for variable '%s'\n", node->var_name);
+    // printf("DEBUG: Starting type cast for variable '%s'\n", node->var_name);
 
     // Handle casting to int
     if (strcmp(node->target_type, "int") == 0) {
@@ -1725,26 +1762,24 @@ static void handle_type_cast(ASTNode *node)
         
         if (node->left->type == NODE_STRING_LITERAL) {
             value = atoi(node->left->value);
-            printf("DEBUG: Converting string '%s' to int: %d\n", node->left->value, value);
+            // printf("DEBUG: Converting string '%s' to int: %d\n", node->left->value, value);
             set_variable(node->var_name, INT_TYPE, &value);
-            printf("DEBUG: After set_variable, value should be: %d\n", value);
+            // printf("DEBUG: After set_variable, value should be: %d\n", value);
             
             // Verify the value was set correctly
-            Variable *var = get_variable(node->var_name);
-            if (var) {
-                printf("DEBUG: Variable '%s' now has value: %d\n", node->var_name, var->value.int_value);
-            } else {
-                printf("DEBUG: Failed to retrieve variable '%s'\n", node->var_name);
-            }
+            // Variable *var = get_variable(node->var_name);
+            // if (var) {
+            //     printf("DEBUG: Variable '%s' now has value: %d\n", node->var_name, var->value.int_value);
+            // } else {
+            //     printf("DEBUG: Failed to retrieve variable '%s'\n", node->var_name);
+            // }
         } else {
             printf("DEBUG: Unhandled node type: %d\n", node->left->type);
         }
     }
-    // ... rest of type casting logic ...
 }
 
-// Add this function to handle string concatenation with evaluation
-static char* evaluate_string_concat(ASTNode *left, ASTNode *right) {
+/*static char* evaluate_string_concat(ASTNode *left, ASTNode *right)  {
     char buffer[1024] = {0};
     
     // If both operands are numeric, evaluate the expression
@@ -1760,3 +1795,5 @@ static char* evaluate_string_concat(ASTNode *left, ASTNode *right) {
     
     return strdup(buffer);
 }
+
+*/
