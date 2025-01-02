@@ -1348,19 +1348,22 @@ void interpret(ASTNode *node)
                     if (strcmp(node->var_type, "string") == 0) {
                         char buffer[256];
                         switch (node->left->left->type) {
-                            case NODE_INT_LITERAL:        // type 7
-                            case NODE_LITERAL:            // type 5
+                            case NODE_INT_LITERAL:
+                            case NODE_LITERAL:
                                 snprintf(buffer, sizeof(buffer), "%s", node->left->left->value);
                                 break;
-                            case NODE_FLOAT_LITERAL:      // type 6
-                                snprintf(buffer, sizeof(buffer), "%g", atof(node->left->left->value));
+                            case NODE_FLOAT_LITERAL:
+                                snprintf(buffer, sizeof(buffer), "%.2f", atof(node->left->left->value));
                                 break;
-                            case NODE_BOOL_LITERAL:       // type 5 for true/false
-                            case NODE_STRING_LITERAL:     // type 13
+                            case NODE_BOOL_LITERAL:
+                                snprintf(buffer, sizeof(buffer), "%s", 
+                                        strcmp(node->left->left->value, "yup") == 0 ? "yup" : "nope");
+                                break;
+                            case NODE_STRING_LITERAL:
                                 strncpy(buffer, node->left->left->value, sizeof(buffer) - 1);
                                 buffer[sizeof(buffer) - 1] = '\0';
                                 break;
-                            case NODE_INPUT: {            // type 26
+                            case NODE_INPUT: {
                                 printf("%s", node->left->left->value);
                                 fflush(stdout);
                                 if (fgets(buffer, sizeof(buffer), stdin)) {
@@ -1373,6 +1376,74 @@ void interpret(ASTNode *node)
                                 break;
                         }
                         set_variable(node->var_name, STRING_TYPE, buffer);
+                    }
+                    else if (strcmp(node->var_type, "float") == 0) {
+                        double value = 0.0;
+                        switch (node->left->left->type) {
+                            case NODE_STRING_LITERAL:
+                                value = atof(node->left->left->value);
+                                break;
+                            case NODE_INPUT: {
+                                char input[256];
+                                printf("%s", node->left->left->value);
+                                fflush(stdout);
+                                if (fgets(input, sizeof(input), stdin)) {
+                                    input[strcspn(input, "\n")] = 0;
+                                    value = atof(input);
+                                }
+                                break;
+                            }
+                            case NODE_INT_LITERAL:
+                                value = (double)atoi(node->left->left->value);
+                                break;
+                            case NODE_FLOAT_LITERAL:
+                                value = atof(node->left->left->value);
+                                break;
+                            case NODE_BOOL_LITERAL:
+                                value = (strcmp(node->left->left->value, "yup") == 0) ? 1.0 : 0.0;
+                                break;
+                            default:
+                                printf("Error: Cannot convert type to float\n");
+                                exit(1);
+                        }
+                        set_variable(node->var_name, FLOAT_TYPE, &value);
+                    }
+                    else if (strcmp(node->var_type, "boolean") == 0) {
+                        bool value = false;
+                        switch (node->left->left->type) {
+                            case NODE_INT_LITERAL:
+                                value = atoi(node->left->left->value) != 0;
+                                break;
+                            case NODE_FLOAT_LITERAL:
+                                value = atof(node->left->left->value) != 0.0;
+                                break;
+                            case NODE_STRING_LITERAL:
+                                value = strlen(node->left->left->value) > 0 && 
+                                       strcmp(node->left->left->value, "nope") != 0 && 
+                                       strcmp(node->left->left->value, "0") != 0;
+                                break;
+                            case NODE_BOOL_LITERAL:
+                                value = strcmp(node->left->left->value, "yup") == 0;
+                                break;
+                            case NODE_INPUT: {
+                                char input[256];
+                                printf("%s", node->left->left->value);
+                                fflush(stdout);
+                                if (fgets(input, sizeof(input), stdin)) {
+                                    input[strcspn(input, "\n")] = 0;
+                                    value = strlen(input) > 0 && 
+                                           strcmp(input, "nope") != 0 && 
+                                           strcmp(input, "0") != 0;
+                                }
+                                break;
+                            }
+                            default:
+                                printf("Error: Cannot convert type to boolean\n");
+                                exit(1);
+                        }
+                        // Convert bool to yup/nope
+                        char *bool_str = value ? "yup" : "nope";
+                        set_variable(node->var_name, BOOL_TYPE, bool_str);
                     }
                     else if (strcmp(node->var_type, "int") == 0) {
                         int value = 0;
@@ -1437,40 +1508,37 @@ void interpret(ASTNode *node)
                         set_variable(node->var_name, FLOAT_TYPE, &value);
                     }
                     else if (strcmp(node->var_type, "boolean") == 0) {
-                        bool value = false;
-                        switch (node->left->left->type) {
-                            case NODE_INT_LITERAL:
-                                value = atoi(node->left->left->value) != 0;
-                                break;
-                            case NODE_FLOAT_LITERAL:
-                                value = atof(node->left->left->value) != 0.0;
-                                break;
-                            case NODE_STRING_LITERAL:
-                                value = strlen(node->left->left->value) > 0 && 
-                                       strcmp(node->left->left->value, "false") != 0 && 
-                                       strcmp(node->left->left->value, "0") != 0;
-                                break;
-                            case NODE_BOOL_LITERAL:
-                                value = strcmp(node->left->left->value, "true") == 0;
-                                break;
-                            case NODE_INPUT: {
-                                char input[256];
-                                printf("%s", node->left->left->value);
-                                fflush(stdout);
-                                if (fgets(input, sizeof(input), stdin)) {
-                                    input[strcspn(input, "\n")] = 0;
-                                    value = strlen(input) > 0 && 
-                                           strcmp(input, "false") != 0 && 
-                                           strcmp(input, "0") != 0;
-                                }
-                                break;
-                            }
-                            default:
-                                printf("Error: Cannot convert type to boolean\n");
-                                exit(1);
-                        }
+                        bool value = node->left ? evaluate_bool_expression(node->left) : false;
                         set_variable(node->var_name, BOOL_TYPE, &value);
                     }
+                    else if (strcmp(node->var_type, "string") == 0)
+                    {
+                        if (node->left->type == NODE_INPUT) {
+                            // Handle input function specially
+                            char *value = evaluate_input(node->left->value);
+                            set_variable(node->var_name, STRING_TYPE, value);
+                            free(value);
+                        }
+                        else if (node->left->type != NODE_STRING_LITERAL && 
+                            !(node->left->type == NODE_LITERAL && 
+                              get_variable(node->left->value)->type == STRING_TYPE) &&
+                            !(node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "+") == 0)) {
+                            printf("Error: Type mismatch - Cannot convert to string for variable '%s'. Use string concatenation (+) for conversion.\n", 
+                                   node->var_name);
+                            exit(1);
+                        }
+                        else {
+                            char *value = evaluate_string_expression(node->left);
+                            set_variable(node->var_name, STRING_TYPE, value);
+                            free(value);
+                        }
+                    }
+                    else if (strcmp(node->var_type, "char") == 0)
+                    {
+                        char value = node->left ? node->left->value[0] : '\0';
+                        set_variable(node->var_name, CHAR_TYPE, &value);
+                    }
+                    break;
                 } else {
                     if (node->left && node->left->type == NODE_FUNCTION_CALL)
                     {
@@ -1673,4 +1741,22 @@ static void handle_type_cast(ASTNode *node)
         }
     }
     // ... rest of type casting logic ...
+}
+
+// Add this function to handle string concatenation with evaluation
+static char* evaluate_string_concat(ASTNode *left, ASTNode *right) {
+    char buffer[1024] = {0};
+    
+    // If both operands are numeric, evaluate the expression
+    if ((left->type == NODE_INT_LITERAL || left->type == NODE_FLOAT_LITERAL) &&
+        (right->type == NODE_INT_LITERAL || right->type == NODE_FLOAT_LITERAL)) {
+        double result = atof(left->value) + atof(right->value);
+        snprintf(buffer, sizeof(buffer), "%.2f", result);
+    } else {
+        // Otherwise, concatenate as strings
+        strcat(buffer, left->value);
+        strcat(buffer, right->value);
+    }
+    
+    return strdup(buffer);
 }
