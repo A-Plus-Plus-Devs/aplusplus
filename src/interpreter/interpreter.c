@@ -52,12 +52,15 @@ static char *execute_function_body(const char *return_type, ASTNode *body);
 static char* evaluate_input(const char* prompt);
 static void handle_type_cast(ASTNode *node);
 static bool evaluate_comparison(ASTNode *node);
+static int get_string_length(const char* str);
+static void register_builtin_functions(void);
 
 // Global variables
 static Function functions[MAX_FUNCTIONS];
 static int function_count = 0;
 static Variable variables[MAX_VARIABLES];
 static int variable_count = 0;
+static bool builtins_registered = false;
 
 // Helper function to convert type string to VariableType
 static VariableType get_type_from_string(const char *type_str) {
@@ -124,6 +127,41 @@ Function *find_function(const char *name) {
 
 // Execute a function and return its result as a string
 char* execute_function(const char *name, ASTNode *arguments) {
+    if (strcmp(name, "length") == 0) {
+        if (!arguments) {
+            return strdup("0");
+        }
+
+        char* str_value = NULL;
+        
+        if (arguments->type == NODE_STRING_LITERAL) {
+            str_value = arguments->value;
+        }
+        else if (arguments->type == NODE_LITERAL) {
+            Variable* var = get_variable(arguments->value);
+            if (var && var->type == STRING_TYPE) {
+                str_value = var->value.string_value;
+            }
+        }
+        else if (arguments->type == NODE_FUNCTION_CALL) {
+            str_value = execute_function(arguments->function_name, arguments->arguments);
+        }
+
+        if (str_value) {
+            int length = strlen(str_value);
+            char result[32];
+            snprintf(result, sizeof(result), "%d", length);
+            
+            if (arguments->type == NODE_FUNCTION_CALL) {
+                free(str_value);
+            }
+            
+            return strdup(result);
+        }
+
+        return strdup("0");
+    }
+
     Function *func = find_function(name);
     if (!func) {
         printf("Error: Function '%s' not found\n", name);
@@ -533,8 +571,6 @@ static int evaluate_expression(ASTNode *node)
             right = evaluate_expression(node->right);
         }
 
-        // printf("[DEBUG] Binary operation: %s, left=%d, right=%d\n", node->value, left, right);
-
         // If either operand is a float, use float evaluation
         if (has_float)
         {
@@ -569,7 +605,6 @@ static int evaluate_expression(ASTNode *node)
             }
             result = left % right;
         }
-        // printf("[DEBUG] Binary operation result: %d\n", result);
         return result;
     }
 
@@ -909,9 +944,25 @@ static char* evaluate_input(const char* prompt) {
     return line;
 }
 
+// Add this implementation after the other helper functions
+static void register_builtin_functions(void) {
+    // Only register if not already done
+    if (builtins_registered) {
+        return;
+    }
+    
+    register_function("length", "int", 
+        create_function_parameter_node("string", "str"), 
+        NULL);
+        
+    builtins_registered = true;
+}
+
 // This is the main function that interprets our AST
 void interpret(ASTNode *node)
 {
+    register_builtin_functions();  // Will only register once now
+    
     while (node)
     {
         switch (node->type)
@@ -1708,17 +1759,7 @@ static void handle_type_cast(ASTNode *node)
         
         if (node->left->type == NODE_STRING_LITERAL) {
             value = atoi(node->left->value);
-            // printf("DEBUG: Converting string '%s' to int: %d\n", node->left->value, value);
             set_variable(node->var_name, INT_TYPE, &value);
-            // printf("DEBUG: After set_variable, value should be: %d\n", value);
-            
-            // Verify the value was set correctly
-            // Variable *var = get_variable(node->var_name);
-            // if (var) {
-            //     printf("DEBUG: Variable '%s' now has value: %d\n", node->var_name, var->value.int_value);
-            // } else {
-            //     printf("DEBUG: Failed to retrieve variable '%s'\n", node->var_name);
-            // }
         } else {
             printf("DEBUG: Unhandled node type: %d\n", node->left->type);
         }
@@ -1762,22 +1803,3 @@ static void handle_type_cast(ASTNode *node)
         set_variable(node->var_name, BOOL_TYPE, &bool_value);
         return;
     }}
-
-/*static char* evaluate_string_concat(ASTNode *left, ASTNode *right)  {
-    char buffer[1024] = {0};
-    
-    // If both operands are numeric, evaluate the expression
-    if ((left->type == NODE_INT_LITERAL || left->type == NODE_FLOAT_LITERAL) &&
-        (right->type == NODE_INT_LITERAL || right->type == NODE_FLOAT_LITERAL)) {
-        double result = atof(left->value) + atof(right->value);
-        snprintf(buffer, sizeof(buffer), "%.2f", result);
-    } else {
-        // Otherwise, concatenate as strings
-        strcat(buffer, left->value);
-        strcat(buffer, right->value);
-    }
-    
-    return strdup(buffer);
-}
-
-*/

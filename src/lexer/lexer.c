@@ -67,7 +67,9 @@ static Token *identifier_or_keyword(Lexer *lexer)
     token->value = strdup(buffer);
 
     // Check for keywords
-    if (strcmp(buffer, "if") == 0)
+    if (strcmp(buffer, "length") == 0)
+        token->type = TOKEN_LENGTH;
+    else if (strcmp(buffer, "if") == 0)
         token->type = TOKEN_IF;
     else if (strcmp(buffer, "else") == 0)
         token->type = TOKEN_ELSE;
@@ -93,8 +95,6 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_ADD_LAST;
     else if (strcmp(buffer, "removeLast") == 0)
         token->type = TOKEN_REMOVE_LAST;
-    else if (strcmp(buffer, "length") == 0)
-        token->type = TOKEN_LENGTH;
     else if (strcmp(buffer, "addFirst") == 0)
         token->type = TOKEN_ADD_FIRST;
     else if (strcmp(buffer, "removeFirst") == 0)

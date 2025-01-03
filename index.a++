@@ -1,9 +1,4 @@
-#define nothing greet(string name) {
-    print("Hello " + name);
-}
-
 string name = input("What is your name? ");
+int name_length = length(name);
 
-greet(name);
-
-string name = empty;
+print("Your name is " + name + " and it is " + name_length + " characters long.");

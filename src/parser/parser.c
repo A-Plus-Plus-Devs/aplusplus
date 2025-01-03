@@ -483,9 +483,42 @@ static ASTNode *parse_power(Parser *parser)
 static ASTNode *parse_factor(Parser *parser)
 {
     Token *token = parser->current_token;
-    // printf("[DEBUG] Parsing factor, token type: %d, value: '%s'\n", 
-    //        token->type, token->value ? token->value : "NULL");
-
+    
+    if (token->type == TOKEN_LENGTH || 
+        (token->type == TOKEN_IDENTIFIER && peek_char(parser->lexer) == '(')) {
+        char *func_name = strdup(token->value);
+        get_next_token(parser);
+        
+        if (parser->current_token->type != TOKEN_LPAREN) {
+            printf("Error: Expected '(' after function name\n");
+            free(func_name);
+            return NULL;
+        }
+        get_next_token(parser);
+        
+        ASTNode *argument = NULL;
+        if (parser->current_token->type != TOKEN_RPAREN) {
+            argument = parse_expression(parser);
+            if (!argument) {
+                printf("Error: Invalid argument in function call\n");
+                free(func_name);
+                return NULL;
+            }
+        }
+        
+        if (parser->current_token->type != TOKEN_RPAREN) {
+            printf("Error: Expected ')' after function argument\n");
+            free(func_name);
+            if (argument) free_ast(argument);
+            return NULL;
+        }
+        get_next_token(parser);
+        
+        ASTNode *node = create_function_call_node(func_name, argument);
+        free(func_name);
+        return node;
+    }
+    
     // Add handling for unary minus
     if (token->type == TOKEN_MINUS)
     {
@@ -664,6 +697,36 @@ static ASTNode *parse_factor(Parser *parser)
     else if (token->type == TOKEN_INPUT)
     {
         return parse_input(parser);
+    }
+
+    // Add handling for length function
+    if (token->type == TOKEN_LENGTH) {
+        printf("DEBUG: Parsing length function call\n");
+        get_next_token(parser); // consume 'length'
+        
+        // Check for opening parenthesis
+        if (parser->current_token->type != TOKEN_LPAREN) {
+            printf("Error: Expected '(' after length\n");
+            return NULL;
+        }
+        get_next_token(parser); // consume '('
+        
+        // Parse the argument
+        ASTNode *argument = parse_expression(parser);
+        if (!argument) {
+            printf("Error: Invalid argument to length function\n");
+            return NULL;
+        }
+        
+        // Check for closing parenthesis
+        if (parser->current_token->type != TOKEN_RPAREN) {
+            printf("Error: Expected ')' after length argument\n");
+            free_ast(argument);
+            return NULL;
+        }
+        get_next_token(parser); // consume ')'
+        
+        return create_function_call_node("length", argument);
     }
 
     printf("Error: Unexpected token in factor: %d\n", token->type);
