@@ -660,169 +660,106 @@ static Variable *get_variable(const char *name)
 }
 
 // This function evaluates an expression (currently only supports basic operations)
-static int evaluate_expression(ASTNode *node)
-{
-    if (node == NULL)
-    {
+static int evaluate_expression(ASTNode *node) {
+    printf("[DEBUG] evaluate_expression: Starting with node type: %d\n", node ? node->type : -1);
+    
+    if (!node) {
         return 0;
     }
 
-    if (node->type == NODE_INT_LITERAL) {
-        return atoi(node->value);
-    }
-    else if (node->type == NODE_FLOAT_LITERAL)
-    {
-        return (int)atof(node->value);
-    }
-    else if (node->type == NODE_BOOL_LITERAL)
-    {
-        return strtobool(node->value);
-    }
-    else if (node->type == NODE_CHAR_LITERAL)
-    {
-        return node->value[0];
-    }
-    else if (node->type == NODE_LITERAL)
-    {
-        Variable *var = get_variable(node->value);
-        if (var)
-        {
-            if (var->type == INT_TYPE)
-            {
-                return var->value.int_value;
-            }
-            else if (var->type == FLOAT_TYPE)
-            {
-                return (int)var->value.float_value;
-            }
-            else if (var->type == BOOL_TYPE)
-            {
-                return var->value.bool_value;
-            }
-            else if (var->type == CHAR_TYPE)
-            {
-                return var->value.char_value;
-            }
-            else if (var->type == STRING_TYPE)
-            {
-                return 0;
-            }
-        }
-        return 0;
-    }
-    else if (node->type == NODE_FUNCTION_CALL)
-    {
-        char *result = execute_function(node->function_name, node->arguments);
-        if (result) {
-            int value = atoi(result);
-            free(result);
-            return value;
-        }
-        return 0;
-    }
-    else if (node->type == NODE_BINARY_OP)
-    {
-        // Handle boolean negation specially
-        if (strcmp(node->value, "!") == 0)
-        {
-            bool operand = evaluate_bool_expression(node->left);
-            return !operand;
-        }
-
-        // Check if either operand is a float
-        bool has_float = false;
-        if (node->left && (
-            node->left->type == NODE_FLOAT_LITERAL ||
-            (node->left->type == NODE_LITERAL && 
-             get_variable(node->left->value) && 
-             get_variable(node->left->value)->type == FLOAT_TYPE)))
-        {
-            has_float = true;
-        }
-        if (node->right && (
-            node->right->type == NODE_FLOAT_LITERAL ||
-            (node->right->type == NODE_LITERAL && 
-             get_variable(node->right->value) && 
-             get_variable(node->right->value)->type == FLOAT_TYPE)))
-        {
-            has_float = true;
-        }
-
-        // Get values for both operands, handling variables specially
-        int left = 0, right = 0;
+    // Handle type casting
+    if (node->type == NODE_TYPE_CAST) {
+        printf("[DEBUG] Processing type cast in expression, target type: %s\n", 
+               node->target_type ? node->target_type : "NULL");
         
-        if (node->left->type == NODE_LITERAL)
-        {
-            Variable *var = get_variable(node->left->value);
-            if (var && var->type == INT_TYPE)
-            {
-                left = var->value.int_value;
+        if (strcmp(node->target_type, "int") == 0) {
+            if (node->left->type == NODE_STRING_LITERAL) {
+                return atoi(node->left->value);
+            } else if (node->left->type == NODE_FLOAT_LITERAL) {
+                return (int)atof(node->left->value);
+            } else if (node->left->type == NODE_LITERAL) {
+                Variable *var = get_variable(node->left->value);
+                if (var) {
+                    switch (var->type) {
+                        case FLOAT_TYPE:
+                            return (int)var->value.float_value;
+                        case STRING_TYPE:
+                            return atoi(var->value.string_value);
+                        case INT_TYPE:
+                            return var->value.int_value;
+                        case BOOL_TYPE:
+                            return var->value.bool_value ? 1 : 0;
+                        default:
+                            printf("[ERROR] Unsupported variable type for int cast\n");
+                            return 0;
+                    }
+                }
             }
-            else
-            {
-                left = evaluate_expression(node->left);
-            }
-        }
-        else
-        {
-            left = evaluate_expression(node->left);
-        }
-
-        if (node->right->type == NODE_LITERAL)
-        {
-            Variable *var = get_variable(node->right->value);
-            if (var && var->type == INT_TYPE)
-            {
-                right = var->value.int_value;
-            }
-            else
-            {
-                right = evaluate_expression(node->right);
-            }
-        }
-        else
-        {
-            right = evaluate_expression(node->right);
-        }
-
-        // If either operand is a float, use float evaluation
-        if (has_float)
-        {
+        } else if (strcmp(node->target_type, "float") == 0) {
+            // For float casts, delegate to evaluate_float_expression
             return (int)evaluate_float_expression(node);
         }
-
-        int result = 0;
-        // Otherwise proceed with integer operations
-        if (strcmp(node->value, "+") == 0)
-            result = left + right;
-        else if (strcmp(node->value, "-") == 0)
-            result = left - right;
-        else if (strcmp(node->value, "*") == 0)
-            result = left * right;
-        else if (strcmp(node->value, "/") == 0)
-        {
-            if (right == 0)
-            {
-                printf("Error: Division by zero\n");
-                return 0;
-            }
-            result = left / right;
-        }
-        else if (strcmp(node->value, "**") == 0)
-            result = (int)pow(left, right);
-        else if (strcmp(node->value, "%") == 0)
-        {
-            if (right == 0)
-            {
-                printf("Error: Modulus by zero\n");
-                return 0;
-            }
-            result = left % right;
-        }
-        return result;
     }
 
-    return 0;
+    switch (node->type) {
+        case NODE_INT_LITERAL:
+            return atoi(node->value);
+        
+        case NODE_FLOAT_LITERAL:
+            return (int)atof(node->value);
+        
+        case NODE_LITERAL: {
+            Variable *var = get_variable(node->value);
+            if (!var) {
+                printf("[ERROR] Undefined variable: %s\n", node->value);
+                return 0;
+            }
+            switch (var->type) {
+                case INT_TYPE:
+                    return var->value.int_value;
+                case FLOAT_TYPE:
+                    return (int)var->value.float_value;
+                case BOOL_TYPE:
+                    return var->value.bool_value ? 1 : 0;
+                case STRING_TYPE:
+                    return atoi(var->value.string_value);
+                default:
+                    printf("[ERROR] Unsupported variable type in expression\n");
+                    return 0;
+            }
+        }
+        
+        case NODE_BINARY_OP: {
+            int left = evaluate_expression(node->left);
+            int right = evaluate_expression(node->right);
+            
+            if (strcmp(node->value, "+") == 0) return left + right;
+            if (strcmp(node->value, "-") == 0) return left - right;
+            if (strcmp(node->value, "*") == 0) return left * right;
+            if (strcmp(node->value, "/") == 0) return right != 0 ? left / right : 0;
+            if (strcmp(node->value, "%") == 0) return right != 0 ? left % right : 0;
+            if (strcmp(node->value, "**") == 0) {
+                printf("[DEBUG] Processing exponentiation: %d ** %d\n", left, right);
+                return (int)pow(left, right);
+            }
+            
+            return 0;
+        }
+        
+        case NODE_FUNCTION_CALL: {
+            char *result = execute_function(node->function_name, node->arguments);
+            if (result) {
+                int value = atoi(result);
+                free(result);
+                return value;
+            }
+            return 0;
+        }
+        
+        default:
+            printf("[ERROR] Unsupported node type in expression: %d\n", node->type);
+            return 0;
+    }
 }
 
 static bool evaluate_bool_expression(ASTNode *node) {
@@ -1012,167 +949,102 @@ char *evaluate_string_expression(ASTNode *node)
 }
 
 static double evaluate_float_expression(ASTNode *node) {
-    printf("[DEBUG] evaluate_float_expression: Starting\n");
+    printf("[DEBUG] evaluate_float_expression: Starting with node type: %d\n", 
+           node ? node->type : -1);
     
-    if (node == NULL) {
-        printf("[DEBUG] Node is NULL, returning 0.0\n");
+    if (!node) {
         return 0.0;
     }
 
-    printf("[DEBUG] Node type: %d, Value: %s\n", node->type, node->value ? node->value : "NULL");
-
-    // Handle direct float literals
-    if (node->type == NODE_FLOAT_LITERAL) {
-        printf("[DEBUG] Processing float literal: %s\n", node->value);
-        return atof(node->value);
+    // Handle type casting
+    if (node->type == NODE_TYPE_CAST) {
+        printf("[DEBUG] Processing float cast, target type: %s\n", 
+               node->target_type ? node->target_type : "NULL");
+        
+        if (strcmp(node->target_type, "float") == 0) {
+            switch (node->left->type) {
+                case NODE_INT_LITERAL:
+                    return (double)atoi(node->left->value);
+                case NODE_FLOAT_LITERAL:
+                    return atof(node->left->value);
+                case NODE_STRING_LITERAL:
+                    return atof(node->left->value);
+                case NODE_LITERAL: {
+                    Variable *var = get_variable(node->left->value);
+                    if (var) {
+                        switch (var->type) {
+                            case INT_TYPE:
+                                return (double)var->value.int_value;
+                            case FLOAT_TYPE:
+                                return var->value.float_value;
+                            case STRING_TYPE:
+                                return atof(var->value.string_value);
+                            case BOOL_TYPE:
+                                return var->value.bool_value ? 1.0 : 0.0;
+                            default:
+                                printf("[ERROR] Unsupported variable type for float cast\n");
+                                return 0.0;
+                        }
+                    }
+                    break;
+                }
+                default:
+                    printf("[ERROR] Unsupported node type for float cast: %d\n", 
+                           node->left->type);
+                    return 0.0;
+            }
+        }
     }
 
-    // Handle type casts
-    if (node->type == NODE_TYPE_CAST) {
-        printf("[DEBUG] Processing type cast node\n");
-        printf("[DEBUG] Target type: %s\n", node->target_type ? node->target_type : "NULL");
+    // Handle regular expressions
+    switch (node->type) {
+        case NODE_FLOAT_LITERAL:
+            return atof(node->value);
         
-        if (!node->target_type) {
-            printf("[ERROR] Target type is NULL in float expression\n");
+        case NODE_INT_LITERAL:
+            return (double)atoi(node->value);
+        
+        case NODE_LITERAL: {
+            Variable *var = get_variable(node->value);
+            if (!var) {
+                printf("[ERROR] Undefined variable: %s\n", node->value);
+                return 0.0;
+            }
+            switch (var->type) {
+                case FLOAT_TYPE:
+                    return var->value.float_value;
+                case INT_TYPE:
+                    return (double)var->value.int_value;
+                case STRING_TYPE:
+                    return atof(var->value.string_value);
+                case BOOL_TYPE:
+                    return var->value.bool_value ? 1.0 : 0.0;
+                default:
+                    printf("[ERROR] Unsupported variable type in float expression\n");
+                    return 0.0;
+            }
+        }
+        
+        case NODE_BINARY_OP: {
+            double left = evaluate_float_expression(node->left);
+            double right = evaluate_float_expression(node->right);
+            
+            if (strcmp(node->value, "+") == 0) return left + right;
+            if (strcmp(node->value, "-") == 0) return left - right;
+            if (strcmp(node->value, "*") == 0) return left * right;
+            if (strcmp(node->value, "/") == 0) return right != 0.0 ? left / right : 0.0;
+            if (strcmp(node->value, "**") == 0) {
+                printf("[DEBUG] Processing float exponentiation: %f ** %f\n", left, right);
+                return pow(left, right);
+            }
+            
             return 0.0;
         }
-
-        if (strcmp(node->target_type, "float") == 0) {
-            if (!node->left) {
-                printf("[ERROR] No expression to convert in float expression\n");
-                return 0.0;
-            }
-
-            printf("[DEBUG] Left node type: %d\n", node->left->type);
-            
-            if (node->left->type == NODE_STRING_LITERAL) {
-                double val = atof(node->left->value);
-                printf("[DEBUG] Converting string '%s' to float: %g\n", node->left->value, val);
-                return val;
-            } else if (node->left->type == NODE_INT_LITERAL) {
-                double val = (double)atoi(node->left->value);
-                printf("[DEBUG] Converting int '%s' to float: %g\n", node->left->value, val);
-                return val;
-            } else if (node->left->type == NODE_FLOAT_LITERAL) {
-                double val = atof(node->left->value);
-                printf("[DEBUG] Converting float literal '%s'\n", node->left->value);
-                return val;
-            } else if (node->left->type == NODE_LITERAL) {
-                Variable *var = get_variable(node->left->value);
-                if (var) {
-                    printf("[DEBUG] Found variable '%s' of type %d\n", node->left->value, var->type);
-                    if (var->type == INT_TYPE) {
-                        double val = (double)var->value.int_value;
-                        printf("[DEBUG] Converting int %d to float: %g\n", var->value.int_value, val);
-                        return val;
-                    } else if (var->type == STRING_TYPE) {
-                        double val = atof(var->value.string_value);
-                        printf("[DEBUG] Converting string '%s' to float: %g\n", var->value.string_value, val);
-                        return val;
-                    } else if (var->type == FLOAT_TYPE) {
-                        printf("[DEBUG] Already float value: %g\n", var->value.float_value);
-                        return var->value.float_value;
-                    }
-                } else {
-                    printf("[ERROR] Variable not found: %s\n", node->left->value);
-                }
-            } else {
-                printf("[ERROR] Unsupported node type for float conversion in expression: %d\n", node->left->type);
-            }
-        } else {
-            printf("[ERROR] Unsupported cast type in float expression: %s\n", node->target_type);
-        }
-        return 0.0;
+        
+        default:
+            printf("[ERROR] Unsupported node type in float expression: %d\n", node->type);
+            return 0.0;
     }
-
-    // Handle float literals
-    if (node->type == NODE_FLOAT_LITERAL)
-    {
-        return atof(node->value);
-    }
-    // Promote int literals to float
-    else if (node->type == NODE_INT_LITERAL)
-    {
-        return (double)atoi(node->value);
-    }
-    // Handle variables
-    else if (node->type == NODE_LITERAL)
-    {
-        Variable *var = get_variable(node->value);
-        if (var)
-        {
-            if (var->type == FLOAT_TYPE)
-            {
-                return var->value.float_value;
-            }
-            else if (var->type == INT_TYPE)
-            {
-                return (double)var->value.int_value;
-            }
-            else
-            {
-                printf("Error: Cannot convert %s to float\n", node->value);
-                return 0.0;
-            }
-        }
-        printf("Error: Undefined variable %s\n", node->value);
-        return 0.0;
-    }
-    // Handle binary operations
-    else if (node->type == NODE_BINARY_OP)
-    {
-        // Check if either operand is a float or needs float evaluation
-        bool left_is_float = node->left && (
-            node->left->type == NODE_FLOAT_LITERAL ||
-            (node->left->type == NODE_LITERAL && 
-             get_variable(node->left->value) && 
-             get_variable(node->left->value)->type == FLOAT_TYPE) ||
-            node->left->type == NODE_BINARY_OP);
-
-        bool right_is_float = node->right && (
-            node->right->type == NODE_FLOAT_LITERAL ||
-            (node->right->type == NODE_LITERAL && 
-             get_variable(node->right->value) && 
-             get_variable(node->right->value)->type == FLOAT_TYPE) ||
-            node->right->type == NODE_BINARY_OP);
-
-        double left = left_is_float ? 
-            evaluate_float_expression(node->left) : 
-            (double)evaluate_expression(node->left);
-
-        double right = right_is_float ? 
-            evaluate_float_expression(node->right) : 
-            (double)evaluate_expression(node->right);
-
-        if (strcmp(node->value, "+") == 0)
-            return left + right;
-        if (strcmp(node->value, "-") == 0)
-            return left - right;
-        if (strcmp(node->value, "*") == 0)
-            return left * right;
-        if (strcmp(node->value, "/") == 0)
-        {
-            if (right == 0.0)
-            {
-                printf("Error: Division by zero\n");
-                return 0.0;
-            }
-            return left / right;
-        }
-        if (strcmp(node->value, "**") == 0)
-            return pow(left, right);
-        if (strcmp(node->value, "%") == 0)
-        {
-            if (right == 0.0)
-            {
-                printf("Error: Modulus by zero\n");
-                return 0.0;
-            }
-            return fmod(left, right);
-        }
-    }
-
-    return 0.0;
 }
 
 static bool can_implicitly_convert(VariableType from_type, VariableType to_type) {
