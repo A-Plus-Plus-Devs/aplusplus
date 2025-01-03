@@ -1,5 +1,18 @@
-int x = 5;
-x += 10;  // Valid
+#define nothing greetUser(string name) {
+     print("Hello, " + name + "!");
+}
+
+string name = input("Enter your name: ");
+
+greetUser(name);
 
 
-print(x);
+print(length(name));
+
+print(index(name, 2));
+
+print(substring(name, 2, 3));
+
+print(concat(name, "world"));
+
+print(replace(name, "o", "a"));

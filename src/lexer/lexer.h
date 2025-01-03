@@ -90,6 +90,9 @@ typedef enum
     TOKEN_EMPTY,        // For 'empty' keyword
     TOKEN_INPUT,
     TOKEN_INDEX,
+    TOKEN_SUBSTRING,    // Add these new tokens
+    TOKEN_CONCAT,
+    TOKEN_REPLACE,
 } TokenType;
 
 // Define keywords

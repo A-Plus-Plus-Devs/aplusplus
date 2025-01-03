@@ -174,6 +174,15 @@ print(length(name));    // Output: 4
 // Get character at index
 print(index(name, 0));  // Output: "P"
 print(index(name, 3));  // Output: "l"
+
+// Get part of string from start to end index
+print(substring("hello", 1, 3));  // Output: "el"
+
+// Combine two strings into one
+print(concat("he", "llo"));  // Output: "hello"
+
+// Replace character at index with new char
+print(replace("hello", 0, "j"));  // Output: "jello"
 ```
 
 ### String Function Rules
@@ -187,6 +196,21 @@ print(index(name, 3));  // Output: "l"
    - Index starts at 0
    - Returns empty string if index is out of bounds
    - Works with both string literals and variables
+
+3. **substring(string, int, int)**
+   - Returns a portion of the string from start index (inclusive) to end index (exclusive)
+   - Returns empty string if indices are invalid
+   - Example: substring("hello", 1, 3) returns "el"
+
+4. **concat(string, string)**
+   - Combines two strings into one
+   - Alternative to + operator for strings
+   - Example: concat("he", "llo") returns "hello"
+
+5. **replace(string, int, char)**
+   - Returns a new string with the character at specified index replaced
+   - Returns original string if index is invalid
+   - Example: replace("hello", 0, "j") returns "jello"
 
 ### Examples
 ```c

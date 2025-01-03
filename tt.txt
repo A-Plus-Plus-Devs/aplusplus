@@ -211,104 +211,6 @@ char* execute_function(const char *name, ASTNode *arguments) {
         return result;
     }
 
-    // Handle substring function
-    if (strcmp(name, "substring") == 0) {
-        if (!arguments || !arguments->next || !arguments->next->next) {
-            printf("Error: substring() requires three arguments\n");
-            return strdup("");
-        }
-
-        char *str_value = evaluate_string_expression(arguments);
-        if (!str_value) {
-            printf("Error: First argument to substring() must be a string\n");
-            return strdup("");
-        }
-
-        int start = evaluate_expression(arguments->next);
-        int end = evaluate_expression(arguments->next->next);
-        size_t str_len = strlen(str_value);
-
-        if (start < 0 || end < 0 || (size_t)start >= str_len || (size_t)end > str_len || start > end) {
-            printf("Error: Invalid substring indices\n");
-            free(str_value);
-            return strdup("");
-        }
-
-        size_t len = end - start;
-        char *result = malloc(len + 1);
-        strncpy(result, str_value + start, len);
-        result[len] = '\0';
-        
-        free(str_value);
-        return result;
-    }
-
-    // Handle concat function
-    if (strcmp(name, "concat") == 0) {
-        if (!arguments || !arguments->next) {
-            printf("Error: concat() requires two arguments\n");
-            return strdup("");
-        }
-
-        char *str1 = evaluate_string_expression(arguments);
-        char *str2 = evaluate_string_expression(arguments->next);
-
-        if (!str1 || !str2) {
-            printf("Error: Both arguments to concat() must be strings\n");
-            free(str1);
-            free(str2);
-            return strdup("");
-        }
-
-        size_t len = strlen(str1) + strlen(str2);
-        char *result = malloc(len + 1);
-        strcpy(result, str1);
-        strcat(result, str2);
-        
-        free(str1);
-        free(str2);
-        return result;
-    }
-
-    // Handle replace function
-    if (strcmp(name, "replace") == 0) {
-        if (!arguments || !arguments->next || !arguments->next->next) {
-            printf("Error: replace() requires three arguments\n");
-            return strdup("");
-        }
-
-        char *str_value = evaluate_string_expression(arguments);
-        if (!str_value) {
-            printf("Error: First argument to replace() must be a string\n");
-            return strdup("");
-        }
-
-        int index = evaluate_expression(arguments->next);
-        char *new_char = evaluate_string_expression(arguments->next->next);
-
-        if (!new_char || strlen(new_char) != 1) {
-            printf("Error: Third argument to replace() must be a single character\n");
-            free(str_value);
-            free(new_char);
-            return strdup("");
-        }
-
-        size_t str_len = strlen(str_value);
-        if (index < 0 || (size_t)index >= str_len) {
-            printf("Error: String index %d out of range (0-%zu)\n", index, str_len - 1);
-            free(str_value);
-            free(new_char);
-            return strdup("");
-        }
-
-        char *result = strdup(str_value);
-        result[index] = new_char[0];
-        
-        free(str_value);
-        free(new_char);
-        return result;
-    }
-
     Function *func = find_function(name);
     if (!func) {
         printf("Error: Function '%s' not found\n", name);
@@ -1112,33 +1014,6 @@ static void register_builtin_functions(void) {
         .body = NULL
     };
     functions[function_count++] = index_func;
-
-    // Register substring function
-    Function substring_func = {
-        .name = "substring",
-        .return_type = "string",
-        .parameters = NULL,
-        .body = NULL
-    };
-    functions[function_count++] = substring_func;
-
-    // Register concat function
-    Function concat_func = {
-        .name = "concat",
-        .return_type = "string",
-        .parameters = NULL,
-        .body = NULL
-    };
-    functions[function_count++] = concat_func;
-
-    // Register replace function
-    Function replace_func = {
-        .name = "replace",
-        .return_type = "string",
-        .parameters = NULL,
-        .body = NULL
-    };
-    functions[function_count++] = replace_func;
 
     builtins_registered = true;
 }

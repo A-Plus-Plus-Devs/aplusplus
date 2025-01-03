@@ -756,6 +756,67 @@ static ASTNode *parse_factor(Parser *parser)
         return create_function_call_node("length", argument);
     }
 
+    // Handle function calls
+    if (parser->current_token->type == TOKEN_IDENTIFIER ||
+        parser->current_token->type == TOKEN_LENGTH ||
+        parser->current_token->type == TOKEN_INDEX ||
+        parser->current_token->type == TOKEN_SUBSTRING ||  // Add these new cases
+        parser->current_token->type == TOKEN_CONCAT ||
+        parser->current_token->type == TOKEN_REPLACE)
+    {
+        char *function_name = strdup(parser->current_token->value);
+        get_next_token(parser); // Consume function name
+
+        if (parser->current_token->type != TOKEN_LPAREN)
+        {
+            printf("Error: Expected '(' after function name\n");
+            free(function_name);
+            return NULL;
+        }
+        get_next_token(parser); // Consume (
+
+        // Parse arguments
+        ASTNode *arguments = NULL;
+        ASTNode *current_arg = NULL;
+
+        while (parser->current_token->type != TOKEN_RPAREN)
+        {
+            ASTNode *arg = parse_expression(parser);
+            if (!arg)
+            {
+                printf("Error: Invalid function argument\n");
+                free(function_name);
+                return NULL;
+            }
+
+            if (!arguments)
+            {
+                arguments = arg;
+                current_arg = arg;
+            }
+            else
+            {
+                current_arg->next = arg;
+                current_arg = arg;
+            }
+
+            if (parser->current_token->type == TOKEN_COMMA)
+            {
+                get_next_token(parser); // Consume ,
+            }
+            else if (parser->current_token->type != TOKEN_RPAREN)
+            {
+                printf("Error: Expected ',' or ')' in function arguments\n");
+                free(function_name);
+                return NULL;
+            }
+        }
+
+        get_next_token(parser); // Consume )
+
+        return create_function_call_node(function_name, arguments);
+    }
+
     printf("Error: Unexpected token in factor: %d\n", token->type);
     return NULL;
 }
