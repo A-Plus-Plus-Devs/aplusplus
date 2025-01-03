@@ -483,8 +483,8 @@ static ASTNode *parse_power(Parser *parser)
 static ASTNode *parse_factor(Parser *parser)
 {
     Token *token = parser->current_token;
-    // printf("[DEBUG] Parsing factor, token type: %d, value: '%s'\n", 
-    //        token->type, token->value ? token->value : "NULL");
+    printf("DEBUG: parse_factor - token type: %d, value: %s\n", token->type, 
+           token->value ? token->value : "NULL");
 
     // Add handling for unary minus
     if (token->type == TOKEN_MINUS)
@@ -535,18 +535,24 @@ static ASTNode *parse_factor(Parser *parser)
         char *identifier = strdup(token->value);
         get_next_token(parser);
 
+        printf("DEBUG: Found identifier '%s', next token type: %d\n", 
+               identifier, parser->current_token->type);
+
         // Check if this is an array access
         if (parser->current_token->type == TOKEN_LBRACKET) {
+            printf("DEBUG: Found array access for '%s'\n", identifier);
             get_next_token(parser); // consume [
-            ASTNode *index = parse_expression(parser);
             
+            ASTNode *index = parse_expression(parser);
             if (!index) {
+                printf("DEBUG: Failed to parse array index\n");
                 free(identifier);
                 return NULL;
             }
 
             if (parser->current_token->type != TOKEN_RBRACKET) {
-                printf("Error: Expected ']' after array index\n");
+                printf("DEBUG: Expected ], got token type %d\n", 
+                       parser->current_token->type);
                 free(identifier);
                 free_ast(index);
                 return NULL;
@@ -557,6 +563,7 @@ static ASTNode *parse_factor(Parser *parser)
             ASTNode *node = create_node(NODE_ARRAY_ACCESS, NULL, NULL, identifier);
             node->var_name = identifier;
             node->index = index;
+            printf("DEBUG: Successfully created array access node\n");
             return node;
         }
 

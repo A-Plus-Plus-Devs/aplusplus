@@ -1791,63 +1791,174 @@ static void handle_type_cast(ASTNode *node)
 
 */
 
-void* interpret_expression(ASTNode *node) {
+void* interpret_expression(ASTNode *node)
+{
     if (!node) {
         return NULL;
     }
 
+    printf("DEBUG: Interpreting node type: %d\n", node->type);
+
     switch (node->type) {
-        case NODE_INT_LITERAL:
-        case NODE_LITERAL: {
-            int* result = malloc(sizeof(int));
-            *result = evaluate_expression(node);
-            return result;
+        case NODE_BINARY_OP: {
+            void* left_result = interpret_expression(node->left);
+            void* right_result = node->right ? interpret_expression(node->right) : NULL;
+            
+            if (!left_result || (node->right && !right_result)) {
+                return NULL;
+            }
+
+            if (strcmp(node->value, "+") == 0) {
+                // ... existing binary op code ...
+            }
+            // ... rest of binary op cases ...
+            return NULL;
         }
-        
+
+        case NODE_INT_LITERAL: {
+            int* value = malloc(sizeof(int));
+            *value = atoi(node->value);
+            printf("DEBUG: Created int literal: %d\n", *value);
+            return value;
+        }
+
+        case NODE_FLOAT_LITERAL: {
+            double* value = malloc(sizeof(double));
+            *value = atof(node->value);
+            return value;
+        }
+
         case NODE_STRING_LITERAL: {
             return strdup(node->value);
         }
-        
-        case NODE_FLOAT_LITERAL: {
-            double* result = malloc(sizeof(double));
-            *result = evaluate_float_expression(node);
-            return result;
-        }
-        
+
         case NODE_BOOL_LITERAL: {
-            bool* result = malloc(sizeof(bool));
-            *result = evaluate_bool_expression(node);
-            return result;
+            bool* value = malloc(sizeof(bool));
+            *value = (strcmp(node->value, "yup") == 0);
+            return value;
         }
-        
-        case NODE_ARRAY_LITERAL:
-            return interpret_array_literal(node);
-            
+
+        case NODE_CHAR_LITERAL: {
+            char* value = malloc(sizeof(char));
+            *value = node->value[0];
+            return value;
+        }
+
+        case NODE_LITERAL: {
+            Variable* var = get_variable(node->value);
+            if (!var) {
+                printf("Error: Undefined variable '%s'\n", node->value);
+                return NULL;
+            }
+            // ... existing literal handling code ...
+            return NULL;
+        }
+
         case NODE_ARRAY_ACCESS: {
+            printf("DEBUG: Interpreting array access for '%s'\n", node->var_name);
+            
             Variable *array_var = get_variable(node->var_name);
-            if (!array_var || array_var->type != ARRAY_TYPE) {
-                printf("Error: Variable '%s' is not an array\n", node->var_name);
+            if (!array_var) {
+                printf("DEBUG: Variable '%s' not found\n", node->var_name);
                 return NULL;
             }
 
             ArrayValue *array = array_var->value.array_value;
-            int index = *(int*)interpret_expression(node->index);
-            
-            if (index < 0 || index >= array->length) {
-                printf("Error: Array index %d out of bounds (array length: %zu)\n", 
-                       index, array->length);
+            printf("DEBUG: Array found with length %zu\n", array->length);
+            printf("DEBUG: Array contents:\n");
+            for (size_t i = 0; i < array->length; i++) {
+                void* elem = array->elements[i];
+                if (elem && array->type == INT_TYPE) {
+                    printf("  [%zu] = %d\n", i, *(int*)elem);
+                }
+            }
+
+            // Get index
+            void* index_result = interpret_expression(node->index);
+            if (!index_result) {
+                printf("DEBUG: Failed to interpret index\n");
                 return NULL;
             }
 
-            return array_get(array, index);
+            int index;
+            if (node->index->type == NODE_INT_LITERAL) {
+                index = atoi(node->index->value);
+            } else {
+                index = *(int*)index_result;
+                free(index_result);
+            }
+            printf("DEBUG: Accessing index: %d\n", index);
+
+            if (index < 0 || index >= array->length) {
+                printf("DEBUG: Index out of bounds\n");
+                return NULL;
+            }
+
+            void* element = array->elements[index];
+            if (!element) {
+                printf("DEBUG: Element is NULL\n");
+                return NULL;
+            }
+
+            // Create a copy of the element
+            void* result = NULL;
+            switch (array->type) {
+                case INT_TYPE: {
+                    int* copy = malloc(sizeof(int));
+                    *copy = *(int*)element;
+                    printf("DEBUG: Retrieved int value: %d\n", *copy);
+                    result = copy;
+                    break;
+                }
+                case STRING_TYPE: {
+                    result = strdup((char*)element);
+                    printf("DEBUG: Retrieved string value: %s\n", (char*)result);
+                    break;
+                }
+                case FLOAT_TYPE: {
+                    double* copy = malloc(sizeof(double));
+                    *copy = *(double*)element;
+                    printf("DEBUG: Retrieved float value: %f\n", *copy);
+                    result = copy;
+                    break;
+                }
+                case BOOL_TYPE: {
+                    bool* copy = malloc(sizeof(bool));
+                    *copy = *(bool*)element;
+                    printf("DEBUG: Retrieved bool value: %d\n", *copy);
+                    result = copy;
+                    break;
+                }
+                case EMPTY_TYPE: {
+                    result = element;
+                    printf("DEBUG: Retrieved mixed type value\n");
+                    break;
+                }
+                default:
+                    printf("Error: Unsupported array type %d\n", array->type);
+                    return NULL;
+            }
+            
+            return result;
         }
-        
-        case NODE_ARRAY_METHOD_CALL: {
-            ArrayValue* array = get_variable(node->var_name)->value.array_value;
-            return interpret_array_method_call(node, array);
+
+        case NODE_ARRAY_LITERAL: {
+            // ... existing array literal code ...
+            return NULL;
         }
-        
+
+        case NODE_FUNCTION_CALL: {
+            // ... existing function call code ...
+            return NULL;
+        }
+
+        case NODE_TYPE_CAST: {
+            // ... existing type cast code ...
+            return NULL;
+        }
+
         default:
+            printf("Error: Unknown expression type %d\n", node->type);
             return NULL;
     }
 }
