@@ -1824,8 +1824,22 @@ void* interpret_expression(ASTNode *node) {
             return interpret_array_literal(node);
             
         case NODE_ARRAY_ACCESS: {
-            ArrayValue* array = get_variable(node->var_name)->value.array_value;
-            return interpret_array_access(node, array);
+            Variable *array_var = get_variable(node->var_name);
+            if (!array_var || array_var->type != ARRAY_TYPE) {
+                printf("Error: Variable '%s' is not an array\n", node->var_name);
+                return NULL;
+            }
+
+            ArrayValue *array = array_var->value.array_value;
+            int index = *(int*)interpret_expression(node->index);
+            
+            if (index < 0 || index >= array->length) {
+                printf("Error: Array index %d out of bounds (array length: %zu)\n", 
+                       index, array->length);
+                return NULL;
+            }
+
+            return array_get(array, index);
         }
         
         case NODE_ARRAY_METHOD_CALL: {

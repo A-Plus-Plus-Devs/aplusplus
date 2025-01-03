@@ -1,13 +1,88 @@
-numbers<int> = [1, 2, 3, 4, 5];
+// Edge Cases and Additional Feature Tests for A++
+// Each section tests different functionality in extreme cases
+// Author: Paul Kabulu
 
-print(numbers[0]);
+/*
+ * There are currently some errors that need to be checked, however, most edge cases have passed the tests... just 3 erros logged, 
+ * they arent that detailed, so I cant really tell whats causing them - but all in all, the edge cases are working as intended
+*/
 
-names<string> = ["Alice", "Bob", "Charlie"];
 
-// print(names[0]);
 
-mixed<any> = [1, "two", true];
+// 1. Variable Declaration Edge Cases
+print("=== Variable Declaration Edge Cases ===");
+int max_int = 2147483647;    // Maximum 32-bit integer
+int min_int = -2147483648;   // Minimum 32-bit integer
+print("max: " + max_int);
+print("min: " + min_int);
 
-// print(mixed[0]);
-// print(mixed[1]);
-// print(mixed[2]);
+float very_small = 0.0000001;  // Very small float
+print(very_small);
+
+string emptyStr = "";             // EmptyStr string
+print(emptyStr);
+string spaces = "   ";         // String with only spaces
+print(spaces);
+
+// 2. Operator Edge Cases
+print("=== Operator Edge Cases ===");
+print(5 / 2);                  // Integer division
+print(2147483647 + 1);        // Integer overflow
+print(-2147483648 - 1);       // Integer underflow
+print(0 ** 0);                // Power with zero
+print(0 ** 5);                // Zero to any power
+print(1 ** 1000);             // One to large power
+print((-2) ** 3);             // Negative number power
+
+// 3. Complex Boolean Logic
+print("=== Complex Boolean Logic ===");
+print(yup && yup && yup);      // Multiple AND
+print(nope || nope || yup);    // Multiple OR
+print(!(yup && nope));         // NOT with parentheses
+print(yup && !nope);           // NOT in expression
+print(yup || (yup && nope));     // Operator precedence
+print((yup || yup) && nope);   // Parentheses changing precedence
+
+// 4. Nested Control Structures
+print("=== Nested Control Structures ===");
+if (yup) {
+    if (yup) {
+        print("Nested if - both yup");
+    } else {
+        print("This should not print 1");
+    }
+} else {
+    print("This should not print 2");
+}
+
+// 5. For Loop Edge Cases
+print("=== For Loop Edge Cases ===");
+// Empty for loop
+for (int i = 0; i < 0; i = i + 1) {
+    print("This should not print 3");
+}
+
+// Single iteration
+for (int i = 0; i < 1; i = i + 1) {
+    print("Single iteration");
+}
+
+// Nested loops
+for (int i = 0; i < 2; i = i + 1) {
+    for (int j = 0; j < 2; j = j + 1) {
+        print(i);
+        print(j);
+    }
+}
+
+// 6. Type Coercion Tests
+print("=== Type Coercion Tests ===");
+int int_val = 42;
+float float_val = 3.14;
+print(int_val + float_val);    // Int + Float
+
+// 7. Mixed Expression Tests
+print("=== Mixed Expression Tests ===");
+print((5 + 3 * 2 == 11) && yup);  // Arithmetic + Comparison + Logical
+print(nope || (5 < 10 && 3 >= 2)); // Multiple comparisons and logical
+print(!(5 + 5 != 10) && yup);    // Parentheses + NOT + Comparison + Logical

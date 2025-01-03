@@ -533,8 +533,33 @@ static ASTNode *parse_factor(Parser *parser)
     else if (token->type == TOKEN_IDENTIFIER)
     {
         char *identifier = strdup(token->value);
-        get_next_token(parser);  // consume identifier
-        
+        get_next_token(parser);
+
+        // Check if this is an array access
+        if (parser->current_token->type == TOKEN_LBRACKET) {
+            get_next_token(parser); // consume [
+            ASTNode *index = parse_expression(parser);
+            
+            if (!index) {
+                free(identifier);
+                return NULL;
+            }
+
+            if (parser->current_token->type != TOKEN_RBRACKET) {
+                printf("Error: Expected ']' after array index\n");
+                free(identifier);
+                free_ast(index);
+                return NULL;
+            }
+            get_next_token(parser); // consume ]
+
+            // Create array access node
+            ASTNode *node = create_node(NODE_ARRAY_ACCESS, NULL, NULL, identifier);
+            node->var_name = identifier;
+            node->index = index;
+            return node;
+        }
+
         // Check if this is a function call
         if (parser->current_token->type == TOKEN_LPAREN)
         {
