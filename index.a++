@@ -1,4 +1,9 @@
-string name = input("What is your name? ");
-int name_length = length(name);
+// Input conversion
+float age = (float) input("Enter your age: ");  // "20" → 20.0
+float ageIn5Years = age + 5;
+print("In 5 years you will be: " + ageIn5Years);  // "25.0"
 
-print("Your name is " + name + " and it is " + name_length + " characters long.");
+int x = (int) 42.9;  // 42 (truncates decimal)
+boolean isValid = (boolean) 1;  // yup
+
+print(isValid);

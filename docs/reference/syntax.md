@@ -62,3 +62,26 @@ for (int i = 0; i < 10; i++) {
     // code
 }
 ```
+
+## Built-in Functions
+
+### String Functions
+```c
+// String length
+length(string);     // Returns number of characters
+
+// String indexing
+index(string, int); // Returns character at index
+```
+
+### Function Call Syntax
+```c
+// Basic function calls
+length("Hello");      // 5
+index("Hello", 1);    // "e"
+
+// With variables
+string text = "Hello";
+int position = 1;
+index(text, position);  // "e"
+```

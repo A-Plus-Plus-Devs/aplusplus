@@ -69,6 +69,8 @@ static Token *identifier_or_keyword(Lexer *lexer)
     // Check for keywords
     if (strcmp(buffer, "length") == 0)
         token->type = TOKEN_LENGTH;
+    else if (strcmp(buffer, "index") == 0)
+        token->type = TOKEN_INDEX;
     else if (strcmp(buffer, "if") == 0)
         token->type = TOKEN_IF;
     else if (strcmp(buffer, "else") == 0)

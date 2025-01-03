@@ -127,6 +127,9 @@ Function *find_function(const char *name) {
 
 // Execute a function and return its result as a string
 char* execute_function(const char *name, ASTNode *arguments) {
+    // Make sure built-ins are registered
+    register_builtin_functions();
+
     if (strcmp(name, "length") == 0) {
         if (!arguments) {
             return strdup("0");
@@ -160,6 +163,50 @@ char* execute_function(const char *name, ASTNode *arguments) {
         }
 
         return strdup("0");
+    } else if (strcmp(name, "index") == 0) {
+        // Get the string argument
+        if (!arguments) {
+            printf("Error: index() requires two arguments: string and index\n");
+            return strdup("");
+        }
+
+        // Get the string value
+        char* str_value = NULL;
+        if (arguments->type == NODE_STRING_LITERAL) {
+            str_value = arguments->value;
+        } else if (arguments->type == NODE_LITERAL) {
+            Variable* var = get_variable(arguments->value);
+            if (var && var->type == STRING_TYPE) {
+                str_value = var->value.string_value;
+            }
+        }
+
+        // Get the index argument
+        ASTNode* index_arg = arguments->next;
+        if (!index_arg) {
+            printf("Error: index() requires an index argument\n");
+            return strdup("");
+        }
+
+        int index = evaluate_expression(index_arg);
+        
+        // Validate string and index
+        if (!str_value) {
+            printf("Error: First argument to index() must be a string\n");
+            return strdup("");
+        }
+
+        size_t str_len = strlen(str_value);
+        if (index < 0 || (size_t)index >= str_len) {
+            printf("Error: String index %d out of range (0-%zu)\n", index, str_len - 1);
+            return strdup("");
+        }
+
+        // Create a single character string result
+        char* result = malloc(2);
+        result[0] = str_value[index];
+        result[1] = '\0';
+        return result;
     }
 
     Function *func = find_function(name);
@@ -946,22 +993,34 @@ static char* evaluate_input(const char* prompt) {
 
 // Add this implementation after the other helper functions
 static void register_builtin_functions(void) {
-    // Only register if not already done
-    if (builtins_registered) {
-        return;
-    }
+    if (builtins_registered) return;
     
-    register_function("length", "int", 
-        create_function_parameter_node("string", "str"), 
-        NULL);
-        
+    // Register length function
+    Function length_func = {
+        .name = "length",
+        .return_type = "int",
+        .parameters = NULL,
+        .body = NULL
+    };
+    functions[function_count++] = length_func;
+
+    // Register index function
+    Function index_func = {
+        .name = "index",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL
+    };
+    functions[function_count++] = index_func;
+
     builtins_registered = true;
 }
 
 // This is the main function that interprets our AST
 void interpret(ASTNode *node)
 {
-    register_builtin_functions();  // Will only register once now
+    // Register built-in functions if not already done
+    register_builtin_functions();
     
     while (node)
     {

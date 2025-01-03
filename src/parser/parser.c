@@ -484,7 +484,7 @@ static ASTNode *parse_factor(Parser *parser)
 {
     Token *token = parser->current_token;
     
-    if (token->type == TOKEN_LENGTH || 
+    if (token->type == TOKEN_LENGTH || token->type == TOKEN_INDEX || 
         (token->type == TOKEN_IDENTIFIER && peek_char(parser->lexer) == '(')) {
         char *func_name = strdup(token->value);
         get_next_token(parser);
@@ -497,11 +497,33 @@ static ASTNode *parse_factor(Parser *parser)
         get_next_token(parser);
         
         ASTNode *argument = NULL;
-        if (parser->current_token->type != TOKEN_RPAREN) {
-            argument = parse_expression(parser);
-            if (!argument) {
+        ASTNode *current_arg = NULL;
+
+        // Parse arguments until we hit the closing parenthesis
+        while (parser->current_token->type != TOKEN_RPAREN) {
+            ASTNode *next_arg = parse_expression(parser);
+            if (!next_arg) {
                 printf("Error: Invalid argument in function call\n");
                 free(func_name);
+                if (argument) free_ast(argument);
+                return NULL;
+            }
+
+            if (!argument) {
+                argument = next_arg;
+                current_arg = argument;
+            } else {
+                current_arg->next = next_arg;
+                current_arg = next_arg;
+            }
+
+            // Check for comma if there might be more arguments
+            if (parser->current_token->type == TOKEN_COMMA) {
+                get_next_token(parser); // consume comma
+            } else if (parser->current_token->type != TOKEN_RPAREN) {
+                printf("Error: Expected ',' or ')' after function argument\n");
+                free(func_name);
+                free_ast(argument);
                 return NULL;
             }
         }

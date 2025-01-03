@@ -89,6 +89,7 @@ typedef enum
     TOKEN_NOTHING_TYPE,  // For 'nothing' keyword
     TOKEN_EMPTY,        // For 'empty' keyword
     TOKEN_INPUT,
+    TOKEN_INDEX,
 } TokenType;
 
 // Define keywords
