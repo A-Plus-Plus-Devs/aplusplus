@@ -139,6 +139,7 @@ static Token *boolean(Lexer *lexer)
 }
 
 
+
 // This function identifies numbers
 static Token *number(Lexer *lexer)
 {
@@ -171,6 +172,7 @@ static Token *number(Lexer *lexer)
             advance(lexer);
         }
     }
+    
 
     buffer[i] = '\0';
 
@@ -215,6 +217,8 @@ static Token *string(Lexer *lexer)
 
     return token;
 }
+
+
 
 static Token *char_literal(Lexer *lexer)
 {
@@ -336,6 +340,35 @@ void skip_whitespace(Lexer *lexer)
     }
 }
 
+// Add this helper function at the top with other static functions
+static Token* array_type(Lexer* lexer) {
+    Token* token = malloc(sizeof(Token));
+    char buffer[256] = {0};
+    int i = 0;
+    
+    // Skip the '<'
+    advance(lexer);
+    
+    // Read the type name
+    while (isalnum(lexer->current_char)) {
+        buffer[i++] = lexer->current_char;
+        advance(lexer);
+    }
+    
+    // Expect closing '>'
+    if (lexer->current_char != '>') {
+        printf("[DEBUG] Expected '>', got '%c'\n", lexer->current_char);
+        free(token);
+        return NULL;
+    }
+    advance(lexer); // consume '>'
+    
+    buffer[i] = '\0';
+    token->type = TOKEN_ARRAY_TYPE;
+    token->value = strdup(buffer);
+    return token;
+}
+
 
 // Get the next token
 Token *next_token(Lexer *lexer)
@@ -413,14 +446,14 @@ Token *next_token(Lexer *lexer)
             token->type = TOKEN_LESS_THAN_OR_EQUAL;
         } else {
             // Check for array type annotation
-            char next = peek_char(lexer);
-            if (isalpha(next)) {
-                token->type = TOKEN_ARRAY_TYPE;
-                token->value = strdup("<");
-            } else {
-                token->type = TOKEN_LESS_THAN;
-                token->value = strdup("<");
-            }
+          if (isalpha(peek_char(lexer))) {
+            free(token);
+            return array_type(lexer);
+        } else {
+            token->type = TOKEN_LESS_THAN;
+            token->value = strdup("<");
+            advance(lexer);
+        }
         }
         advance(lexer);
         return token;

@@ -155,35 +155,43 @@ void* interpret_array_method_call(ASTNode* node, ArrayValue* array) {
 
 void* interpret_array_access(ASTNode* node, ArrayValue* array) {
     DEBUG_LOG("Interpreting array access");
-    if (!array || !node->index) {
-        DEBUG_LOG("Array or index is NULL");
+    if (!node || !array) {
+        DEBUG_LOG("Node or array is NULL");
         return NULL;
     }
-    
-    DEBUG_LOG("Array at %p, type: %d, length: %zu", (void*)array, array->type, array->length);
-    
+
+    // Get the index value
     void* index_result = interpret_expression(node->index);
     if (!index_result) {
-        DEBUG_LOG("Failed to interpret index expression");
+        DEBUG_LOG("Failed to evaluate index expression");
         return NULL;
     }
-    
-    int index = *(int*)index_result;
-    DEBUG_LOG("Accessing index: %d", index);
-    free(index_result);
-    
+
+    // Convert index to integer
+    int index;
+    if (node->index->type == NODE_INT_LITERAL) {
+        index = atoi(node->index->value);
+    } else {
+        index = *(int*)index_result;
+        free(index_result);
+    }
+
+    DEBUG_LOG("Accessing array at index: %d", index);
+
+    // Check bounds
     if (index < 0 || index >= array->length) {
-        DEBUG_LOG("Array index out of bounds: %d (length: %zu)", index, array->length);
+        printf("Error: Array index out of bounds: %d\n", index);
         return NULL;
     }
-    
-    void* element = array->elements[index];
+
+    // Get the element
+    void* element = array_get(array, index);
     if (!element) {
         DEBUG_LOG("Element at index %d is NULL", index);
         return NULL;
     }
-    
-    // Create a copy of the element based on type
+
+    // Return a copy of the element
     void* result = NULL;
     switch (array->type) {
         case INT_TYPE: {
@@ -195,6 +203,12 @@ void* interpret_array_access(ASTNode* node, ArrayValue* array) {
         case STRING_TYPE:
             result = strdup((char*)element);
             break;
+        case FLOAT_TYPE: {
+            double* copy = malloc(sizeof(double));
+            *copy = *(double*)element;
+            result = copy;
+            break;
+        }
         case BOOL_TYPE: {
             bool* copy = malloc(sizeof(bool));
             *copy = *(bool*)element;
@@ -202,9 +216,9 @@ void* interpret_array_access(ASTNode* node, ArrayValue* array) {
             break;
         }
         default:
-            result = element; // For mixed type arrays, return as-is
+            result = element;
     }
-    
-    DEBUG_LOG("Retrieved element at index %d: %p", index, result);
+
+    DEBUG_LOG("Successfully retrieved element at index %d", index);
     return result;
 } 
