@@ -4,10 +4,10 @@ print(numbers[0]);
 
 names<string> = ["Alice", "Bob", "Charlie"];
 
-print(names[0]);
+// print(names[0]);
 
 mixed<any> = [1, "two", true];
 
-print(mixed[0]);
-print(mixed[1]);
-print(mixed[2]);
+// print(mixed[0]);
+// print(mixed[1]);
+// print(mixed[2]);
