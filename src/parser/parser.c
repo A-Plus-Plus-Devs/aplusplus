@@ -354,6 +354,27 @@ static ASTNode *parse_assignment(Parser *parser)
         // For simple assignment (=)
         return create_assignment_node(var_name, value);
     }
+
+    if (parser->current_token->type == TOKEN_PLUS_ASSIGN) {
+        // Handle string concatenation with +=
+        get_next_token(parser); // consume +=
+        
+        ASTNode *right = parse_expression(parser);
+        if (!right) {
+            free(var_name);
+            return NULL;
+        }
+
+        if (parser->current_token->type != TOKEN_SEMICOLON) {
+            printf("Error: Expected ';' after assignment\n");
+            free(var_name);
+            free_ast(right);
+            return NULL;
+        }
+        get_next_token(parser); // consume ;
+
+        return create_compound_assign_node(var_name, right, "+=");
+    }
 }
 
 static ASTNode *parse_expression(Parser *parser)

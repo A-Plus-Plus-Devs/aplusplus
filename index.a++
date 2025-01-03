@@ -1,3 +1,10 @@
-print(2 ** 2);  // Should print 4
-print((float)2.0 ** 2);  // Should print 4.0
-print((float)2.0 ** (float)3.0);  // Should print 8.0
+#define string reverse(string x) {
+    string y = "";
+    for (int i = (length(x) - 1); i >= 0; i--) {
+       print(i);
+    }   
+    yield y;
+}
+
+string x = "Hello";
+print(reverse(x));

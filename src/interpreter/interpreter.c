@@ -1756,6 +1756,37 @@ void interpret(ASTNode *node)
             case NODE_TYPE_CAST:
                 handle_type_cast(node);
                 break;
+            case NODE_COMPOUND_ASSIGN: {
+                Variable *var = get_variable(node->var_name);
+                if (!var) {
+                    printf("Error: Undefined variable '%s'\n", node->var_name);
+                    return;
+                }
+
+                if (var->type == STRING_TYPE) {
+                    // Handle string concatenation
+                    char *right_val = evaluate_string_expression(node->right);
+                    if (!right_val) return;
+
+                    // Calculate new size needed
+                    size_t new_size = strlen(var->value.string_value) + strlen(right_val) + 1;
+                    
+                    // Reallocate memory for the expanded string
+                    char *new_str = realloc(var->value.string_value, new_size);
+                    if (!new_str) {
+                        printf("Error: Memory allocation failed\n");
+                        free(right_val);
+                        return;
+                    }
+                    
+                    // Update the variable's string value
+                    var->value.string_value = new_str;
+                    strcat(var->value.string_value, right_val);
+                    free(right_val);
+                }
+                // ... handle other types ...
+                break;
+            }
             default:
                 break;
         }
