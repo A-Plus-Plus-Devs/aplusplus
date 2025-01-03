@@ -129,8 +129,75 @@ Function *find_function(const char *name) {
 
 // Execute a function and return its result as a string
 char* execute_function(const char *name, ASTNode *arguments) {
+    printf("[DEBUG] execute_function: Starting with function name: %s\n", name);
+    
     // Make sure built-ins are registered
     register_builtin_functions();
+
+    // Handle type cast nodes specially
+    if (arguments && arguments->type == NODE_TYPE_CAST) {
+        printf("[DEBUG] Type cast node detected\n");
+        printf("[DEBUG] Target type: %s\n", arguments->target_type ? arguments->target_type : "NULL");
+        printf("[DEBUG] Left node type: %d\n", arguments->left ? arguments->left->type : -1);
+        
+        if (!arguments->target_type) {
+            printf("[ERROR] Target type is NULL\n");
+            return NULL;
+        }
+
+        if (strcmp(arguments->target_type, "float") == 0) {
+            printf("[DEBUG] Converting to float\n");
+            
+            if (!arguments->left) {
+                printf("[ERROR] No expression to convert (left node is NULL)\n");
+                return NULL;
+            }
+
+            if (arguments->left->type == NODE_STRING_LITERAL) {
+                printf("[DEBUG] Converting string literal: %s\n", arguments->left->value);
+                double val = atof(arguments->left->value);
+                char result[32];
+                snprintf(result, sizeof(result), "%g", val);
+                printf("[DEBUG] Converted value: %s\n", result);
+                return strdup(result);
+            } else if (arguments->left->type == NODE_INT_LITERAL) {
+                printf("[DEBUG] Converting int literal: %s\n", arguments->left->value);
+                double val = (double)atoi(arguments->left->value);
+                char result[32];
+                snprintf(result, sizeof(result), "%g", val);
+                printf("[DEBUG] Converted value: %s\n", result);
+                return strdup(result);
+            } else if (arguments->left->type == NODE_LITERAL) {
+                printf("[DEBUG] Converting variable: %s\n", arguments->left->value);
+                Variable *var = get_variable(arguments->left->value);
+                if (var) {
+                    printf("[DEBUG] Variable found, type: %d\n", var->type);
+                    double val = 0.0;
+                    if (var->type == INT_TYPE) {
+                        val = (double)var->value.int_value;
+                        printf("[DEBUG] Converting from int: %d to float: %g\n", var->value.int_value, val);
+                    } else if (var->type == STRING_TYPE) {
+                        val = atof(var->value.string_value);
+                        printf("[DEBUG] Converting from string: %s to float: %g\n", var->value.string_value, val);
+                    } else if (var->type == FLOAT_TYPE) {
+                        val = var->value.float_value;
+                        printf("[DEBUG] Already float value: %g\n", val);
+                    }
+                    char result[32];
+                    snprintf(result, sizeof(result), "%g", val);
+                    printf("[DEBUG] Final result string: %s\n", result);
+                    return strdup(result);
+                } else {
+                    printf("[ERROR] Variable not found: %s\n", arguments->left->value);
+                }
+            } else {
+                printf("[ERROR] Unsupported node type for float conversion: %d\n", arguments->left->type);
+            }
+        } else {
+            printf("[ERROR] Unsupported cast type: %s\n", arguments->target_type);
+        }
+        return NULL;
+    }
 
     if (strcmp(name, "length") == 0) {
         if (!arguments) {
@@ -944,10 +1011,77 @@ char *evaluate_string_expression(ASTNode *node)
     return strdup("");
 }
 
-static double evaluate_float_expression(ASTNode *node)
-{
-    if (node == NULL)
-    {
+static double evaluate_float_expression(ASTNode *node) {
+    printf("[DEBUG] evaluate_float_expression: Starting\n");
+    
+    if (node == NULL) {
+        printf("[DEBUG] Node is NULL, returning 0.0\n");
+        return 0.0;
+    }
+
+    printf("[DEBUG] Node type: %d, Value: %s\n", node->type, node->value ? node->value : "NULL");
+
+    // Handle direct float literals
+    if (node->type == NODE_FLOAT_LITERAL) {
+        printf("[DEBUG] Processing float literal: %s\n", node->value);
+        return atof(node->value);
+    }
+
+    // Handle type casts
+    if (node->type == NODE_TYPE_CAST) {
+        printf("[DEBUG] Processing type cast node\n");
+        printf("[DEBUG] Target type: %s\n", node->target_type ? node->target_type : "NULL");
+        
+        if (!node->target_type) {
+            printf("[ERROR] Target type is NULL in float expression\n");
+            return 0.0;
+        }
+
+        if (strcmp(node->target_type, "float") == 0) {
+            if (!node->left) {
+                printf("[ERROR] No expression to convert in float expression\n");
+                return 0.0;
+            }
+
+            printf("[DEBUG] Left node type: %d\n", node->left->type);
+            
+            if (node->left->type == NODE_STRING_LITERAL) {
+                double val = atof(node->left->value);
+                printf("[DEBUG] Converting string '%s' to float: %g\n", node->left->value, val);
+                return val;
+            } else if (node->left->type == NODE_INT_LITERAL) {
+                double val = (double)atoi(node->left->value);
+                printf("[DEBUG] Converting int '%s' to float: %g\n", node->left->value, val);
+                return val;
+            } else if (node->left->type == NODE_FLOAT_LITERAL) {
+                double val = atof(node->left->value);
+                printf("[DEBUG] Converting float literal '%s'\n", node->left->value);
+                return val;
+            } else if (node->left->type == NODE_LITERAL) {
+                Variable *var = get_variable(node->left->value);
+                if (var) {
+                    printf("[DEBUG] Found variable '%s' of type %d\n", node->left->value, var->type);
+                    if (var->type == INT_TYPE) {
+                        double val = (double)var->value.int_value;
+                        printf("[DEBUG] Converting int %d to float: %g\n", var->value.int_value, val);
+                        return val;
+                    } else if (var->type == STRING_TYPE) {
+                        double val = atof(var->value.string_value);
+                        printf("[DEBUG] Converting string '%s' to float: %g\n", var->value.string_value, val);
+                        return val;
+                    } else if (var->type == FLOAT_TYPE) {
+                        printf("[DEBUG] Already float value: %g\n", var->value.float_value);
+                        return var->value.float_value;
+                    }
+                } else {
+                    printf("[ERROR] Variable not found: %s\n", node->left->value);
+                }
+            } else {
+                printf("[ERROR] Unsupported node type for float conversion in expression: %d\n", node->left->type);
+            }
+        } else {
+            printf("[ERROR] Unsupported cast type in float expression: %s\n", node->target_type);
+        }
         return 0.0;
     }
 

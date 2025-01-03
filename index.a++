@@ -1,18 +1,2 @@
-#define nothing greetUser(string name) {
-     print("Hello, " + name + "!");
-}
-
-string name = input("Enter your name: ");
-
-greetUser(name);
-
-
-print(length(name));
-
-print(index(name, 2));
-
-print(substring(name, 2, 3));
-
-print(concat(name, "world"));
-
-print(replace(name, "o", "a"));
+float x = 5.0;
+print((float)x);
