@@ -5,3 +5,5 @@
 string name = input("What is your name? ");
 
 greet(name);
+
+string name = empty;

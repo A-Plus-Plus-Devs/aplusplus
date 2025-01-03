@@ -113,6 +113,10 @@
                     "match": "\\b(yup|nope)\\b"
                 },
                 {
+                    "name": "constant.language.aplusplus",
+                    "match": "\\b(empty)\\b"
+                },
+                {
                     "name": "constant.numeric.aplusplus",
                     "match": "\\b\\d+(\\.\\d+)?\\b"
                 }
