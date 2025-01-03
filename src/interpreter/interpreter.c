@@ -1,6 +1,8 @@
 #include "interpreter.h"
 #include "common/types.h"
 #include <stdbool.h>
+#include "array.h"      
+#include "array_ops.h"  
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,6 +24,7 @@ typedef struct
         char *string_value;
         bool bool_value;
         char char_value;  // For character literals
+        ArrayValue* array_value;  // Add this line
     } value;
 } Variable;
 
@@ -44,6 +47,11 @@ static char *execute_function(const char *name, ASTNode *arguments);
 static void set_variable(const char *name, VariableType type, void *value);
 static Variable *get_variable(const char *name);
 
+void* interpret_array_literal(ASTNode* node);
+void* interpret_array_access(ASTNode* node, ArrayValue* array);
+void* interpret_array_method_call(ASTNode* node, ArrayValue* array);
+
+
 static Function *find_function(const char *name);
 static char *execute_function(const char *name, ASTNode *arguments);
 static void set_variable(const char *name, VariableType type, void *value);
@@ -52,6 +60,7 @@ static char *execute_function_body(const char *return_type, ASTNode *body);
 static char* evaluate_input(const char* prompt);
 static void handle_type_cast(ASTNode *node);
 static bool evaluate_comparison(ASTNode *node);
+void* interpret_expression(ASTNode *node);
 
 // Global variables
 static Function functions[MAX_FUNCTIONS];
@@ -1781,3 +1790,50 @@ static void handle_type_cast(ASTNode *node)
 }
 
 */
+
+void* interpret_expression(ASTNode *node) {
+    if (!node) {
+        return NULL;
+    }
+
+    switch (node->type) {
+        case NODE_INT_LITERAL:
+        case NODE_LITERAL: {
+            int* result = malloc(sizeof(int));
+            *result = evaluate_expression(node);
+            return result;
+        }
+        
+        case NODE_STRING_LITERAL: {
+            return strdup(node->value);
+        }
+        
+        case NODE_FLOAT_LITERAL: {
+            double* result = malloc(sizeof(double));
+            *result = evaluate_float_expression(node);
+            return result;
+        }
+        
+        case NODE_BOOL_LITERAL: {
+            bool* result = malloc(sizeof(bool));
+            *result = evaluate_bool_expression(node);
+            return result;
+        }
+        
+        case NODE_ARRAY_LITERAL:
+            return interpret_array_literal(node);
+            
+        case NODE_ARRAY_ACCESS: {
+            ArrayValue* array = get_variable(node->var_name)->value.array_value;
+            return interpret_array_access(node, array);
+        }
+        
+        case NODE_ARRAY_METHOD_CALL: {
+            ArrayValue* array = get_variable(node->var_name)->value.array_value;
+            return interpret_array_method_call(node, array);
+        }
+        
+        default:
+            return NULL;
+    }
+}

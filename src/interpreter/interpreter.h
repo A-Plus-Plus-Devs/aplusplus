@@ -13,4 +13,6 @@
  */
 void interpret(ASTNode *node);
 
+void* interpret_expression(ASTNode *node);
+
 #endif // INTERPRETER_H

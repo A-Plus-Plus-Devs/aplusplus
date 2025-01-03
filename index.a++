@@ -1,9 +1,13 @@
-#define nothing greet(string name) {
-    print("Hello " + name);
-}
+numbers<int> = [1, 2, 3, 4, 5];
 
-string name = input("What is your name? ");
+print(numbers[0]);
 
-greet(name);
+names<string> = ["Alice", "Bob", "Charlie"];
 
-string name = empty;
+print(names[0]);
+
+mixed<any> = [1, "two", true];
+
+print(mixed[0]);
+print(mixed[1]);
+print(mixed[2]);
