@@ -123,15 +123,26 @@
             ]
         },
         "strings": {
-            "patterns": [{
-                "name": "string.quoted.double.aplusplus",
-                "begin": "\"",
-                "end": "\"",
-                "patterns": [{
-                    "name": "constant.character.escape.aplusplus",
-                    "match": "\\\\([\"\\\\nrt])"
-                }]
-            }]
+            "patterns": [
+                {
+                    "name": "string.quoted.double.aplusplus",
+                    "begin": "\"",
+                    "end": "\"",
+                    "patterns": [{
+                        "name": "constant.character.escape.aplusplus",
+                        "match": "\\\\([\"\\\\nrt])"
+                    }]
+                },
+                {
+                    "name": "string.quoted.single.aplusplus",
+                    "begin": "'",
+                    "end": "'",
+                    "patterns": [{
+                        "name": "constant.character.escape.aplusplus",
+                        "match": "\\\\(['\\\\nrt])"
+                    }]
+                }
+            ]
         },
         "numbers": {
             "patterns": [{

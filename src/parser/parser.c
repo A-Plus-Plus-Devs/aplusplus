@@ -293,13 +293,8 @@ void free_parser(Parser *parser)
 // This function parses a single statement from the source code
 static ASTNode *parse_assignment(Parser *parser)
 {
-    if (parser->current_token->type != TOKEN_IDENTIFIER)
-    {
-        return NULL;
-    }
-
     char *var_name = strdup(parser->current_token->value);
-    get_next_token(parser);
+    get_next_token(parser); // consume identifier
 
     TokenType assign_type = parser->current_token->type;
     if (assign_type != TOKEN_ASSIGN && 
@@ -339,6 +334,16 @@ static ASTNode *parse_assignment(Parser *parser)
         free(var_name);
         return NULL;
     }
+
+    // Check for semicolon
+    if (parser->current_token->type != TOKEN_SEMICOLON)
+    {
+        printf("Error: Expected semicolon after assignment\n");
+        free(var_name);
+        free_ast(value);
+        return NULL;
+    }
+    get_next_token(parser); // consume semicolon
 
     if (op) {
         // For compound assignments (+=, -=, etc.), create a binary operation node
