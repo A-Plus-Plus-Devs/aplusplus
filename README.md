@@ -279,7 +279,7 @@ Please ensure your code:
 
 ### Working with Issues
 
-1. Check the [A++ Issue Tracker](https://github.com/A-Plus-Plus-Devs/aplusplus/projects/1) for open tasks
+1. Check the [A++ Issue Tracker](https://github.com/A-Plus-Plus-Devs/projects/1) for open tasks
 2. Comment on issues you'd like to work on
 3. Reference issue numbers in commits and pull requests
 4. Update issue status as you make progress
