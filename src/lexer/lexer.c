@@ -1,3 +1,25 @@
+/*
+ * Lexer Implementation
+ * 
+ * This file implements the lexical analyser (lexer) for the A++ programming language.
+ * It converts source code text into a sequence of tokens for the parser.
+ * 
+ * Key features:
+ * - Token identification and classification
+ * - Keyword recognition
+ * - Number and string literal handling
+ * - Operator and symbol processing
+ * - Comment handling
+ * - Error detection and reporting
+ *
+ * Original Author: Paul Kabulu
+ * Created: March 2024
+ * 
+ * Edited by:
+ *
+ * File: src/lexer/lexer.c
+ */
+
 #include "lexer.h"
 #include <stdbool.h>
 #include <stdlib.h>

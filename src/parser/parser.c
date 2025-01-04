@@ -4,6 +4,28 @@
 #include "parser.h"
 #include <limits.h>
 
+/*
+ * Parser Implementation
+ * 
+ * This file contains the implementation of a recursive descent parser for a custom programming language.
+ * It parses tokens from the lexer and builds an Abstract Syntax Tree (AST) representation of the code.
+ * 
+ * Key features:
+ * - Handles variable declarations and assignments
+ * - Parses arithmetic and logical expressions
+ * - Supports control flow (if statements, for loops)
+ * - Handles function definitions and calls
+ * - Supports arrays and array operations
+ * - Includes input/output operations
+ *
+ * Original Author: Paul Kabulu
+ * Created: August 2024
+ * 
+ * Edited by:
+ *
+ * File: src/parser/parser.c
+ */
+
 // These are function declarations. They tell the compiler that these functions will be defined later.
 static ASTNode *parse_statement(Parser *parser);
 static ASTNode *parse_assignment(Parser *parser);
@@ -747,7 +769,7 @@ static ASTNode *parse_factor(Parser *parser)
         return parse_input(parser);
     }
 
-    // Add handling for length function
+    // handling for length function
     if (token->type == TOKEN_LENGTH) {
         printf("DEBUG: Parsing length function call\n");
         get_next_token(parser); // consume 'length'
@@ -781,7 +803,7 @@ static ASTNode *parse_factor(Parser *parser)
     if (parser->current_token->type == TOKEN_IDENTIFIER ||
         parser->current_token->type == TOKEN_LENGTH ||
         parser->current_token->type == TOKEN_INDEX ||
-        parser->current_token->type == TOKEN_SUBSTRING ||  // Add these new cases
+        parser->current_token->type == TOKEN_SUBSTRING || 
         parser->current_token->type == TOKEN_CONCAT ||
         parser->current_token->type == TOKEN_REPLACE)
     {
@@ -842,7 +864,7 @@ static ASTNode *parse_factor(Parser *parser)
     return NULL;
 }
 
-// Add parsing for if statements
+//  parsing for if statements
 static ASTNode *parse_if_statement(Parser *parser)
 {
     get_next_token(parser); // consume 'if'

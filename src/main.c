@@ -1,10 +1,32 @@
-#include <stdio.h>  // This line includes the standard input/output library
+/*
+ * A++ Programming Language Main Entry Point
+ * 
+ * This file serves as the entry point for the A++ programming language interpreter.
+ * It handles command-line arguments, file loading, and orchestrates the compilation
+ * and execution process.
+ * 
+ * Key features:
+ * - Command-line argument processing
+ * - Source file loading and validation
+ * - Compilation pipeline coordination
+ * - Error handling and reporting
+ * - Version and help information
+ *
+ * Original Author: Paul Kabulu
+ * Created: August 2024
+ * 
+ * Edited by:
+ *
+ * File: src/main.c
+ */
+
+#include <stdio.h>  
 #include <stdlib.h> // This line includes the standard library for functions like malloc and free
-#include <string.h> // This line includes the string manipulation library
-#include "lexer/lexer.h"           // This includes our custom lexer code
-#include "parser/parser.h"         // This includes our custom parser code
-#include "interpreter/interpreter.h" // This includes our custom interpreter code
-#include "common/version.h"        // This includes version information
+#include <string.h>
+#include "lexer/lexer.h"           
+#include "parser/parser.h"         
+#include "interpreter/interpreter.h" 
+#include "common/version.h" 
 
 /**
  * @brief Prints the usage instructions for the A++ compiler.
@@ -42,7 +64,6 @@ void run_file(const char *filename)
 {
     // This function opens the source file, reads its contents, and prepares for compilation
 
-    // Open the file for reading
     FILE *file = fopen(filename, "r");
     if (!file)
     {

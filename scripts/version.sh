@@ -1,5 +1,24 @@
 #!/bin/bash
 
+# A++ Version Management Script (Bash)
+# 
+# This script manages version numbers for the A++ programming language.
+# It handles version bumping, setting specific versions, and Git tagging.
+# 
+# Key features:
+# - Semantic versioning support (major.minor.patch)
+# - Automatic version file updates
+# - Git integration for version tagging
+# - Version history management
+# - Easy version switching
+#
+# Original Author: Paul Kabulu
+# Created: December 2024
+# 
+# Edited by:
+#
+# File: scripts/version.sh
+
 # Get the project root directory by following the symlink
 if [[ -L "$0" ]]; then
     SCRIPT_PATH=$(readlink "$0")

@@ -1,3 +1,21 @@
+# A++ Version Management Script (PowerShell)
+# 
+# This script manages version numbers for the A++ programming language.
+# It handles version bumping, setting specific versions, and Git tagging.
+# 
+# Key features:
+# - Semantic versioning support (major.minor.patch)
+# - Automatic version file updates
+# - Git integration for version tagging
+# - Version history management
+# - Easy version switching
+#
+# Original Author: Paul Kabulu
+# Created: January 2025
+# 
+#
+# File: scripts/version.ps1
+
 # Get the project root directory
 $SCRIPT_PATH = $MyInvocation.MyCommand.Path
 if (Get-Item $SCRIPT_PATH).LinkType -eq "SymbolicLink") {

@@ -1,4 +1,23 @@
 @echo off
+:: A++ Version Management Script (Windows CMD)
+:: 
+:: This script manages version numbers for the A++ programming language.
+:: It handles version bumping, setting specific versions, and Git tagging.
+:: 
+:: Key features:
+:: - Semantic versioning support (major.minor.patch)
+:: - Automatic version file updates
+:: - Git integration for version tagging
+:: - Version history management
+:: - Easy version switching
+::
+:: Original Author: Paul Kabulu
+:: Created: January 2025
+:: 
+:: Edited by:
+::
+:: File: scripts/version.cmd
+
 setlocal EnableDelayedExpansion
 
 rem Get the project root directory
