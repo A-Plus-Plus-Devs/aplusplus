@@ -223,7 +223,25 @@ static Token *string(Lexer *lexer)
 
     while (lexer->current_char != '"' && lexer->current_char != '\0')
     {
-        buffer[i++] = lexer->current_char;
+        // Handle escape sequences
+        if (lexer->current_char == '\\')
+        {
+            advance(lexer); // Move past the backslash
+            switch (lexer->current_char)
+            {
+                case 'n':
+                    buffer[i++] = '\n';
+                    break;
+                default:
+                    // For unsupported escape sequences, just include the character
+                    buffer[i++] = lexer->current_char;
+                    break;
+            }
+        }
+        else
+        {
+            buffer[i++] = lexer->current_char;
+        }
         advance(lexer);
     }
 
@@ -241,7 +259,6 @@ static Token *string(Lexer *lexer)
     Token *token = malloc(sizeof(Token));
     token->type = TOKEN_STRING;
     token->value = strdup(buffer);
-    // printf("Debug: Created string token: %s\n", token->value);
 
     return token;
 }
