@@ -1,6 +1,8 @@
 #include "interpreter.h"
 #include "common/types.h"
 #include <stdbool.h>
+#include "lexer/lexer.h"
+#include "parser/parser.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,6 +59,7 @@ typedef struct
     ASTNode *body;
 } Function;
 
+
 // Function declarations
 static int evaluate_expression(ASTNode *node);
 static bool evaluate_bool_expression(ASTNode *node);
@@ -80,12 +83,63 @@ static int get_string_length(const char *str);
 static void register_builtin_functions(void);
 static void handle_assignment(ASTNode *node);
 
+
+typedef struct {
+    char *name;
+    void *value;
+    VariableType type;
+    bool is_exported;
+} ExportedSymbol;
+
+// Forward declarations for helper functions
+static ExportedSymbol *find_exported_symbol(const char *name);
+static void add_to_scope(const char *name, void *value, VariableType type);
+static VariableType get_type_from_node(ASTNode *node);
+static void *get_value_from_node(ASTNode *node);
+static char *read_file(const char *filename);
+
+
 // Global variables
 static Function functions[MAX_FUNCTIONS];
 static int function_count = 0;
 static Variable variables[MAX_VARIABLES];
 static int variable_count = 0;
 static bool builtins_registered = false;
+
+// Add to global state
+
+static ExportedSymbol exported_symbols[MAX_VARIABLES];
+static int export_count = 0;
+
+
+char *read_file(const char *filename);
+
+// Add helper function implementation
+char *read_file(const char *filename) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        return NULL;
+    }
+
+    // Get file size
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    // Allocate memory for file content
+    char *content = (char *)malloc(file_size + 1);
+    if (!content) {
+        fclose(file);
+        return NULL;
+    }
+
+    // Read file content
+    size_t read_size = fread(content, 1, file_size, file);
+    content[read_size] = '\0';
+
+    fclose(file);
+    return content;
+}
 
 // Helper function to convert type string to VariableType
 static VariableType get_type_from_string(const char *type_str)
@@ -2058,7 +2112,7 @@ void interpret(ASTNode *node)
             if (!var)
             {
                 printf("Error: Undefined variable '%s'\n", node->var_name);
-                return;
+                exit(1);
             }
 
             if (var->type == STRING_TYPE)
@@ -2229,5 +2283,164 @@ static void handle_assignment(ASTNode *node)
     default:
         printf("Error: Unsupported type for variable '%s'\n", node->var_name);
         exit(1);
+    }
+}
+
+static void handle_import(ASTNode *node)
+{
+    // Load and parse the source file
+    char *source = read_file(node->source_file);
+    if (!source)
+    {
+        printf("Error: Could not read file '%s'\n", node->source_file);
+        return;
+    }
+    
+    Lexer *lexer = init_lexer(source);
+    Parser *parser = create_parser(lexer);
+    ASTNode *imported_ast = parse_tokens(parser);
+    
+    if (node->type == NODE_IMPORT_ALL)
+    {
+        // Import all exported symbols
+        interpret(imported_ast);
+    }
+    else
+    {
+        // Import specific symbols
+        ASTNode *item = node->imported_items;
+        while (item)
+        {
+            // Look up the symbol in the exported symbols
+            ExportedSymbol *symbol = find_exported_symbol(item->value);
+            if (symbol)
+            {
+                // Add to current scope with alias if specified
+                const char *name = item->alias ? item->alias : item->value;
+                add_to_scope(name, symbol->value, symbol->type);
+            }
+            item = item->next;
+        }
+    }
+    
+    // Cleanup
+    free_ast(imported_ast);
+    free_parser(parser);
+    free(lexer);
+    free(source);
+}
+
+static void handle_export(ASTNode *node)
+{
+    // Add the symbol to exported_symbols
+    if (export_count >= MAX_VARIABLES)
+    {
+        printf("Error: Maximum number of exports reached\n");
+        return;
+    }
+    
+    // Store the exported symbol
+    exported_symbols[export_count].name = strdup(node->var_name);
+    exported_symbols[export_count].type = get_type_from_node(node);
+    exported_symbols[export_count].value = get_value_from_node(node);
+    exported_symbols[export_count].is_exported = true;
+    export_count++;
+}
+
+// Helper function to find an exported symbol by name
+static ExportedSymbol *find_exported_symbol(const char *name) {
+    for (int i = 0; i < export_count; i++) {
+        if (strcmp(exported_symbols[i].name, name) == 0) {
+            return &exported_symbols[i];
+        }
+    }
+    return NULL;
+}
+
+// Helper function to add a symbol to the current scope
+static void add_to_scope(const char *name, void *value, VariableType type) {
+    switch (type) {
+        case INT_TYPE:
+            set_variable(name, INT_TYPE, value);
+            break;
+        case FLOAT_TYPE:
+            set_variable(name, FLOAT_TYPE, value);
+            break;
+        case STRING_TYPE:
+            set_variable(name, STRING_TYPE, value);
+            break;
+        case BOOL_TYPE:
+            set_variable(name, BOOL_TYPE, value);
+            break;
+        case CHAR_TYPE:
+            set_variable(name, CHAR_TYPE, value);
+            break;
+        default:
+            printf("Error: Unsupported type for import\n");
+            break;
+    }
+}
+
+// Helper function to get type from AST node
+static VariableType get_type_from_node(ASTNode *node) {
+    switch (node->type) {
+        case NODE_VAR_DECLARATION:
+            return get_type_from_string(node->var_type);
+        case NODE_FUNCTION_DEFINITION:
+            return get_type_from_string(node->return_type);
+        default:
+            // For literals and other nodes, infer the type
+            if (node->value) {
+                // Simple type inference based on value
+                char *endptr;
+                strtol(node->value, &endptr, 10);
+                if (*endptr == '\0') return INT_TYPE;
+                
+                strtod(node->value, &endptr);
+                if (*endptr == '\0') return FLOAT_TYPE;
+                
+                if (strcmp(node->value, "yup") == 0 || strcmp(node->value, "nope") == 0)
+                    return BOOL_TYPE;
+                
+                return STRING_TYPE;
+            }
+            return INT_TYPE; // Default type
+    }
+}
+
+// Helper function to get value from AST node
+static void *get_value_from_node(ASTNode *node) {
+    static int int_val;
+    static double float_val;
+    static bool bool_val;
+    static char char_val;
+    
+    switch (node->type) {
+        case NODE_INT_LITERAL:
+            int_val = atoi(node->value);
+            return &int_val;
+        
+        case NODE_FLOAT_LITERAL:
+            float_val = atof(node->value);
+            return &float_val;
+            
+        case NODE_BOOL_LITERAL:
+            bool_val = (strcmp(node->value, "yup") == 0);
+            return &bool_val;
+            
+        case NODE_CHAR_LITERAL:
+            char_val = node->value[0];
+            return &char_val;
+            
+        case NODE_STRING_LITERAL:
+            return node->value;
+            
+        case NODE_VAR_DECLARATION:
+        case NODE_FUNCTION_DEFINITION:
+            // For declarations, store the initial value or function pointer
+            return node;
+            
+        default:
+            return NULL;
     }
 }

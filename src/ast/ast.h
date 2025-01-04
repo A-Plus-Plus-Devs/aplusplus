@@ -33,7 +33,10 @@ typedef enum
     NODE_ARRAY_METHOD_CALL,
     NODE_ARRAY_LITERAL,
     NODE_INPUT,
-    NODE_TYPE_CAST
+    NODE_TYPE_CAST,
+    NODE_IMPORT,
+    NODE_EXPORT,
+    NODE_IMPORT_ALL
 } ASTNodeType;
 
 typedef struct ASTNode
@@ -70,6 +73,11 @@ typedef struct ASTNode
     struct ASTNode *increment;
 
     char *target_type;  // For type casting operations
+
+    char *source_file;     // For import statements
+    char *alias;           // For 'as' clause
+    struct ASTNode *imported_items;  // List of items to import
+    bool is_exported;      // Flag for exported items
 } ASTNode;
 
 /**

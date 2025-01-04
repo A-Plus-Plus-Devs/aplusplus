@@ -135,6 +135,16 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_EMPTY;
     else if (strcmp(buffer, "input") == 0)
         token->type = TOKEN_INPUT;
+    else if (strcmp(buffer, "import") == 0)
+        token->type = TOKEN_IMPORT;
+    else if (strcmp(buffer, "export") == 0)
+        token->type = TOKEN_EXPORT;
+    else if (strcmp(buffer, "from") == 0)
+        token->type = TOKEN_FROM;
+    else if (strcmp(buffer, "as") == 0)
+        token->type = TOKEN_AS;
+    else if (strcmp(buffer, "*") == 0)
+        token->type = TOKEN_ASTERISK;
     else
         token->type = TOKEN_IDENTIFIER;
 

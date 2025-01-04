@@ -51,6 +51,8 @@ static ASTNode *parse_array_literal(Parser *parser);
 static ASTNode *parse_array_access(Parser *parser, char *array_name);
 static ASTNode *parse_array_method_call(Parser *parser, char *array_name);
 static ASTNode *parse_input(Parser *parser);
+static ASTNode *parse_import(Parser *parser);
+static ASTNode *parse_export(Parser *parser);
 
 // This function is used to get the next token from the lexer
 static Token *get_next_token(Parser *parser)
@@ -1972,4 +1974,108 @@ static ASTNode *parse_input(Parser *parser)
     get_next_token(parser); // consume ')'
 
     return create_node(NODE_INPUT, NULL, NULL, prompt);
+}
+
+static ASTNode *parse_import(Parser *parser)
+{
+    get_next_token(parser); // consume 'import'
+    
+    ASTNode *node = create_node(NODE_IMPORT, NULL, NULL, NULL);
+    
+    if (parser->current_token->type == TOKEN_ASTERISK)
+    {
+        // Handle import * from "file"
+        node->type = NODE_IMPORT_ALL;
+        get_next_token(parser); // consume *
+        
+        if (parser->current_token->type != TOKEN_FROM)
+        {
+            printf("Error: Expected 'from' after import *\n");
+            return NULL;
+        }
+        get_next_token(parser); // consume 'from'
+        
+        if (parser->current_token->type != TOKEN_STRING)
+        {
+            printf("Error: Expected string literal for file path\n");
+            return NULL;
+        }
+        node->source_file = strdup(parser->current_token->value);
+        get_next_token(parser); // consume file path
+    }
+    else
+    {
+        // Handle import specific items
+        ASTNode *items = NULL;
+        ASTNode *current = NULL;
+        
+        while (parser->current_token->type == TOKEN_IDENTIFIER)
+        {
+            ASTNode *item = create_node(NODE_LITERAL, NULL, NULL, parser->current_token->value);
+            
+            get_next_token(parser); // consume identifier
+            
+            // Check for 'as' clause
+            if (parser->current_token->type == TOKEN_AS)
+            {
+                get_next_token(parser); // consume 'as'
+                if (parser->current_token->type != TOKEN_IDENTIFIER)
+                {
+                    printf("Error: Expected identifier after 'as'\n");
+                    return NULL;
+                }
+                item->alias = strdup(parser->current_token->value);
+                get_next_token(parser); // consume alias
+            }
+            
+            if (!items)
+            {
+                items = item;
+                current = items;
+            }
+            else
+            {
+                current->next = item;
+                current = item;
+            }
+            
+            if (parser->current_token->type == TOKEN_COMMA)
+                get_next_token(parser); // consume comma
+        }
+        
+        node->imported_items = items;
+        
+        if (parser->current_token->type != TOKEN_FROM)
+        {
+            printf("Error: Expected 'from' after import list\n");
+            return NULL;
+        }
+        get_next_token(parser); // consume 'from'
+        
+        if (parser->current_token->type != TOKEN_STRING)
+        {
+            printf("Error: Expected string literal for file path\n");
+            return NULL;
+        }
+        node->source_file = strdup(parser->current_token->value);
+        get_next_token(parser); // consume file path
+    }
+    
+    return node;
+}
+
+static ASTNode *parse_export(Parser *parser)
+{
+    get_next_token(parser); // consume 'export'
+    
+    // Parse the item being exported
+    ASTNode *exported_item = parse_statement(parser);
+    if (!exported_item)
+    {
+        printf("Error: Invalid export statement\n");
+        return NULL;
+    }
+    
+    exported_item->is_exported = true;
+    return exported_item;
 }

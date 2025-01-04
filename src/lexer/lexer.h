@@ -93,6 +93,11 @@ typedef enum
     TOKEN_SUBSTRING,    
     TOKEN_CONCAT,
     TOKEN_REPLACE,
+    TOKEN_IMPORT,
+    TOKEN_EXPORT,
+    TOKEN_FROM,
+    TOKEN_AS,
+    TOKEN_ASTERISK,  // For import * syntax
 } TokenType;
 
 // Define keywords
