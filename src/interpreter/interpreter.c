@@ -95,6 +95,8 @@ typedef struct {
 static ExportedSymbol *find_exported_symbol(const char *name);
 static void add_to_scope(const char *name, void *value, VariableType type);
 static VariableType get_type_from_node(ASTNode *node);
+static void handle_import(ASTNode *node);
+static void handle_export(ASTNode *node);
 static void *get_value_from_node(ASTNode *node);
 static char *read_file(const char *filename);
 
@@ -115,29 +117,30 @@ static int export_count = 0;
 char *read_file(const char *filename);
 
 // Add helper function implementation
-char *read_file(const char *filename) {
+static char *read_file(const char *filename) {
+    printf("[DEBUG] Reading file: %s\n", filename);
     FILE *file = fopen(filename, "r");
     if (!file) {
+        printf("[DEBUG] Error: Could not open file\n");
         return NULL;
     }
 
-    // Get file size
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    // Allocate memory for file content
     char *content = (char *)malloc(file_size + 1);
     if (!content) {
+        printf("[DEBUG] Error: Memory allocation failed\n");
         fclose(file);
         return NULL;
     }
 
-    // Read file content
     size_t read_size = fread(content, 1, file_size, file);
     content[read_size] = '\0';
 
     fclose(file);
+    printf("[DEBUG] Successfully read file\n");
     return content;
 }
 
@@ -2106,6 +2109,15 @@ void interpret(ASTNode *node)
         case NODE_TYPE_CAST:
             handle_type_cast(node);
             break;
+         case NODE_IMPORT:
+            case NODE_IMPORT_ALL:
+                printf("[DEBUG] Interpreting import statement\n");
+                handle_import(node);
+                break;
+          case NODE_EXPORT:
+                printf("[DEBUG] Interpreting export statement\n");
+                handle_export(node);
+                break;
         case NODE_COMPOUND_ASSIGN:
         {
             Variable *var = get_variable(node->var_name);
@@ -2288,46 +2300,55 @@ static void handle_assignment(ASTNode *node)
 
 static void handle_import(ASTNode *node)
 {
+    printf("[DEBUG] Handling import statement\n");
+    
     // Load and parse the source file
+    printf("[DEBUG] Attempting to load file: %s\n", node->source_file);
     char *source = read_file(node->source_file);
     if (!source)
     {
-        printf("Error: Could not read file '%s'\n", node->source_file);
+        printf("[DEBUG] Error: Could not read file '%s'\n", node->source_file);
+        return;
+    }
+    printf("[DEBUG] Successfully loaded imported file contents:\n%s\n", source);
+    
+    // Initialize lexer and parser for imported file
+    Lexer *lexer = init_lexer(source);
+      if (!lexer) {
+        printf("[DEBUG] Error: Failed to initialize lexer for imported file\n");
+        free(source);
+        return;
+    }
+    Parser *parser = create_parser(lexer);
+      if (!parser) {
+        printf("[DEBUG] Error: Failed to create parser for imported file\n");
+        free(source);
+        return;
+    }
+    ASTNode *imported_ast = parse_tokens(parser);
+    
+    
+    if (!imported_ast)
+    {
+        printf("[DEBUG] Error: Failed to parse imported file\n");
+        free(source);
         return;
     }
     
-    Lexer *lexer = init_lexer(source);
-    Parser *parser = create_parser(lexer);
-    ASTNode *imported_ast = parse_tokens(parser);
+    printf("[DEBUG] Successfully parsed imported file\n");
+
+    interpret(imported_ast);
+
     
-    if (node->type == NODE_IMPORT_ALL)
-    {
-        // Import all exported symbols
-        interpret(imported_ast);
-    }
-    else
-    {
-        // Import specific symbols
-        ASTNode *item = node->imported_items;
-        while (item)
-        {
-            // Look up the symbol in the exported symbols
-            ExportedSymbol *symbol = find_exported_symbol(item->value);
-            if (symbol)
-            {
-                // Add to current scope with alias if specified
-                const char *name = item->alias ? item->alias : item->value;
-                add_to_scope(name, symbol->value, symbol->type);
-            }
-            item = item->next;
-        }
-    }
+    printf("[DEBUG] Finished interpreting imported file\n");
+
     
     // Cleanup
     free_ast(imported_ast);
     free_parser(parser);
     free(lexer);
     free(source);
+    printf("[DEBUG] Import processing complete\n");
 }
 
 static void handle_export(ASTNode *node)

@@ -1,4 +1,4 @@
-import * from "math.a++";
+import * from "./math.a++";
 
 print(add(5, 3));        // Outputs: 8
 print(mul(4, 2));        // Outputs: 8

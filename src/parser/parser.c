@@ -1989,116 +1989,63 @@ static ASTNode *parse_input(Parser *parser)
 
 static ASTNode *parse_import(Parser *parser)
 {
-        printf("[DEBUG] Starting parse_import\n");
-
+    printf("[DEBUG] Starting parse_import\n");
     get_next_token(parser); // consume 'import'
-    printf("[DEBUG] After import token, current token type: %d, value: %s\n", 
-           parser->current_token->type,
-           parser->current_token->value ? parser->current_token->value : "NULL");
-    
     
     ASTNode *node = create_node(NODE_IMPORT, NULL, NULL, NULL);
     
-    if (parser->current_token->type == TOKEN_MULTIPLY || 
-        (parser->current_token->type == TOKEN_IDENTIFIER && 
-         strcmp(parser->current_token->value, "*") == 0))
+    if (parser->current_token->type == TOKEN_MULTIPLY || strcmp(parser->current_token->value, "*") == 0)
     {
-                printf("[DEBUG] Found import * case\n");
-
-        // Handle import * from "file"
+        printf("[DEBUG] Found import * case\n");
         node->type = NODE_IMPORT_ALL;
         get_next_token(parser); // consume *
-        printf("[DEBUG] After * token, current token type: %d, value: %s\n", 
-               parser->current_token->type,
-               parser->current_token->value ? parser->current_token->value : "NULL");
-        
         
         if (parser->current_token->type != TOKEN_FROM)
         {
-                        printf("[DEBUG] Error: Expected 'from', got token type: %d\n", 
+            printf("[DEBUG] Error: Expected 'from', got token type: %d\n", 
                    parser->current_token->type);
-            printf("Error: Expected 'from' after import *\n");
             return NULL;
         }
         get_next_token(parser); // consume 'from'
         
-        if (parser->current_token->type != TOKEN_STRING)
+        printf("[DEBUG] Looking for file path, current token: type=%d, value=%s\n",
+               parser->current_token->type,
+               parser->current_token->value ? parser->current_token->value : "NULL");
+        
+        // Handle the string literal for file path
+        if (parser->current_token->type == TOKEN_STRING)
         {
-            printf("Error: Expected string literal for file path\n");
+            // Remove the quotes from the file path
+            char *path = parser->current_token->value;
+            if (path[0] == '"') path++; // Skip opening quote
+            size_t len = strlen(path);
+            if (len > 0 && path[len-1] == '"') {
+                char *clean_path = strdup(path);
+                clean_path[len-1] = '\0';
+                node->source_file = clean_path;
+            } else {
+                node->source_file = strdup(path);
+            }
+            printf("[DEBUG] Found file path: %s\n", node->source_file);
+        }
+        else
+        {
+            printf("[DEBUG] Error: Expected string literal for file path\n");
             return NULL;
         }
-        node->source_file = strdup(parser->current_token->value);
         get_next_token(parser); // consume file path
-
-           
+        
         // Check for semicolon
         if (parser->current_token->type != TOKEN_SEMICOLON)
         {
-            printf("Error: Expected semicolon after import statement\n");
+            printf("[DEBUG] Error: Expected semicolon, got token type: %d\n",
+                   parser->current_token->type);
             return NULL;
         }
         get_next_token(parser); // consume semicolon
     }
-    else
-    {
-        // Handle import specific items
-        ASTNode *items = NULL;
-        ASTNode *current = NULL;
-        
-        while (parser->current_token->type == TOKEN_IDENTIFIER)
-        {
-            ASTNode *item = create_node(NODE_LITERAL, NULL, NULL, parser->current_token->value);
-            
-            get_next_token(parser); // consume identifier
-            
-            // Check for 'as' clause
-            if (parser->current_token->type == TOKEN_AS)
-            {
-                get_next_token(parser); // consume 'as'
-                if (parser->current_token->type != TOKEN_IDENTIFIER)
-                {
-                    printf("Error: Expected identifier after 'as'\n");
-                    return NULL;
-                }
-                item->alias = strdup(parser->current_token->value);
-                get_next_token(parser); // consume alias
-            }
-            
-            if (!items)
-            {
-                items = item;
-                current = items;
-            }
-            else
-            {
-                current->next = item;
-                current = item;
-            }
-            
-            if (parser->current_token->type == TOKEN_COMMA)
-                get_next_token(parser); // consume comma
-        }
-        
-        node->imported_items = items;
-        
-        if (parser->current_token->type != TOKEN_FROM)
-        {
-            printf("Error: Expected 'from' after import list\n");
-            return NULL;
-        }
-        get_next_token(parser); // consume 'from'
-        
-        if (parser->current_token->type != TOKEN_STRING)
-        {
-            printf("Error: Expected string literal for file path\n");
-            return NULL;
-        }
-        node->source_file = strdup(parser->current_token->value);
-        get_next_token(parser); // consume file path
-    }
-        printf("[DEBUG] Successfully parsed import statement\n");
-
     
+    printf("[DEBUG] Successfully parsed import statement\n");
     return node;
 }
 
