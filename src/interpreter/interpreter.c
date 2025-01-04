@@ -101,6 +101,8 @@ static void handle_export(ASTNode *node);
 static void *get_value_from_node(ASTNode *node);
 static char *read_file(const char *filename);
 static ASTNode *find_exported_function(const char *name);  // Add this declaration
+void add_function(const char *name, ASTNode *func_node); // Remove static, make it global
+
 
 
 // Global variables
@@ -1472,6 +1474,17 @@ void interpret(ASTNode *node)
             {
                 free(result);
             }
+
+             printf("[DEBUG] Interpreting standalone function call: %s\n", 
+                       node->function_name ? node->function_name : "NULL");
+                ASTNode *exported_func = find_exported_function(node->function_name);
+                if (exported_func) {
+                    printf("[DEBUG] Found function %s in exports\n", node->function_name);
+                    // TODO: Add function execution logic
+                } else {
+                    printf("[DEBUG] Error: Function %s not found in exports\n", node->function_name);
+                }
+            
             break;
         }
         case NODE_PRINT:
@@ -1489,6 +1502,24 @@ void interpret(ASTNode *node)
                     printf("Error: Undefined function '%s'\n", node->left->function_name);
                     exit(1);
                 }
+
+                 // Look up the function
+                        ASTNode *exported_func = find_exported_function(node->left->function_name);
+                        if (exported_func) {
+                            printf("[DEBUG] Found function %s, executing with args:\n", node->left->function_name);
+                            // Print argument values
+                            ASTNode *arg = node->left->arguments;
+                            while (arg) {
+                                printf("[DEBUG] Argument value: %s\n", arg->value ? arg->value : "NULL");
+                                arg = arg->next;
+                            }
+                            
+                            // Execute function here
+                            // TODO: Add function execution logic
+                            printf("[DEBUG] Function execution not yet implemented\n");
+                        } else {
+                            printf("[DEBUG] Error: Function %s not found\n", node->left->function_name);
+                        }
 
                 char *result = execute_function(node->left->function_name, node->left->arguments);
                 if (result)
@@ -1705,6 +1736,11 @@ void interpret(ASTNode *node)
         }
         case NODE_FUNCTION_DEFINITION:
             register_function(node->function_name, node->return_type, node->parameters, node->body);
+             printf("[DEBUG] Interpreting function definition: %s\n", 
+                       node->function_name ? node->function_name : "NULL");
+                // Store function in exports
+            add_function(node->function_name, node);
+
             break;
 
         case NODE_VAR_DECLARATION:
@@ -2376,7 +2412,7 @@ static void handle_import(ASTNode *node)
 }
 
 // Add function to add functions to global scope
-static void add_function(const char *name, ASTNode *func_node)
+void add_function(const char *name, ASTNode *func_node)
 {
     printf("[DEBUG] Adding function to global scope: %s\n", name);
     // Store the function in the exports array
@@ -2410,16 +2446,16 @@ static void handle_export(ASTNode *node)
     if (exported_item->type == NODE_FUNCTION_DEFINITION) {
         printf("[DEBUG] Exporting function: %s\n", exported_item->function_name);
         
-        exports[export_count].name = strdup(exported_item->function_name);
-        exports[export_count].value = exported_item;  // Store the entire function node
-        exports[export_count].type = FUNCTION_TYPE;
-        exports[export_count].is_exported = true;
+        // exports[export_count].name = strdup(exported_item->function_name);
+        // exports[export_count].value = exported_item;  // Store the entire function node
+        // exports[export_count].type = FUNCTION_TYPE;
+        // exports[export_count].is_exported = true;
         
         // Add function to global scope
         add_function(exported_item->function_name, exported_item);
         
         printf("[DEBUG] Successfully exported function %s\n", exported_item->function_name);
-        export_count++;
+        // export_count++;
     } else {
         printf("[DEBUG] Unsupported export type: %d\n", exported_item->type);
     }
