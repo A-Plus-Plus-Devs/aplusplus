@@ -84,6 +84,7 @@ static void register_builtin_functions(void);
 static void handle_assignment(ASTNode *node);
 
 
+
 typedef struct {
     char *name;
     void *value;
@@ -99,6 +100,7 @@ static void handle_import(ASTNode *node);
 static void handle_export(ASTNode *node);
 static void *get_value_from_node(ASTNode *node);
 static char *read_file(const char *filename);
+static ASTNode *find_exported_function(const char *name);  // Add this declaration
 
 
 // Global variables
@@ -113,6 +115,9 @@ static bool builtins_registered = false;
 static ExportedSymbol exported_symbols[MAX_VARIABLES];
 static int export_count = 0;
 
+// Add global storage for exported functions
+#define MAX_EXPORTS 100
+static ExportedSymbol exports[MAX_EXPORTS];
 
 char *read_file(const char *filename);
 
@@ -979,7 +984,15 @@ static int evaluate_expression(ASTNode *node)
 
     case NODE_FUNCTION_CALL:
     {
+         printf("[DEBUG] Interpreting function call: %s\n", 
+                       node->function_name ? node->function_name : "NULL");
         char *result = execute_function(node->function_name, node->arguments);
+        ASTNode *func = find_exported_function(node->function_name);
+                if (func) {
+                    printf("[DEBUG] Found function %s in exports\n", node->function_name);
+                } else {
+                    printf("[DEBUG] Error: Function %s not found in exports\n", node->function_name);
+                }
         if (result)
         {
             int value = atoi(result);
@@ -1440,6 +1453,12 @@ void interpret(ASTNode *node)
 {
     // Register built-in functions if not already done
     register_builtin_functions();
+     if (!node) {
+        printf("[DEBUG] Interpret: NULL node\n");
+        return;
+    }
+
+    printf("[DEBUG] Interpreting node type: %d\n", node->type);
 
     while (node)
     {
@@ -1456,9 +1475,14 @@ void interpret(ASTNode *node)
             break;
         }
         case NODE_PRINT:
+        printf("[DEBUG] Interpreting print statement\n");
+
         {
+
             if (node->left->type == NODE_FUNCTION_CALL)
             {
+                printf("[DEBUG] Print contains function call: %s\n", 
+                               node->left->function_name ? node->left->function_name : "NULL");
                 Function *func = find_function(node->left->function_name);
                 if (!func)
                 {
@@ -2351,22 +2375,84 @@ static void handle_import(ASTNode *node)
     printf("[DEBUG] Import processing complete\n");
 }
 
+// Add function to add functions to global scope
+static void add_function(const char *name, ASTNode *func_node)
+{
+    printf("[DEBUG] Adding function to global scope: %s\n", name);
+    // Store the function in the exports array
+    if (export_count < MAX_EXPORTS) {
+        exports[export_count].name = strdup(name);
+        exports[export_count].value = func_node;
+        exports[export_count].type = FUNCTION_TYPE;
+        exports[export_count].is_exported = true;
+        export_count++;
+        printf("[DEBUG] Successfully added function to global scope\n");
+    } else {
+        printf("[DEBUG] Error: Maximum number of exports reached\n");
+    }
+}
+
 static void handle_export(ASTNode *node)
 {
-    // Add the symbol to exported_symbols
-    if (export_count >= MAX_VARIABLES)
-    {
-        printf("Error: Maximum number of exports reached\n");
+    printf("[DEBUG] Handling export statement\n");
+    
+    if (export_count >= MAX_EXPORTS) {
+        printf("[DEBUG] Error: Maximum number of exports reached\n");
         return;
     }
-    
-    // Store the exported symbol
-    exported_symbols[export_count].name = strdup(node->var_name);
-    exported_symbols[export_count].type = get_type_from_node(node);
-    exported_symbols[export_count].value = get_value_from_node(node);
-    exported_symbols[export_count].is_exported = true;
-    export_count++;
+
+    // Get the actual node being exported (skip the export wrapper)
+    ASTNode *exported_item = node->left ? node->left : node;
+    printf("[DEBUG] Exporting item type: %d, name: %s\n", 
+           exported_item->type,
+           exported_item->function_name ? exported_item->function_name : "NULL");
+
+    if (exported_item->type == NODE_FUNCTION_DEFINITION) {
+        printf("[DEBUG] Exporting function: %s\n", exported_item->function_name);
+        
+        exports[export_count].name = strdup(exported_item->function_name);
+        exports[export_count].value = exported_item;  // Store the entire function node
+        exports[export_count].type = FUNCTION_TYPE;
+        exports[export_count].is_exported = true;
+        
+        // Add function to global scope
+        add_function(exported_item->function_name, exported_item);
+        
+        printf("[DEBUG] Successfully exported function %s\n", exported_item->function_name);
+        export_count++;
+    } else {
+        printf("[DEBUG] Unsupported export type: %d\n", exported_item->type);
+    }
 }
+
+// Add helper function to find exported functions
+static ASTNode *find_exported_function(const char *name)
+{
+    if (!name) {
+        printf("[DEBUG] find_exported_function called with NULL name\n");
+        return NULL;
+    }
+
+    printf("[DEBUG] Current export count: %d\n", export_count);
+    printf("[DEBUG] Looking for exported function: %s\n", name);
+
+
+    for (int i = 0; i < export_count; i++) {
+           printf("[DEBUG] Checking export[%d]: name=%s, type=%d\n", 
+               i, 
+               exports[i].name ? exports[i].name : "NULL",
+               exports[i].type);
+        if (exports[i].type == FUNCTION_TYPE && 
+            strcmp(exports[i].name, name) == 0) {
+            printf("[DEBUG] Found exported function: %s\n", name);
+            return (ASTNode *)exports[i].value;
+        }
+    }
+    printf("[DEBUG] Function not found: %s\n", name);
+    return NULL;
+}
+
+
 
 // Helper function to find an exported symbol by name
 static ExportedSymbol *find_exported_symbol(const char *name) {
