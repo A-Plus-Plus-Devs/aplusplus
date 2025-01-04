@@ -1,1 +1,10 @@
-print("Hello\nWorld");
+import * from "math.a++";
+
+print(add(5, 3));        // Outputs: 8
+print(mul(4, 2));        // Outputs: 8
+
+// Or import everything:
+
+
+print(add(5, 3));        // Outputs: 8
+print(multiply(4, 2));   // Outputs: 8

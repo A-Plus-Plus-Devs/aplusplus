@@ -62,12 +62,11 @@ void print_version()
  */
 void run_file(const char *filename)
 {
-    // This function opens the source file, reads its contents, and prepares for compilation
+    printf("[DEBUG] Starting to process file: %s\n", filename);
 
     FILE *file = fopen(filename, "r");
     if (!file)
     {
-        // If the file couldn't be opened, print an error message and exit
         printf("Error: Could not open file '%s'.\n", filename);
         exit(1);
     }
@@ -96,24 +95,30 @@ void run_file(const char *filename)
     // Close the file as we're done reading from it
     fclose(file);
 
+    printf("[DEBUG] File contents:\n%s\n", source_code);
+
     // Initialize the lexer with the source code
     Lexer *lexer = init_lexer(source_code);
+    printf("[DEBUG] Lexer initialized\n");
 
     // Create a parser using the lexer
     Parser *parser = create_parser(lexer);
+    printf("[DEBUG] Parser created\n");
 
     // Parse the tokens to create an Abstract Syntax Tree (AST)
     ASTNode *ast = parse_tokens(parser);
 
     if (ast == NULL)
     {
-        // If parsing failed, print an error message
+        printf("[DEBUG] AST generation failed\n");
         printf("Error: Failed to parse the source file.\n");
         free_parser(parser);
         free(lexer);
         free(source_code);
         exit(1);
     }
+
+    printf("[DEBUG] AST generated successfully\n");
 
     // Interpret the AST (execute the program)
     interpret(ast);

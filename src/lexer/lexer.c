@@ -397,8 +397,14 @@ void skip_whitespace(Lexer *lexer)
 // Get the next token
 Token *next_token(Lexer *lexer)
 {
-    skip_whitespace(lexer);
-    skip_comments(lexer);
+    // Skip whitespace
+    while (isspace(lexer->current_char))
+    {
+        advance(lexer);
+    }
+
+    printf("[DEBUG] Lexer processing character: '%c' (ASCII: %d)\n", 
+           lexer->current_char, lexer->current_char);
 
     Token *token = malloc(sizeof(Token));
     token->value = NULL;
