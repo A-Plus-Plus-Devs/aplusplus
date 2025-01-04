@@ -1,10 +1,14 @@
-#define string reverse(string x) {
-    string y = "";
-    for (int i = (length(x) - 1); i >= 0; i--) {
-       print(i);
-    }   
-    yield y;
+string name = input("What is your name? ");
+string reverse = "";
+
+for (int i = length(name) - 1; i >= 0; i--) {
+    reverse += index(name, i);
 }
 
-string x = "Hello";
-print(reverse(x));
+print("Your name reversed is: " + reverse);
+
+#define nothing greet() {
+    print("Hello");
+}
+
+greet();
