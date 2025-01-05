@@ -28,10 +28,7 @@ typedef enum
     NODE_YIELD_STATEMENT,
     NODE_FUNCTION_CALL,
     NODE_COMPOUND_ASSIGN,
-    NODE_ARRAY_DECLARATION,
-    NODE_ARRAY_ACCESS,
-    NODE_ARRAY_METHOD_CALL,
-    NODE_ARRAY_LITERAL,
+
     NODE_INPUT,
     NODE_TYPE_CAST
 } ASTNodeType;
@@ -47,11 +44,6 @@ typedef struct ASTNode
     struct ASTNode *else_branch;
     struct ASTNode *elseif_branch;
 
-    // Array-specific fields
-    char *array_type;           // Type of array elements
-    struct ASTNode *elements;   // Linked list of array elements
-    struct ASTNode *index;      // Index for array access
-    char *method_name;          // Name of array method being called
 
     // Function-specific fields
     char *return_type;           // Return type for functions
@@ -165,42 +157,6 @@ ASTNode *create_print_node(ASTNode *expr);
  */
 ASTNode *create_function_call_node(char *function_name, ASTNode *arguments);
 
-/**
- * @brief Creates an array declaration node.
- * 
- * @param array_type The type of array elements (e.g., "string", "int").
- * @param var_name The name of the array variable.
- * @param elements The initial elements of the array.
- * @return ASTNode* A pointer to the newly created array declaration node.
- */
-ASTNode *create_array_declaration_node(char *array_type, char *var_name, ASTNode *elements);
-
-/**
- * @brief Creates an array access node.
- * 
- * @param array_name The name of the array being accessed.
- * @param index The index expression.
- * @return ASTNode* A pointer to the newly created array access node.
- */
-ASTNode *create_array_access_node(char *array_name, ASTNode *index);
-
-/**
- * @brief Creates an array method call node.
- * 
- * @param array_name The name of the array.
- * @param method_name The name of the method being called.
- * @param argument Optional argument for the method (can be NULL).
- * @return ASTNode* A pointer to the newly created array method call node.
- */
-ASTNode *create_array_method_call_node(char *array_name, char *method_name, ASTNode *argument);
-
-/**
- * @brief Creates an array literal node.
- * 
- * @param elements Linked list of array elements.
- * @return ASTNode* A pointer to the newly created array literal node.
- */
-ASTNode *create_array_literal_node(ASTNode *elements);
 
 /**
  * @brief Creates a type cast node.

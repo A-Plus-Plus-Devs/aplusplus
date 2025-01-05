@@ -1,0 +1,97 @@
+Array Implementation Functions Overview
+
+1. array_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+   - Creates a new array object
+   - Takes typecode and optional initializer as arguments
+   - Validates the typecode and initializes array with given values
+   - Returns new array object or NULL on error
+
+2. array_resize(arrayobject *self, Py_ssize_t newsize)
+   - Resizes the array to the specified new size
+   - Handles memory allocation/reallocation
+   - Returns 0 on success, -1 on failure
+   - Implements over-allocation strategy for better performance
+
+3. array_item(arrayobject *a, Py_ssize_t i)
+   - Returns the item at index i in the array
+   - Checks bounds and returns NULL if index is invalid
+   - Uses type-specific getitem function to convert raw bytes to Python object
+
+4. array_slice(arrayobject *a, Py_ssize_t ilow, Py_ssize_t ihigh)
+   - Creates a new array containing elements from index ilow to ihigh
+   - Handles negative indices and bounds checking
+   - Returns new array object or NULL on error
+
+5. array_concat(arrayobject *a, PyObject *bb)
+   - Concatenates two arrays of the same type
+   - Creates new array with combined elements
+   - Returns new array object or NULL on error
+
+6. array_repeat(arrayobject *a, Py_ssize_t n)
+   - Creates new array with elements of a repeated n times
+   - Handles memory allocation efficiently
+   - Returns new array object or NULL on error
+
+7. array_ass_slice(arrayobject *self, Py_ssize_t ilow, Py_ssize_t ihigh, PyObject *v)
+   - Assigns to a slice of the array
+   - Handles insertion, deletion, and replacement of elements
+   - Returns 0 on success, -1 on failure
+
+8. array_buffer_getbuf(arrayobject *self, Py_buffer *view, int flags)
+   - Implements buffer protocol for array objects
+   - Allows direct memory access to array contents
+   - Sets up buffer info structure for external use
+
+9. Type-specific getitem functions (b_getitem, h_getitem, etc.)
+   - Convert raw bytes to Python objects based on type
+   - Handle different data types (int, float, etc.)
+   - Return new reference to Python object
+
+10. Type-specific setitem functions (b_setitem, h_setitem, etc.)
+    - Convert Python objects to raw bytes based on type
+    - Validate input values
+    - Store data in array's memory buffer
+
+11. array_iter(arrayobject *ao)
+    - Creates iterator object for array
+    - Returns new iterator or NULL on error
+
+12. arrayiter_next(arrayiterobject *it)
+    - Implements iterator protocol
+    - Returns next item in array or NULL when done
+
+13. array_count(arrayobject *self, PyObject *v)
+    - Counts occurrences of value v in array
+    - Returns count as Python integer
+
+14. array_index(arrayobject *self, PyObject *v)
+    - Finds first occurrence of value v in array
+    - Returns index as Python integer or raises ValueError
+
+15. array_remove(arrayobject *self, PyObject *v)
+    - Removes first occurrence of value v from array
+    - Raises ValueError if value not found
+
+16. array_pop(arrayobject *self, Py_ssize_t i)
+    - Removes and returns item at index i
+    - Handles negative indices and bounds checking
+
+17. array_extend(arrayobject *self, PyObject *bb)
+    - Extends array with elements from iterable
+    - Handles different input types (list, array, etc.)
+    - Returns None or NULL on error
+
+18. array_frombytes(arrayobject *self, PyObject *bytes)
+    - Extends array with data from bytes object
+    - Validates data size and type
+    - Returns None or NULL on error
+
+19. array_tobytes(arrayobject *self)
+    - Converts array contents to bytes object
+    - Creates new bytes object with array data
+    - Returns new bytes object or NULL on error
+
+20. array_tolist(arrayobject *self)
+    - Converts array to Python list
+    - Creates new list with converted elements
+    - Returns new list object or NULL on error

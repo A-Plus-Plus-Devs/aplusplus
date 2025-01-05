@@ -28,6 +28,73 @@
 #include "interpreter/interpreter.h" 
 #include "common/version.h" 
 
+// Add array-specific includes
+#include "array/array_lexer.h"
+#include "array/array_parser.h"
+#include "array/array_interpreter.h"
+#include "array/array_ast.h"
+
+// Global array interpreter instance
+static ArrayInterpreter *array_interpreter = NULL;
+
+/**
+ * @brief Initializes the array subsystem.
+ * @return true if initialization was successful, false otherwise
+ */
+static bool init_array_subsystem() {
+    array_interpreter = array_interpreter_init();
+    return array_interpreter != NULL;
+}
+
+/**
+ * @brief Cleans up the array subsystem.
+ */
+static void cleanup_array_subsystem() {
+    if (array_interpreter) {
+        array_interpreter_free(array_interpreter);
+        array_interpreter = NULL;
+    }
+}
+
+/**
+ * @brief Handles array-specific operations.
+ * @param source The array operation source code
+ * @return true if operation was successful, false otherwise
+ */
+static bool handle_array_operation(const char *source) {
+    // Initialize array lexer
+    ArrayLexer *array_lexer = array_lexer_init(source);
+    if (!array_lexer) {
+        printf("Error: Failed to initialize array lexer\n");
+        return false;
+    }
+
+    // Initialize array parser
+    ArrayParser *array_parser = array_parser_init(array_lexer);
+    if (!array_parser) {
+        printf("Error: Failed to initialize array parser\n");
+        array_lexer_free(array_lexer);
+        return false;
+    }
+
+    // Parse array operation
+    ArrayASTNode *array_ast = array_parse(array_parser);
+    if (!array_ast) {
+        printf("Error: Failed to parse array operation\n");
+        array_parser_free(array_parser);
+        return false;
+    }
+
+    // Interpret array operation
+    ArrayInterpretResult result = array_interpret(array_interpreter, array_ast);
+
+    // Clean up
+    array_free_ast(array_ast);
+    array_parser_free(array_parser);
+
+    return result.success;
+}
+
 /**
  * @brief Prints the usage instructions for the A++ compiler.
  *
@@ -60,69 +127,83 @@ void print_version()
  *
  * @param filename The path to the .a++ source file to compile and run.
  */
-void run_file(const char *filename)
+static void run_file(const char *filename)
 {
-    // This function opens the source file, reads its contents, and prepares for compilation
-
+    // Read the source file
     FILE *file = fopen(filename, "r");
     if (!file)
     {
-        // If the file couldn't be opened, print an error message and exit
-        printf("Error: Could not open file '%s'.\n", filename);
+        printf("Error: Could not open file '%s'\n", filename);
         exit(1);
     }
 
-    // Move to the end of the file to determine its size
+    // Get file size
     fseek(file, 0, SEEK_END);
     long file_size = ftell(file);
-
-    // Move back to the start of the file
-    fseek(file, 0, SEEK_SET);
+    rewind(file);
 
     // Allocate memory for the source code
     char *source_code = (char *)malloc(file_size + 1);
     if (!source_code)
     {
-        // If memory allocation fails, print an error message and exit
         printf("Error: Failed to allocate memory for source code.\n");
         fclose(file);
         exit(1);
     }
 
-    // Read the entire file into the allocated memory
-    size_t read_size = fread(source_code, 1, file_size, file);
-    source_code[read_size] = '\0'; // Add a null terminator to the end of the string
-
-    // Close the file as we're done reading from it
+    // Read the file
+    size_t bytes_read = fread(source_code, 1, file_size, file);
+    source_code[bytes_read] = '\0';
     fclose(file);
 
-    // Initialize the lexer with the source code
+    // Initialize array subsystem
+    if (!init_array_subsystem()) {
+        printf("Error: Failed to initialize array subsystem\n");
+        free(source_code);
+        exit(1);
+    }
+
+    // Initialize lexer
     Lexer *lexer = init_lexer(source_code);
-
-    // Create a parser using the lexer
-    Parser *parser = create_parser(lexer);
-
-    // Parse the tokens to create an Abstract Syntax Tree (AST)
-    ASTNode *ast = parse_tokens(parser);
-
-    if (ast == NULL)
+    if (!lexer)
     {
-        // If parsing failed, print an error message
+        printf("Error: Failed to initialize lexer.\n");
+        free(source_code);
+        cleanup_array_subsystem();
+        exit(1);
+    }
+
+    // Initialize parser
+    Parser *parser = create_parser(lexer);
+    if (!parser)
+    {
+        printf("Error: Failed to initialize parser.\n");
+        free(source_code);
+        cleanup_array_subsystem();
+        exit(1);
+    }
+
+    // Parse the source code
+    ASTNode *ast = parse_tokens(parser);
+    if (!ast)
+    {
         printf("Error: Failed to parse the source file.\n");
         free_parser(parser);
         free(lexer);
         free(source_code);
+        cleanup_array_subsystem();
         exit(1);
     }
 
     // Interpret the AST (execute the program)
     interpret(ast);
 
-    // Clean up: free all allocated memory
+    // Clean up
     free_parser(parser);
     free_ast(ast);
     free(lexer);
     free(source_code);
+    cleanup_array_subsystem();
 }
 
 /**

@@ -461,13 +461,8 @@ Token *next_token(Lexer *lexer)
         } else {
             // Check for array type annotation
             char next = peek_char(lexer);
-            if (isalpha(next)) {
-                token->type = TOKEN_ARRAY_TYPE;
-                token->value = strdup("<");
-            } else {
-                token->type = TOKEN_LESS_THAN;
-                token->value = strdup("<");
-            }
+            token->type = TOKEN_LESS_THAN;
+            token->value = strdup("<");
         }
         advance(lexer);
         return token;
