@@ -163,79 +163,45 @@ static ArrayASTNode *array_parse_array_operation(ArrayParser *parser, const char
 // Main parsing function
 ArrayASTNode *array_parse(ArrayParser *parser) {
     printf("DEBUG: Starting array parse\n");
-    ArrayASTNode *statement = NULL;
+    ArrayASTNode *first = NULL;
+    ArrayASTNode *current = NULL;
 
-    // First token should be identifier (array name)
-    if (parser->current_token->type == ARRAY_TOKEN_IDENTIFIER) {
-        const char *array_name = strdup(parser->current_token->value);
-        printf("DEBUG: Found array name: %s\n", array_name);
-        advance_token(parser);
+    while (parser->current_token->type != ARRAY_TOKEN_EOF) {
+        printf("DEBUG: Parsing statement\n");
+        debug_token(parser, "main_loop");
 
-        // Check for array declaration or method call
-        if (parser->current_token->type == ARRAY_TOKEN_LESS_THAN) {
-            printf("DEBUG: Found array declaration for %s\n", array_name);
-            advance_token(parser); // consume <
-
-            // Parse type
-            if (parser->current_token->type != ARRAY_TOKEN_TYPE_INT &&
-                parser->current_token->type != ARRAY_TOKEN_TYPE_STRING &&
-                parser->current_token->type != ARRAY_TOKEN_TYPE_FLOAT &&
-                parser->current_token->type != ARRAY_TOKEN_TYPE_BOOL &&
-                parser->current_token->type != ARRAY_TOKEN_TYPE_CHAR) {
-                array_parser_error(parser, "Expected type after <");
-                free((void*)array_name);
-                return NULL;
-            }
-
-            VariableType type = token_to_variable_type(parser->current_token->type);
-            printf("DEBUG: Array type: %d\n", type);
+        ArrayASTNode *statement = NULL;
+        
+        // First token should be identifier (array name)
+        if (parser->current_token->type == ARRAY_TOKEN_IDENTIFIER) {
+            const char *array_name = strdup(parser->current_token->value);
+            printf("DEBUG: Found array name: %s\n", array_name);
             advance_token(parser);
 
-            if (!expect_token(parser, ARRAY_TOKEN_GREATER_THAN)) {
-                free((void*)array_name);
-                return NULL;
+            // Check for array declaration or method call
+            if (parser->current_token->type == ARRAY_TOKEN_LESS_THAN ||
+                parser->current_token->type == ARRAY_TOKEN_DOT) {
+                statement = array_parse_array_operation(parser, array_name);
             }
-
-            if (!expect_token(parser, ARRAY_TOKEN_ASSIGN)) {
-                free((void*)array_name);
-                return NULL;
-            }
-
-            if (!expect_token(parser, ARRAY_TOKEN_LBRACKET)) {
-                free((void*)array_name);
-                return NULL;
-            }
-
-            ArrayASTNode *elements = parse_array_elements(parser);
-            if (!elements) {
-                free((void*)array_name);
-                return NULL;
-            }
-
-            if (!expect_token(parser, ARRAY_TOKEN_RBRACKET)) {
-                array_free_ast(elements);
-                free((void*)array_name);
-                return NULL;
-            }
-
-            if (!expect_token(parser, ARRAY_TOKEN_TERM)) {
-                array_free_ast(elements);
-                free((void*)array_name);
-                return NULL;
-            }
-
-            statement = array_create_declaration_node(array_name, type, elements);
             free((void*)array_name);
         }
-        else if (parser->current_token->type == ARRAY_TOKEN_DOT) {
-            printf("DEBUG: Found method call for %s\n", array_name);
-            advance_token(parser); // consume dot
-            statement = array_parse_method_call(parser, array_name);
-            free((void*)array_name);
+
+        if (statement) {
+            if (!first) {
+                first = statement;
+                current = statement;
+            } else {
+                current->next = statement;
+                current = statement;
+            }
+        } else {
+            printf("DEBUG: Failed to parse statement\n");
+            if (first) array_free_ast(first);
+            return NULL;
         }
     }
 
-    return statement;
+    return first;
 }
 
 ArrayParser *array_parser_init(ArrayLexer *lexer) {
