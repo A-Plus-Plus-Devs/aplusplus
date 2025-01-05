@@ -99,6 +99,18 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_CONCAT;
     else if (strcmp(buffer, "replace") == 0)
         token->type = TOKEN_REPLACE;
+    else if (strcmp(buffer, "toLowerCase") == 0)
+        token->type = TOKEN_LOWERCASE;
+    else if (strcmp(buffer, "toUpperCase") == 0)
+        token->type = TOKEN_UPPERCASE;
+    else if (strcmp(buffer, "reverse") == 0)
+        token->type = TOKEN_REVERSE;
+    else if (strcmp(buffer, "indexOf") == 0)
+        token->type = TOKEN_INDEX_OF;
+    else if (strcmp(buffer, "trim") == 0)
+        token->type = TOKEN_TRIM;
+    else if (strcmp(buffer, "repeat") == 0)
+        token->type = TOKEN_REPEAT;
     else if (strcmp(buffer, "if") == 0)
         token->type = TOKEN_IF;
     else if (strcmp(buffer, "else") == 0)

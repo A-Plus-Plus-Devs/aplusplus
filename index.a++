@@ -1,5 +1,3 @@
-#define nothing main() {
-    print("Hello, World!");
-}
-
-main(); // Output: "Hello, World!"
+print(indexOf("Hello", "l")); // Outputs: 2
+print(indexOf("Hello", "o")); // Outputs: 4
+print(indexOf("Hello", "z")); // Outputs: -1

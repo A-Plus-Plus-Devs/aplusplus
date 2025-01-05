@@ -463,6 +463,46 @@ char *execute_function(const char *name, ASTNode *arguments)
         return result;
     }
 
+    else if (strcmp(name, "indexOf") == 0)
+    {
+        if (!arguments || !arguments->next)
+        {
+            printf("Error: indexOf() requires two arguments: string and character\n");
+            return strdup("-1");
+        }
+
+        // Get the string argument
+        char *str_value = evaluate_string_expression(arguments);
+        if (!str_value)
+        {
+            printf("Error: First argument to indexOf() must be a string\n");
+            return strdup("-1");
+        }
+
+        // Get the character to search for
+        char *char_value = evaluate_string_expression(arguments->next);
+        if (!char_value || strlen(char_value) != 1)
+        {
+            printf("Error: Second argument to indexOf() must be a single character\n");
+            free(str_value);
+            free(char_value);
+            return strdup("-1");
+        }
+
+        // Search for the character
+        char *pos = strchr(str_value, char_value[0]);
+        int index = (pos != NULL) ? (int)(pos - str_value) : -1;
+
+        // Clean up
+        free(str_value);
+        free(char_value);
+
+        // Return result as string
+        char result[32];
+        snprintf(result, sizeof(result), "%d", index);
+        return strdup(result);
+    }
+
     Function *func = find_function(name);
     if (!func)
     {
@@ -1351,6 +1391,14 @@ static void register_builtin_functions(void)
         .body = NULL};
     functions[function_count++] = char_at_func;
 
+    // Register indexOf function
+    Function index_of_func = {
+        .name = "indexOf",
+        .return_type = "int",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = index_of_func;
+
     // Register substring function
     Function substring_func = {
         .name = "substring",
@@ -1476,14 +1524,14 @@ void interpret(ASTNode *node)
                 }
                 // Keep existing boolean expression handling
                 else if (node->left->value && (strcmp(node->left->value, "==") == 0 ||
-                                               strcmp(node->left->value, "!=") == 0 ||
-                                               strcmp(node->left->value, ">") == 0 ||
-                                               strcmp(node->left->value, "<") == 0 ||
-                                               strcmp(node->left->value, ">=") == 0 ||
-                                               strcmp(node->left->value, "<=") == 0 ||
-                                               strcmp(node->left->value, "&&") == 0 ||
-                                               strcmp(node->left->value, "||") == 0 ||
-                                               strcmp(node->left->value, "!") == 0))
+                           strcmp(node->left->value, "!=") == 0 ||
+                           strcmp(node->left->value, ">") == 0 ||
+                           strcmp(node->left->value, "<") == 0 ||
+                           strcmp(node->left->value, ">=") == 0 ||
+                           strcmp(node->left->value, "<=") == 0 ||
+                           strcmp(node->left->value, "&&") == 0 ||
+                           strcmp(node->left->value, "||") == 0 ||
+                           strcmp(node->left->value, "!") == 0))
                 {
                     bool result = evaluate_bool_expression(node->left);
                     printf("%s\n", result ? "yup" : "nope");
@@ -2058,7 +2106,7 @@ void interpret(ASTNode *node)
             if (!var)
             {
                 printf("Error: Undefined variable '%s'\n", node->var_name);
-                return;
+                exit(1);
             }
 
             if (var->type == STRING_TYPE)

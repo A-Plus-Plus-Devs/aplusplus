@@ -532,7 +532,9 @@ static ASTNode *parse_factor(Parser *parser)
 {
     Token *token = parser->current_token;
     
-    if (token->type == TOKEN_LENGTH || token->type == TOKEN_CHAR_AT || 
+    if (token->type == TOKEN_LENGTH || 
+        token->type == TOKEN_CHAR_AT || 
+        token->type == TOKEN_INDEX_OF ||
         (token->type == TOKEN_IDENTIFIER && peek_char(parser->lexer) == '(')) {
         char *func_name = strdup(token->value);
         get_next_token(parser);

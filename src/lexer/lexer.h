@@ -90,10 +90,15 @@ typedef enum
     TOKEN_NOTHING_TYPE,  // For 'nothing' keyword
     TOKEN_EMPTY,        // For 'empty' keyword
     TOKEN_INPUT,
-    TOKEN_INDEX,
+    TOKEN_INDEX_OF,
     TOKEN_SUBSTRING,    
     TOKEN_CONCAT,
     TOKEN_REPLACE,
+    TOKEN_LOWERCASE,
+    TOKEN_UPPERCASE,
+    TOKEN_REVERSE,
+    TOKEN_TRIM,
+    TOKEN_REPEAT
 } TokenType;
 
 // Define keywords
