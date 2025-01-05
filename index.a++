@@ -1,9 +1,10 @@
-// Basic trigonometric functions (in radians)
-print(sin(3.14159/2));    // Outputs: 1 (approximately)
-print(cos(0));            // Outputs: 1
-print(tan(3.14159/4));    // Outputs: 1 (approximately)
+print(date());           // Outputs: 2024-03-14
+print(date("Y"));       // Outputs: 2024
+print(date("M"));       // Outputs: 03
+print(date("D"));       // Outputs: 14
+print(date("Y", "M")); // Outputs: 2024-03
+print(date("M", "D")); // Outputs: 03-14
+print(date("Y", "D")); // Outputs: 2024-14
 
-// Inverse trigonometric functions
-print(asin(1));          // Outputs: 1.5708 (π/2)
-print(acos(0));          // Outputs: 1.5708 (π/2)
-print(atan(1));          // Outputs: 0.7854 (π/4)
+print(time());          // Outputs: 15:30:45
+print(now());          // Outputs: 2024-03-14 15:30:45

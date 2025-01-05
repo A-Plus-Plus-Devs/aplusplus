@@ -6,6 +6,8 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
+#include <time.h>
+
 
 /*
  * Interpreter Implementation
@@ -299,6 +301,96 @@ char *execute_function(const char *name, ASTNode *arguments)
 
         return strdup("0");
     }
+    
+    else if (strcmp(name, "date") == 0)
+    {
+        time_t t = time(NULL);
+        struct tm *tm_info = localtime(&t);
+        char result[64] = {0};
+
+        if (!arguments)
+        {
+            // Default format: YYYY-MM-DD
+            strftime(result, sizeof(result), "%Y-%m-%d", tm_info);
+        }
+        else
+        {
+            // Parse arguments and build custom format
+            char format[32] = {0};
+            char *ptr = format;
+            ASTNode *current = arguments;
+            bool has_year = false, has_month = false, has_day = false;
+
+            while (current)
+            {
+                char *arg = evaluate_string_expression(current);
+                if (!arg)
+                {
+                    printf("Error: Invalid argument for date()\n");
+                    return strdup("");
+                }
+
+                if (strcmp(arg, "Y") == 0 && !has_year)
+                {
+                    if (ptr != format) *ptr++ = '-';
+                    strcpy(ptr, "%Y");
+                    ptr += 2;
+                    has_year = true;
+                }
+                else if (strcmp(arg, "M") == 0 && !has_month)
+                {
+                    if (ptr != format) *ptr++ = '-';
+                    strcpy(ptr, "%m");
+                    ptr += 2;
+                    has_month = true;
+                }
+                else if (strcmp(arg, "D") == 0 && !has_day)
+                {
+                    if (ptr != format) *ptr++ = '-';
+                    strcpy(ptr, "%d");
+                    ptr += 2;
+                    has_day = true;
+                }
+
+                free(arg);
+                current = current->next;
+            }
+
+            if (format[0] == 0)
+            {
+                // If no valid format specified, use default
+                strftime(result, sizeof(result), "%Y-%m-%d", tm_info);
+            }
+            else
+            {
+                strftime(result, sizeof(result), format, tm_info);
+            }
+        }
+
+        return strdup(result);
+    }
+    else if (strcmp(name, "time") == 0)
+    {
+        time_t t = time(NULL);
+        struct tm *tm_info = localtime(&t);
+        char result[64];
+        
+        // Format: HH:MM:SS
+        strftime(result, sizeof(result), "%H:%M:%S", tm_info);
+        return strdup(result);
+    }
+    else if (strcmp(name, "now") == 0)
+    {
+        time_t t = time(NULL);
+        struct tm *tm_info = localtime(&t);
+        char result[64];
+        
+        // Format: YYYY-MM-DD HH:MM:SS
+        strftime(result, sizeof(result), "%Y-%m-%d %H:%M:%S", tm_info);
+        return strdup(result);
+    }
+
+
     else if (strcmp(name, "charAt") == 0)
     {
         // Get the string argument
@@ -1993,6 +2085,28 @@ static void register_builtin_functions(void)
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = atan_func;
+
+    // Register date/time functions
+    Function date_func = {
+        .name = "date",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = date_func;
+
+    Function time_func = {
+        .name = "time",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = time_func;
+
+    Function now_func = {
+        .name = "now",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = now_func;
 
     builtins_registered = true;
 }
