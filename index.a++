@@ -1,2 +1,3 @@
-print(toLowerCase("Hello WORLD")); // Outputs: hello world
-print(toUpperCase("Hello world")); // Outputs: HELLO WORLD
+print(repeat("Hello", 3));      // Outputs: HelloHelloHello
+print(repeat("Hello", 3, "-")); // Outputs: Hello-Hello-Hello
+print(repeat("Hi", 2, " "));    // Outputs: Hi Hi

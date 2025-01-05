@@ -551,6 +551,154 @@ char *execute_function(const char *name, ASTNode *arguments)
         return str_value; // Return the modified string
     }
 
+    else if (strcmp(name, "reverse") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: reverse() requires a string argument\n");
+            return strdup("");
+        }
+
+        char *str_value = evaluate_string_expression(arguments);
+        if (!str_value)
+        {
+            printf("Error: Argument to reverse() must be a string\n");
+            return strdup("");
+        }
+
+        // Get string length
+        size_t len = strlen(str_value);
+        
+        // Reverse the string in place
+        for (size_t i = 0; i < len / 2; i++)
+        {
+            char temp = str_value[i];
+            str_value[i] = str_value[len - 1 - i];
+            str_value[len - 1 - i] = temp;
+        }
+
+        return str_value;
+    }
+    else if (strcmp(name, "trim") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: trim() requires a string argument\n");
+            return strdup("");
+        }
+
+        char *str_value = evaluate_string_expression(arguments);
+        if (!str_value)
+        {
+            printf("Error: Argument to trim() must be a string\n");
+            return strdup("");
+        }
+
+        // Find first non-whitespace character
+        char *start = str_value;
+        while (*start && isspace((unsigned char)*start))
+        {
+            start++;
+        }
+
+        // Find last non-whitespace character
+        char *end = str_value + strlen(str_value);
+        while (end > start && isspace((unsigned char)*(end - 1)))
+        {
+            end--;
+        }
+
+        // Calculate new length
+        size_t new_len = end - start;
+
+        // Create new trimmed string
+        char *result = malloc(new_len + 1);
+        if (result)
+        {
+            strncpy(result, start, new_len);
+            result[new_len] = '\0';
+        }
+
+        free(str_value);
+        return result ? result : strdup("");
+    }
+
+    else if (strcmp(name, "repeat") == 0)
+    {
+        if (!arguments || !arguments->next)
+        {
+            printf("Error: repeat() requires at least two arguments: string and count\n");
+            return strdup("");
+        }
+
+        // Get the string to repeat
+        char *str_value = evaluate_string_expression(arguments);
+        if (!str_value)
+        {
+            printf("Error: First argument to repeat() must be a string\n");
+            return strdup("");
+        }
+
+        // Get the number of repetitions
+        int count = evaluate_expression(arguments->next);
+        if (count < 0)
+        {
+            printf("Error: Repeat count must be non-negative\n");
+            free(str_value);
+            return strdup("");
+        }
+
+        // Get the optional delimiter (default to empty string)
+        char *delimiter = "";
+        if (arguments->next->next)
+        {
+            delimiter = evaluate_string_expression(arguments->next->next);
+            if (!delimiter)
+            {
+                printf("Error: Third argument to repeat() must be a string\n");
+                free(str_value);
+                return strdup("");
+            }
+        }
+
+        // Calculate the total length needed
+        size_t str_len = strlen(str_value);
+        size_t delim_len = strlen(delimiter);
+        size_t total_len = (str_len * count) + (delim_len * (count - 1));
+
+        // Allocate memory for the result
+        char *result = malloc(total_len + 1);
+        if (!result)
+        {
+            printf("Error: Memory allocation failed\n");
+            free(str_value);
+            if (arguments->next->next) free(delimiter);
+            return strdup("");
+        }
+
+        // Build the repeated string
+        char *ptr = result;
+        for (int i = 0; i < count; i++)
+        {
+            // Copy the string
+            strcpy(ptr, str_value);
+            ptr += str_len;
+
+            // Add delimiter if not the last iteration
+            if (i < count - 1 && delim_len > 0)
+            {
+                strcpy(ptr, delimiter);
+                ptr += delim_len;
+            }
+        }
+
+        // Clean up
+        free(str_value);
+        if (arguments->next->next) free(delimiter);
+
+        return result;
+    }
+
     Function *func = find_function(name);
     if (!func)
     {
@@ -1486,6 +1634,30 @@ static void register_builtin_functions(void)
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = to_upper_func;
+
+    // Register reverse function
+    Function reverse_func = {
+        .name = "reverse",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = reverse_func;
+
+    // Register trim function
+    Function trim_func = {
+        .name = "trim",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = trim_func;
+
+    // Register repeat function
+    Function repeat_func = {
+        .name = "repeat",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = repeat_func;
 
     builtins_registered = true;
 }
