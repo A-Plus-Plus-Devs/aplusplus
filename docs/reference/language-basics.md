@@ -144,7 +144,7 @@ A++ has several reserved keywords:
 - `echo`: Alternative output
 - `input`: Get user input
 - `length`: Get string length
-- `index`: Get character at string index
+- `charAt`: Get character at string index
 
 ## Built-in Functions
 
@@ -172,8 +172,8 @@ string name = "Paul";
 print(length(name));    // Output: 4
 
 // Get character at index
-print(index(name, 0));  // Output: "P"
-print(index(name, 3));  // Output: "l"
+print(charAt(name, 0));  // Output: "P"
+print(charAt(name, 3));  // Output: "l"
 
 // Get part of string from start to end index
 print(substring("hello", 1, 3));  // Output: "el"
@@ -191,7 +191,7 @@ print(replace("hello", 0, "j"));  // Output: "jello"
    - Returns 0 for empty strings
    - Works with both string literals and variables
 
-2. **index(string, int)**
+2. **charAt(string, int)**
    - Returns the character at the specified index as a string
    - Index starts at 0
    - Returns empty string if index is out of bounds
@@ -216,13 +216,13 @@ print(replace("hello", 0, "j"));  // Output: "jello"
 ```c
 string message = "Hello, World!";
 print(length(message));     // Output: 13
-print(index(message, 0));   // Output: "H"
-print(index(message, 7));   // Output: "W"
+print(charAt(message, 0));   // Output: "H"
+print(charAt(message, 7));   // Output: "W"
 
 // Using with string literals
 print(length("A++"));       // Output: 3
-print(index("A++", 2));     // Output: "+"
+print(charAt("A++", 2));     // Output: "+"
 
 // Error handling
-print(index(message, 50));  // Output: "" (empty string, index out of bounds)
+print(charAt(message, 50));  // Output: "" (empty string, index out of bounds)
 ``` 

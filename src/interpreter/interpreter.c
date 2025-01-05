@@ -298,12 +298,12 @@ char *execute_function(const char *name, ASTNode *arguments)
 
         return strdup("0");
     }
-    else if (strcmp(name, "index") == 0)
+    else if (strcmp(name, "charAt") == 0)
     {
         // Get the string argument
         if (!arguments)
         {
-            printf("Error: index() requires two arguments: string and index\n");
+            printf("Error: charAt() requires two arguments: string and index\n");
             return strdup("");
         }
 
@@ -326,7 +326,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         ASTNode *index_arg = arguments->next;
         if (!index_arg)
         {
-            printf("Error: index() requires an index argument\n");
+            printf("Error: charAt() requires an index argument\n");
             return strdup("");
         }
 
@@ -335,7 +335,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         // Validate string and index
         if (!str_value)
         {
-            printf("Error: First argument to index() must be a string\n");
+            printf("Error: First argument to charAt() must be a string\n");
             return strdup("");
         }
 
@@ -1344,12 +1344,12 @@ static void register_builtin_functions(void)
     functions[function_count++] = length_func;
 
     // Register index function
-    Function index_func = {
-        .name = "index",
+    Function char_at_func = {
+        .name = "charAt",
         .return_type = "string",
         .parameters = NULL,
         .body = NULL};
-    functions[function_count++] = index_func;
+    functions[function_count++] = char_at_func;
 
     // Register substring function
     Function substring_func = {

@@ -71,17 +71,17 @@ for (int i = 0; i < 10; i++) {
 length(string);     // Returns number of characters
 
 // String indexing
-index(string, int); // Returns character at index
+charAt(string, int); // Returns character at index
 ```
 
 ### Function Call Syntax
 ```c
 // Basic function calls
 length("Hello");      // 5
-index("Hello", 1);    // "e"
+charAt("Hello", 1);    // "e"
 
 // With variables
 string text = "Hello";
 int position = 1;
-index(text, position);  // "e"
+charAt(text, position);  // "e"
 ```

@@ -7,7 +7,7 @@
 /*
  * Parser Implementation
  * 
- * This file contains the implementation of a recursive descent parser for a custom programming language.
+ * This file contains the implementation of a recursive descent parser for the A++ programming language.
  * It parses tokens from the lexer and builds an Abstract Syntax Tree (AST) representation of the code.
  * 
  * Key features:
@@ -532,7 +532,7 @@ static ASTNode *parse_factor(Parser *parser)
 {
     Token *token = parser->current_token;
     
-    if (token->type == TOKEN_LENGTH || token->type == TOKEN_INDEX || 
+    if (token->type == TOKEN_LENGTH || token->type == TOKEN_CHAR_AT || 
         (token->type == TOKEN_IDENTIFIER && peek_char(parser->lexer) == '(')) {
         char *func_name = strdup(token->value);
         get_next_token(parser);
@@ -802,7 +802,7 @@ static ASTNode *parse_factor(Parser *parser)
     // Handle function calls
     if (parser->current_token->type == TOKEN_IDENTIFIER ||
         parser->current_token->type == TOKEN_LENGTH ||
-        parser->current_token->type == TOKEN_INDEX ||
+        parser->current_token->type == TOKEN_CHAR_AT ||
         parser->current_token->type == TOKEN_SUBSTRING || 
         parser->current_token->type == TOKEN_CONCAT ||
         parser->current_token->type == TOKEN_REPLACE)

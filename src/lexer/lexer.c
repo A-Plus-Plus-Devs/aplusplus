@@ -91,8 +91,8 @@ static Token *identifier_or_keyword(Lexer *lexer)
     // Check for keywords
     if (strcmp(buffer, "length") == 0)
         token->type = TOKEN_LENGTH;
-    else if (strcmp(buffer, "index") == 0)
-        token->type = TOKEN_INDEX;
+    else if (strcmp(buffer, "charAt") == 0)
+        token->type = TOKEN_CHAR_AT;
     else if (strcmp(buffer, "substring") == 0)
         token->type = TOKEN_SUBSTRING;
     else if (strcmp(buffer, "concat") == 0)

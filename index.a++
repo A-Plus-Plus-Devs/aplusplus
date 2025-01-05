@@ -1,1 +1,5 @@
-print("Hello\nWorld");
+#define nothing main() {
+    print("Hello, World!");
+}
+
+main(); // Output: "Hello, World!"

@@ -13,6 +13,7 @@ typedef enum
     TOKEN_FLOAT,
     TOKEN_INT,
     TOKEN_CHAR,
+    TOKEN_CHAR_AT,
     // NODE_LITERAL,
     TOKEN_NUMBER,
     TOKEN_PRINT,
