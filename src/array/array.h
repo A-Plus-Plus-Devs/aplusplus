@@ -5,6 +5,12 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+// Forward declarations
+typedef struct ArrayLexer ArrayLexer;
+typedef struct ArrayParser ArrayParser;
+typedef struct ArrayInterpreter ArrayInterpreter;
+typedef struct ArrayASTNode ArrayASTNode;
+
 // Initial capacity for new arrays
 #define ARRAY_INITIAL_CAPACITY 8
 
@@ -42,5 +48,8 @@ bool array_set(Array *arr, size_t index, ArrayElement value);
 // Type checking and conversion
 bool array_is_valid_type(VariableType type);
 ArrayElement array_convert_value(VariableType from_type, VariableType to_type, ArrayElement value);
+
+// File processing
+bool array_process_file(const char *source);
 
 #endif // ARRAY_H 

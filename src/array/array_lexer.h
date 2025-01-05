@@ -2,6 +2,7 @@
 #define ARRAY_LEXER_H
 
 #include <stddef.h>
+#include "array.h"  // For forward declaration
 
 // Token types specific to array operations
 typedef enum {
@@ -15,9 +16,10 @@ typedef enum {
     ARRAY_TOKEN_RBRACKET,     // ]
     ARRAY_TOKEN_COMMA,        // ,
     ARRAY_TOKEN_DOT,          // .
+    ARRAY_TOKEN_SEMICOLON,
     ARRAY_TOKEN_LESS_THAN,    // <
     ARRAY_TOKEN_GREATER_THAN, // >
-    ARRAY_TOKEN_EQUALS,       // =
+    ARRAY_TOKEN_ASSIGN,       // = (renamed from EQUALS)
     ARRAY_TOKEN_TYPE_INT,     // "int"
     ARRAY_TOKEN_TYPE_STRING,  // "string"
     ARRAY_TOKEN_TYPE_FLOAT,   // "float"
@@ -30,8 +32,9 @@ typedef enum {
     ARRAY_TOKEN_METHOD_LENGTH,      // "length"
     ARRAY_TOKEN_LPAREN,      // (
     ARRAY_TOKEN_RPAREN,      // )
-    ARRAY_TOKEN_SEMICOLON,   // ;
-    ARRAY_TOKEN_ERROR        // Invalid token
+    ARRAY_TOKEN_TERM,        // ; (renamed from SEMICOLON)
+    ARRAY_TOKEN_ERROR,       // Invalid token
+    ARRAY_TOKEN_PRINT,       // print keyword
 } ArrayTokenType;
 
 // Token structure
@@ -42,15 +45,15 @@ typedef struct {
     size_t column;
 } ArrayToken;
 
-// Lexer structure
-typedef struct {
+// Define the actual structure (using the forward declaration from array.h)
+struct ArrayLexer {
     const char *input;
     size_t position;
     size_t read_position;
     char current_char;
     size_t line;
     size_t column;
-} ArrayLexer;
+};
 
 // Lexer functions
 ArrayLexer *array_lexer_init(const char *input);

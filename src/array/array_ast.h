@@ -15,7 +15,10 @@ typedef enum {
     ARRAY_NODE_REMOVE_FIRST,   // arr.removeFirst()
     ARRAY_NODE_LENGTH,         // arr.length
     ARRAY_NODE_ELEMENT,        // Individual element in array literal
-    ARRAY_NODE_IDENTIFIER      // Array variable name
+    ARRAY_NODE_IDENTIFIER,     // Array variable name
+    ARRAY_NODE_METHOD_CALL,   // For method calls
+    ARRAY_NODE_PRINT,         // For print statements
+    ARRAY_NODE_ASSIGNMENT     // For assignments
 } ArrayNodeType;
 
 // Array AST node structure

@@ -102,7 +102,7 @@ ArrayToken *array_lexer_next_token(ArrayLexer *lexer) {
 
         case '=':
             advance(lexer);
-            return create_token(ARRAY_TOKEN_EQUALS, "=", current_line, current_column);
+            return create_token(ARRAY_TOKEN_ASSIGN, "=", current_line, current_column);
 
         case '(':
             advance(lexer);
@@ -230,8 +230,9 @@ static ArrayTokenType check_keyword(const char *identifier) {
         {"removeLast", ARRAY_TOKEN_METHOD_REMOVE_LAST},
         {"removeFirst", ARRAY_TOKEN_METHOD_REMOVE_FIRST},
         {"length", ARRAY_TOKEN_METHOD_LENGTH},
-        {"true", ARRAY_TOKEN_BOOL},
-        {"false", ARRAY_TOKEN_BOOL},
+        {"yup", ARRAY_TOKEN_BOOL},
+        {"nope", ARRAY_TOKEN_BOOL},
+        {"print", ARRAY_TOKEN_PRINT},
         {NULL, ARRAY_TOKEN_IDENTIFIER}
     };
 
@@ -265,7 +266,7 @@ const char *array_token_type_to_string(ArrayTokenType type) {
         case ARRAY_TOKEN_DOT: return "DOT";
         case ARRAY_TOKEN_LESS_THAN: return "LESS_THAN";
         case ARRAY_TOKEN_GREATER_THAN: return "GREATER_THAN";
-        case ARRAY_TOKEN_EQUALS: return "EQUALS";
+        case ARRAY_TOKEN_ASSIGN: return "EQUALS";
         case ARRAY_TOKEN_TYPE_INT: return "TYPE_INT";
         case ARRAY_TOKEN_TYPE_STRING: return "TYPE_STRING";
         case ARRAY_TOKEN_TYPE_FLOAT: return "TYPE_FLOAT";

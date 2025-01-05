@@ -287,4 +287,28 @@ static ArrayElement convert_ast_to_element(ArrayASTNode *node) {
 
 void array_interpreter_error(const char *message) {
     fprintf(stderr, "Array Interpreter Error: %s\n", message);
+}
+
+ArrayInterpretResult array_interpret_statement(ArrayInterpreter *interpreter, ArrayASTNode *node) {
+    ArrayInterpretResult result = {.success = false};
+    
+    switch (node->type) {
+        case ARRAY_NODE_DECLARATION:
+            return interpret_declaration(interpreter, node);
+            
+        case ARRAY_NODE_METHOD_CALL:
+            return interpret_method_call(interpreter, node);
+            
+        case ARRAY_NODE_PRINT: {
+            ArrayInterpretResult expr_result = array_interpret(interpreter, node->children);
+            if (expr_result.success) {
+                printf("%d\n", expr_result.value.int_value);
+                result.success = true;
+            }
+            return result;
+        }
+        
+    }
+    
+    return result;
 } 

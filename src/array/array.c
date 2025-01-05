@@ -1,4 +1,8 @@
 #include "array.h"
+#include "array_lexer.h"
+#include "array_parser.h"
+#include "array_interpreter.h"
+#include "array_ast.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -150,4 +154,39 @@ bool array_set(Array *arr, size_t index, ArrayElement value) {
 
     arr->elements[index] = value;
     return true;
+}
+
+bool array_process_file(const char *source) {
+    // Initialize components
+    ArrayLexer *array_lexer = array_lexer_init(source);
+    if (!array_lexer) return false;
+    
+    ArrayParser *array_parser = array_parser_init(array_lexer);
+    if (!array_parser) {
+        array_lexer_free(array_lexer);
+        return false;
+    }
+    
+    ArrayInterpreter *array_interpreter = array_interpreter_init();
+    if (!array_interpreter) {
+        array_parser_free(array_parser);
+        array_lexer_free(array_lexer);
+        return false;
+    }
+    
+    // Parse and interpret
+    ArrayASTNode *array_ast = array_parse(array_parser);
+    if (array_ast) {
+        ArrayInterpretResult result = array_interpret(array_interpreter, array_ast);
+        
+        // Cleanup
+        array_free_ast(array_ast);
+        array_interpreter_free(array_interpreter);
+        array_parser_free(array_parser);
+        array_lexer_free(array_lexer);
+        
+        return result.success;
+    }
+    
+    return false;
 } 

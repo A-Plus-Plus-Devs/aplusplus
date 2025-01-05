@@ -9,6 +9,41 @@ static bool expect_token(ArrayParser *parser, ArrayTokenType type);
 static VariableType token_to_variable_type(ArrayTokenType type);
 static ArrayASTNode *parse_array_elements(ArrayParser *parser);
 static ArrayASTNode *array_parse_expression(ArrayParser *parser);
+static ArrayASTNode *array_parse_statement(ArrayParser *parser);
+
+// Add missing AST node creation functions
+static ArrayASTNode *array_create_assignment_node(const char *name, ArrayASTNode *value) {
+    ArrayASTNode *node = malloc(sizeof(ArrayASTNode));
+    if (!node) return NULL;
+    
+    node->type = ARRAY_NODE_ASSIGNMENT;
+    node->array_name = strdup(name);
+    node->children = value;
+    node->next = NULL;
+    return node;
+}
+
+static ArrayASTNode *array_create_print_node(ArrayASTNode *expr) {
+    ArrayASTNode *node = malloc(sizeof(ArrayASTNode));
+    if (!node) return NULL;
+    
+    node->type = ARRAY_NODE_PRINT;
+    node->children = expr;
+    node->array_name = NULL;
+    node->next = NULL;
+    return node;
+}
+
+static ArrayASTNode *array_parse_array_operation(ArrayParser *parser, const char *name) {
+    if (parser->current_token->type == ARRAY_TOKEN_DOT) {
+        advance_token(parser); // consume dot
+        return array_parse_method_call(parser, name);
+    } else if (parser->current_token->type == ARRAY_TOKEN_LESS_THAN) {
+        advance_token(parser); // consume <
+        return array_parse_declaration(parser);
+    }
+    return NULL;
+}
 
 ArrayParser *array_parser_init(ArrayLexer *lexer) {
     ArrayParser *parser = malloc(sizeof(ArrayParser));
@@ -38,7 +73,8 @@ static void advance_token(ArrayParser *parser) {
 static bool expect_token(ArrayParser *parser, ArrayTokenType type) {
     if (parser->current_token->type != type) {
         char error[100];
-        snprintf(error, sizeof(error), "Expected %d, got %d", type, parser->current_token->type);
+        snprintf(error, sizeof(error), "Expected token type %d, got %d", 
+                type, parser->current_token->type);
         array_parser_error(parser, error);
         return false;
     }
@@ -46,72 +82,45 @@ static bool expect_token(ArrayParser *parser, ArrayTokenType type) {
     return true;
 }
 
-ArrayASTNode *array_parse(ArrayParser *parser) {
-    if (!parser || !parser->current_token) {
-        array_parser_error(parser, "Invalid parser state");
-        return NULL;
-    }
-
-    // Create a root node to hold all statements
-    ArrayASTNode *root = NULL;
-    ArrayASTNode *current = NULL;
-
-    printf("Starting to parse array operations\n");
-
-    while (parser->current_token && parser->current_token->type != ARRAY_TOKEN_EOF) {
-        ArrayASTNode *statement = NULL;
-        printf("Current token type: %d, value: %s\n", 
-               parser->current_token->type,
-               parser->current_token->value ? parser->current_token->value : "NULL");
-
-        if (parser->current_token->type == ARRAY_TOKEN_IDENTIFIER) {
-            const char *identifier = parser->current_token->value;
-            advance_token(parser);  // Move past identifier
-
-            // Check what comes after the identifier
-            if (parser->current_token->type == ARRAY_TOKEN_LESS_THAN) {
-                // Array declaration: numbers<int> = [1, 2, 3];
-                printf("Parsing array declaration\n");
-                statement = array_parse_declaration(parser);
-            }
-            else if (parser->current_token->type == ARRAY_TOKEN_DOT) {
-                // Method call: numbers.addLast(4);
-                printf("Parsing method call\n");
-                advance_token(parser);  // Move past dot
-                statement = array_parse_method_call(parser, identifier);
-            }
-        }
-
-        if (!statement) {
-            // Skip to next semicolon if we failed to parse
-            printf("Skipping to next statement\n");
-            while (parser->current_token && 
-                   parser->current_token->type != ARRAY_TOKEN_SEMICOLON && 
-                   parser->current_token->type != ARRAY_TOKEN_EOF) {
-                advance_token(parser);
-            }
-            if (parser->current_token && parser->current_token->type == ARRAY_TOKEN_SEMICOLON) {
-                advance_token(parser);
-            }
-            continue;
-        }
-
-        // Add statement to our list
-        if (!root) {
-            root = statement;
-            current = root;
-        } else {
-            current->next = statement;
-            current = statement;
-        }
-
-        // Skip semicolon if present
-        if (parser->current_token && parser->current_token->type == ARRAY_TOKEN_SEMICOLON) {
+static ArrayASTNode *array_parse_statement(ArrayParser *parser) {
+    switch (parser->current_token->type) {
+        case ARRAY_TOKEN_IDENTIFIER: {
+            const char *name = parser->current_token->value;
             advance_token(parser);
+            
+            if (parser->current_token->type == ARRAY_TOKEN_LESS_THAN ||
+                parser->current_token->type == ARRAY_TOKEN_DOT) {
+                return array_parse_array_operation(parser, name);
+            }
+            
+            if (parser->current_token->type == ARRAY_TOKEN_ASSIGN) {
+                advance_token(parser);
+                ArrayASTNode *value = array_parse_expression(parser);
+                expect_token(parser, ARRAY_TOKEN_TERM);
+                return array_create_assignment_node(name, value);
+            }
         }
-    }
+        break;
 
-    return root;
+        case ARRAY_TOKEN_PRINT: {
+            advance_token(parser);
+            expect_token(parser, ARRAY_TOKEN_LPAREN);
+            ArrayASTNode *expr = array_parse_expression(parser);
+            expect_token(parser, ARRAY_TOKEN_RPAREN);
+            expect_token(parser, ARRAY_TOKEN_TERM);
+            return array_create_print_node(expr);
+        }
+        break;
+
+        default:
+            array_parser_error(parser, "Unexpected token in statement");
+            return NULL;
+    }
+    return NULL;
+}
+
+ArrayASTNode *array_parse(ArrayParser *parser) {
+    return array_parse_statement(parser);
 }
 
 ArrayASTNode *array_parse_declaration(ArrayParser *parser) {
@@ -155,7 +164,7 @@ ArrayASTNode *array_parse_declaration(ArrayParser *parser) {
         return NULL;
     }
     
-    if (!expect_token(parser, ARRAY_TOKEN_EQUALS)) {
+    if (!expect_token(parser, ARRAY_TOKEN_ASSIGN)) {
         free((void*)array_name);
         return NULL;
     }

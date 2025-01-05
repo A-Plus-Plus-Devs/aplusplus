@@ -3,12 +3,14 @@
 
 #include "array_lexer.h"
 #include "array_ast.h"
+#include "array.h"  // For forward declaration
 
-typedef struct {
+// Define the actual structure (using the forward declaration from array.h)
+struct ArrayParser {
     ArrayLexer *lexer;
     ArrayToken *current_token;
     ArrayToken *peek_token;
-} ArrayParser;
+};
 
 // Parser initialization and cleanup
 ArrayParser *array_parser_init(ArrayLexer *lexer);

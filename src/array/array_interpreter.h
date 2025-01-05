@@ -8,23 +8,23 @@
 typedef struct {
     bool success;
     union {
-        Array *array_value;
         int int_value;
-        double float_value;
-        char *string_value;
+        float float_value;
         bool bool_value;
         char char_value;
+        char *string_value;
+        Array *array_value;
         ArrayElement element;
     } value;
 } ArrayInterpretResult;
 
-// Interpreter structure to maintain state
-typedef struct {
+// Define the actual structure (not typedef since it's already forward declared in array.h)
+struct ArrayInterpreter {
     Array **arrays;           // Array of array pointers
     char **array_names;       // Array of array names
     size_t array_count;       // Number of arrays
     size_t array_capacity;    // Capacity of arrays array
-} ArrayInterpreter;
+};
 
 // Interpreter functions
 ArrayInterpreter *array_interpreter_init(void);
