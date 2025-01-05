@@ -2,6 +2,7 @@
 #define ARRAY_AST_H
 
 #include "../common/types.h"
+#include <stdbool.h>
 #include "array.h"
 
 // Array-specific AST node types
@@ -21,39 +22,38 @@ typedef enum {
     ARRAY_NODE_ASSIGNMENT     // For assignments
 } ArrayNodeType;
 
-// Array AST node structure
+// Value union for AST nodes
+typedef union {
+    int int_value;
+    double float_value;
+    char *string_value;
+    bool bool_value;
+    char char_value;
+} ArrayValue;
+
+// AST node structure
 typedef struct ArrayASTNode {
     ArrayNodeType type;
-    
-    // For array declarations and operations
-    char *array_name;          // Name of the array variable
-    VariableType element_type; // Type of array elements
-    
-    // For array literals and elements
-    union {
-        int int_value;
-        double float_value;
-        char *string_value;
-        bool bool_value;
-        char char_value;
-    } value;
-    
-    // For method calls and indexing
-    struct ArrayASTNode *index;     // For array access: arr[index]
-    struct ArrayASTNode *argument;  // For method calls: arr.addLast(argument)
-    
-    // Tree structure
-    struct ArrayASTNode *next;      // For linking elements in array literals
-    struct ArrayASTNode *children;  // For nested operations
+    char *array_name;
+    char *var_name;           // For length assignment
+    VariableType element_type;
+    ArrayValue value;         // Changed from void* to ArrayValue
+    struct ArrayASTNode *children;
+    struct ArrayASTNode *next;
+    struct ArrayASTNode *index;
+    struct ArrayASTNode *argument;
 } ArrayASTNode;
 
-// Function declarations with renamed functions to avoid conflicts
+// Node creation functions
 ArrayASTNode *array_create_declaration_node(const char *name, VariableType type, ArrayASTNode *elements);
-ArrayASTNode *array_create_literal_node(ArrayASTNode *elements);
-ArrayASTNode *array_create_access_node(const char *array_name, ArrayASTNode *index);
-ArrayASTNode *array_create_method_node(ArrayNodeType method_type, const char *array_name, ArrayASTNode *argument);
+ArrayASTNode *array_create_literal_node(VariableType type, void *value);
+ArrayASTNode *array_create_access_node(const char *name, ArrayASTNode *index);
+ArrayASTNode *array_create_method_node(ArrayNodeType type, const char *name, ArrayASTNode *argument);
 ArrayASTNode *array_create_element_node(VariableType type, void *value);
 ArrayASTNode *array_create_identifier_node(const char *name);
+ArrayASTNode *array_create_length_node(const char *array_name, const char *var_name);
+ArrayASTNode *array_create_print_node(ArrayASTNode *expr);
+ArrayASTNode *array_create_assignment_node(const char *name, ArrayASTNode *value);
 
 // Utility functions
 void array_free_ast(ArrayASTNode *node);

@@ -18,16 +18,39 @@ ArrayASTNode *array_create_declaration_node(const char *name, VariableType type,
     return node;
 }
 
-ArrayASTNode *array_create_literal_node(ArrayASTNode *elements) {
+ArrayASTNode *array_create_literal_node(VariableType type, void *value) {
     ArrayASTNode *node = malloc(sizeof(ArrayASTNode));
     if (!node) return NULL;
 
     node->type = ARRAY_NODE_LITERAL;
-    node->children = elements;
+    node->element_type = type;
     node->array_name = NULL;
+    node->children = NULL;
     node->next = NULL;
     node->index = NULL;
     node->argument = NULL;
+
+    // Copy the value based on type
+    switch (type) {
+        case INT_TYPE:
+            node->value.int_value = *(int *)value;
+            break;
+        case FLOAT_TYPE:
+            node->value.float_value = *(double *)value;
+            break;
+        case STRING_TYPE:
+            node->value.string_value = strdup((char *)value);
+            break;
+        case BOOL_TYPE:
+            node->value.bool_value = *(bool *)value;
+            break;
+        case CHAR_TYPE:
+            node->value.char_value = *(char *)value;
+            break;
+        default:
+            free(node);
+            return NULL;
+    }
 
     return node;
 }
@@ -66,8 +89,10 @@ ArrayASTNode *array_create_element_node(VariableType type, void *value) {
 
     node->type = ARRAY_NODE_ELEMENT;
     node->element_type = type;
-    node->next = NULL;
+    node->array_name = NULL;
+    node->var_name = NULL;
     node->children = NULL;
+    node->next = NULL;
     node->index = NULL;
     node->argument = NULL;
 
@@ -110,30 +135,71 @@ ArrayASTNode *array_create_identifier_node(const char *name) {
     return node;
 }
 
+ArrayASTNode *array_create_length_node(const char *array_name, const char *var_name) {
+    ArrayASTNode *node = malloc(sizeof(ArrayASTNode));
+    if (!node) return NULL;
+
+    node->type = ARRAY_NODE_LENGTH;
+    node->array_name = strdup(array_name);
+    node->var_name = strdup(var_name);
+    node->children = NULL;
+    node->next = NULL;
+    node->index = NULL;
+    node->argument = NULL;
+    node->element_type = INT_TYPE;  // Changed from TYPE_INT to INT_TYPE
+    memset(&node->value, 0, sizeof(ArrayValue));  // Initialize value union to 0
+
+    return node;
+}
+
+ArrayASTNode *array_create_print_node(ArrayASTNode *expr) {
+    ArrayASTNode *node = malloc(sizeof(ArrayASTNode));
+    if (!node) return NULL;
+
+    node->type = ARRAY_NODE_PRINT;
+    node->array_name = NULL;
+    node->var_name = NULL;
+    node->children = expr;
+    node->next = NULL;
+    node->index = NULL;
+    node->argument = NULL;
+    memset(&node->value, 0, sizeof(ArrayValue));
+
+    return node;
+}
+
+ArrayASTNode *array_create_assignment_node(const char *name, ArrayASTNode *value) {
+    ArrayASTNode *node = malloc(sizeof(ArrayASTNode));
+    if (!node) return NULL;
+
+    node->type = ARRAY_NODE_ASSIGNMENT;
+    node->array_name = strdup(name);
+    node->var_name = NULL;
+    node->children = value;
+    node->next = NULL;
+    node->index = NULL;
+    node->argument = NULL;
+    memset(&node->value, 0, sizeof(ArrayValue));
+
+    return node;
+}
+
 void array_free_ast(ArrayASTNode *node) {
     if (!node) return;
 
-    // Free children first
     array_free_ast(node->children);
-    
-    // Free next nodes in the list
     array_free_ast(node->next);
-    
-    // Free index and argument nodes
     array_free_ast(node->index);
     array_free_ast(node->argument);
 
-    // Free string values
-    if (node->array_name) {
-        free(node->array_name);
-    }
+    if (node->array_name) free(node->array_name);
+    if (node->var_name) free(node->var_name);
     if (node->type == ARRAY_NODE_ELEMENT && 
         node->element_type == STRING_TYPE && 
         node->value.string_value) {
         free(node->value.string_value);
     }
 
-    // Finally, free the node itself
     free(node);
 }
 
@@ -174,35 +240,19 @@ char *array_ast_to_string(ArrayASTNode *node) {
             snprintf(buffer, sizeof(buffer), "Length(%s)", 
                     node->array_name);
             break;
-        case ARRAY_NODE_ELEMENT:
-            switch (node->element_type) {
-                case INT_TYPE:
-                    snprintf(buffer, sizeof(buffer), "%d", 
-                            node->value.int_value);
-                    break;
-                case FLOAT_TYPE:
-                    snprintf(buffer, sizeof(buffer), "%f", 
-                            node->value.float_value);
-                    break;
-                case STRING_TYPE:
-                    snprintf(buffer, sizeof(buffer), "\"%s\"", 
-                            node->value.string_value);
-                    break;
-                case BOOL_TYPE:
-                    snprintf(buffer, sizeof(buffer), "%s", 
-                            node->value.bool_value ? "true" : "false");
-                    break;
-                case CHAR_TYPE:
-                    snprintf(buffer, sizeof(buffer), "'%c'", 
-                            node->value.char_value);
-                    break;
-                default:
-                    snprintf(buffer, sizeof(buffer), "Unknown");
-            }
-            break;
-        case ARRAY_NODE_IDENTIFIER:
-            snprintf(buffer, sizeof(buffer), "Identifier(%s)", 
+        case ARRAY_NODE_METHOD_CALL:
+            snprintf(buffer, sizeof(buffer), "MethodCall(%s)", 
                     node->array_name);
+            break;
+        case ARRAY_NODE_PRINT:
+            snprintf(buffer, sizeof(buffer), "Print(...)");
+            break;
+        case ARRAY_NODE_ASSIGNMENT:
+            snprintf(buffer, sizeof(buffer), "Assignment(%s)", 
+                    node->array_name);
+            break;
+        default:
+            snprintf(buffer, sizeof(buffer), "Unknown node type");
             break;
     }
 

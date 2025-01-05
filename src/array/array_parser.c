@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Forward declarations of all helper functions
+// Forward declarations of helper functions
 static void advance_token(ArrayParser *parser);
 static bool expect_token(ArrayParser *parser, ArrayTokenType type);
 static VariableType token_to_variable_type(ArrayTokenType type);
@@ -13,8 +13,6 @@ static ArrayASTNode *array_parse_statement(ArrayParser *parser);
 static ArrayASTNode *array_parse_method_call(ArrayParser *parser, const char *array_name);
 static ArrayASTNode *array_parse_array_operation(ArrayParser *parser, const char *name);
 static ArrayASTNode *array_parse_literal(ArrayParser *parser);
-static ArrayASTNode *array_create_assignment_node(const char *name, ArrayASTNode *value);
-static ArrayASTNode *array_create_print_node(ArrayASTNode *expr);
 static void debug_token(ArrayParser *parser, const char *location);
 
 // Debug function implementation
@@ -172,18 +170,56 @@ ArrayASTNode *array_parse(ArrayParser *parser) {
 
         ArrayASTNode *statement = NULL;
         
-        // First token should be identifier (array name)
         if (parser->current_token->type == ARRAY_TOKEN_IDENTIFIER) {
+            // Handle array operations
             const char *array_name = strdup(parser->current_token->value);
-            printf("DEBUG: Found array name: %s\n", array_name);
+            printf("DEBUG: Found identifier: %s\n", array_name);
             advance_token(parser);
 
-            // Check for array declaration or method call
             if (parser->current_token->type == ARRAY_TOKEN_LESS_THAN ||
                 parser->current_token->type == ARRAY_TOKEN_DOT) {
                 statement = array_parse_array_operation(parser, array_name);
             }
             free((void*)array_name);
+        }
+        else if (parser->current_token->type == ARRAY_TOKEN_TYPE_INT) {
+            // Handle variable declarations
+            advance_token(parser);
+            if (parser->current_token->type == ARRAY_TOKEN_IDENTIFIER) {
+                const char *var_name = strdup(parser->current_token->value);
+                advance_token(parser);
+                
+                if (parser->current_token->type == ARRAY_TOKEN_ASSIGN) {
+                    advance_token(parser);
+                    if (parser->current_token->type == ARRAY_TOKEN_IDENTIFIER) {
+                        const char *array_name = strdup(parser->current_token->value);
+                        advance_token(parser);
+                        if (parser->current_token->type == ARRAY_TOKEN_DOT) {
+                            advance_token(parser);
+                            if (parser->current_token->type == ARRAY_TOKEN_METHOD_LENGTH) {
+                                statement = array_create_length_node(array_name, var_name);
+                                advance_token(parser);
+                                expect_token(parser, ARRAY_TOKEN_TERM);
+                            }
+                        }
+                        free((void*)array_name);
+                    }
+                }
+                free((void*)var_name);
+            }
+        }
+        else if (parser->current_token->type == ARRAY_TOKEN_PRINT) {
+            advance_token(parser);
+            if (expect_token(parser, ARRAY_TOKEN_LPAREN)) {
+                if (parser->current_token->type == ARRAY_TOKEN_IDENTIFIER) {
+                    statement = array_create_print_node(
+                        array_create_identifier_node(parser->current_token->value)
+                    );
+                    advance_token(parser);
+                    expect_token(parser, ARRAY_TOKEN_RPAREN);
+                    expect_token(parser, ARRAY_TOKEN_TERM);
+                }
+            }
         }
 
         if (statement) {
@@ -194,10 +230,6 @@ ArrayASTNode *array_parse(ArrayParser *parser) {
                 current->next = statement;
                 current = statement;
             }
-        } else {
-            printf("DEBUG: Failed to parse statement\n");
-            if (first) array_free_ast(first);
-            return NULL;
         }
     }
 
