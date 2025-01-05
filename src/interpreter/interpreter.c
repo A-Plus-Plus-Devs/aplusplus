@@ -786,6 +786,82 @@ char *execute_function(const char *name, ASTNode *arguments)
         }
     }
 
+    else if (strcmp(name, "toPrecision") == 0)
+    {
+        if (!arguments || !arguments->next)
+        {
+            printf("Error: toPrecision() requires two arguments: number and decimal places\n");
+            return strdup("0");
+        }
+
+        // Get the number
+        double number = evaluate_float_expression(arguments);
+
+        // Get the number of decimal places
+        int decimals = evaluate_expression(arguments->next);
+        if (decimals < 0)
+        {
+            printf("Error: Number of decimal places cannot be negative\n");
+            return strdup("0");
+        }
+
+        // Calculate the rounding factor
+        double factor = pow(10, decimals);
+        
+        // Round the number using the factor
+        double rounded = round(number * factor) / factor;
+
+        // Create format string for specified precision
+        char format[32];
+        snprintf(format, sizeof(format), "%%.%df", decimals);
+
+        // Format the number with specified precision
+        char result[64];
+        snprintf(result, sizeof(result), format, rounded);
+        return strdup(result);
+    }
+    else if (strcmp(name, "min") == 0 || strcmp(name, "max") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: %s() requires at least one argument\n", name);
+            return strdup("0");
+        }
+
+        bool is_max = (strcmp(name, "max") == 0);
+        double result = evaluate_float_expression(arguments);
+        ASTNode *current = arguments->next;
+
+        // Iterate through all arguments
+        while (current)
+        {
+            double value = evaluate_float_expression(current);
+            if (is_max)
+            {
+                if (value > result) result = value;
+            }
+            else
+            {
+                if (value < result) result = value;
+            }
+            current = current->next;
+        }
+
+        // Check if result is a whole number
+        if (result == (int)result)
+        {
+            char str_result[32];
+            snprintf(str_result, sizeof(str_result), "%d", (int)result);
+            return strdup(str_result);
+        }
+        else
+        {
+            char str_result[32];
+            snprintf(str_result, sizeof(str_result), "%g", result);
+            return strdup(str_result);
+        }
+    }
+
     Function *func = find_function(name);
     if (!func)
     {
@@ -1761,6 +1837,30 @@ static void register_builtin_functions(void)
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = abs_func;
+
+    // Register toPrecision function
+    Function precision_func = {
+        .name = "toPrecision",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = precision_func;
+
+    // Register min function
+    Function min_func = {
+        .name = "min",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = min_func;
+
+    // Register max function
+    Function max_func = {
+        .name = "max",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = max_func;
 
     builtins_registered = true;
 }

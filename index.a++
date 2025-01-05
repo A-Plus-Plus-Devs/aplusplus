@@ -1,4 +1,4 @@
-print(round(1.5));     // Outputs: 2
-
-print(round(1.5, "D")); // Outputs: 1
-print(round(1.5, "U")); // Outputs: 2
+print(toPrecision(10.5, 0));        // Outputs: 11
+print(toPrecision(10.4, 0));        // Outputs: 10
+print(toPrecision(3.14159, 2));     // Outputs: 3.14
+print(toPrecision(3.14559, 2));     // Outputs: 3.15
