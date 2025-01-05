@@ -148,19 +148,91 @@ A++ has several reserved keywords:
 
 ## Built-in Functions
 
-### Output Functions
+### Mathematical Operations
 ```c
-print("Hello");     // Standard output
-yap("Hello");       // Alternative output
-echo("Hello");      // Alternative output
+// Root calculations
+float root = sqrt(16);          // 4.0
+float cube = cbrt(-8);         // -2.0
+float fourth = root(16, 4);    // 2.0
+
+// Trigonometry
+float sine = sin(3.14159/2);   // 1.0
+float cosine = cos(0);         // 1.0
+float tangent = tan(0.785398); // 1.0
+
+// Number manipulation
+float absolute = abs(-5.5);    // 5.5
+int rounded = round(3.7);      // 4
+float precise = toPrecision(3.14159, 2);  // 3.14
+int minimum = min(5, 3, 8, 1); // 1
+int maximum = max(5, 3, 8, 1); // 8
 ```
 
-### Input Function
-
+### String Operations
 ```c
-string name = input("What is your name?"); // Standard input
+// String information
+int idx = indexOf("Hello", "e");     // 1
+int len = length("Hello");           // 5
 
-print("Hello, " + name);
+// String manipulation
+string lower = toLowerCase("Hello");  // "hello"
+string upper = toUpperCase("hello"); // "HELLO"
+string clean = trim("  hello  ");    // "hello"
+string rev = reverse("hello");       // "olleh"
+string rep = repeat("ha", 3);        // "hahaha"
+string repd = repeat("hi", 2, "-");  // "hi-hi"
+```
+
+### Date and Time Operations
+```c
+// Date handling
+string today = date();              // "2024-03-14"
+string year = date("Y");           // "2024"
+string month = date("M");          // "03"
+string day = date("D");            // "14"
+
+// Time handling
+string current = time();           // "15:30:45"
+string datetime = now();           // "2024-03-14 15:30:45"
+```
+
+### Type Conversion Rules
+
+1. **Integer Casting**
+   - From float: Truncates decimal portion
+   - From string: Parses numeric content
+   - From boolean: `yup` → 1, `nope` → 0
+
+2. **Float Casting**
+   - From int: Adds .0 for whole numbers
+   - From string: Parses decimal number
+   - From boolean: `yup` → 1.0, `nope` → 0.0
+
+3. **String Casting**
+   - From int: Direct conversion ("42")
+   - From float: Preserves decimals ("3.14")
+   - From boolean: "yup" or "nope"
+
+4. **Boolean Casting**
+   - From int: 0 → `nope`, non-zero → `yup`
+   - From string: Empty → `nope`, non-empty → `yup`
+   - From float: 0.0 → `nope`, non-zero → `yup`
+
+### Examples
+```c
+// Mathematical operations
+float root = sqrt(25);                    // 5.0
+float value = toPrecision(3.14159, 2);    // 3.14
+
+// String manipulation
+string text = "  Hello, World!  ";
+print(trim(text));                        // "Hello, World!"
+print(toLowerCase(text));                 // "  hello, world!  "
+print(repeat("Hi", 3, " "));             // "Hi Hi Hi"
+
+// Date and time
+print(date("Y") + "-" + date("M"));      // "2024-03"
+print(now());                            // "2024-03-14 15:30:45"
 ```
 
 ## String Operations

@@ -39,6 +39,7 @@ export default defineConfig({
           items: [
             { text: 'Syntax', link: '/reference/syntax' },
             { text: 'Language Basics', link: '/reference/language-basics' },
+            { text: 'Standard Library', link: '/reference/stdlib' }
           ]
         },
         {
@@ -52,6 +53,7 @@ export default defineConfig({
           text: 'Examples',
           items: [
             { text: 'Hello World', link: '/examples/hello-world' },
+            { text: 'Standard Library Examples', link: '/examples/stdlib-examples' }
           ]
         },
         {

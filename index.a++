@@ -1,4 +1,4 @@
-print(sqrt(16));       // Outputs: 4
+print(repeat("Hello", 4));       // Outputs: 4
 print(sqrt(2));        // Outputs: 1.414213562
 
 print(cbrt(27));       // Outputs: 3
