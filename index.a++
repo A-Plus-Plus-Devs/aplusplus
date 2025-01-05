@@ -1,4 +1,6 @@
 numbers<int> = [1, 2, 3];
 numbers.addLast(4);
 numbers.addFirst(0);
-int length = numbers.length;
+int len = numbers.length;
+
+print(len);

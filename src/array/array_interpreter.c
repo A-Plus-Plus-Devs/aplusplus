@@ -47,34 +47,43 @@ void array_interpreter_free(ArrayInterpreter *interpreter) {
 }
 
 ArrayInterpretResult array_interpret(ArrayInterpreter *interpreter, ArrayASTNode *node) {
-    ArrayInterpretResult error_result = {.success = false};
+    ArrayInterpretResult result = {.success = true};  // Default to success
     
-    if (!interpreter || !node) {
-        array_interpreter_error("Invalid interpreter or AST node");
-        return error_result;
+    // Process each statement in the linked list
+    ArrayASTNode *current = node;
+    while (current) {
+        printf("Interpreting node type: %d\n", current->type);
+        
+        ArrayInterpretResult stmt_result;
+        switch (current->type) {
+            case ARRAY_NODE_DECLARATION:
+                stmt_result = interpret_declaration(interpreter, current);
+                break;
+            
+            case ARRAY_NODE_ADD_LAST:
+            case ARRAY_NODE_ADD_FIRST:
+            case ARRAY_NODE_REMOVE_LAST:
+            case ARRAY_NODE_REMOVE_FIRST:
+            case ARRAY_NODE_LENGTH:
+                stmt_result = interpret_method_call(interpreter, current);
+                break;
+            
+            default:
+                array_interpreter_error("Unknown node type");
+                stmt_result.success = false;
+                break;
+        }
+
+        // If any statement fails, mark the overall result as failed
+        if (!stmt_result.success) {
+            result.success = false;
+            break;
+        }
+
+        current = current->next;
     }
 
-    switch (node->type) {
-        case ARRAY_NODE_DECLARATION:
-            return interpret_declaration(interpreter, node);
-        
-        case ARRAY_NODE_LITERAL:
-            return interpret_literal(interpreter, node);
-        
-        case ARRAY_NODE_ADD_LAST:
-        case ARRAY_NODE_ADD_FIRST:
-        case ARRAY_NODE_REMOVE_LAST:
-        case ARRAY_NODE_REMOVE_FIRST:
-        case ARRAY_NODE_LENGTH:
-            return interpret_method_call(interpreter, node);
-        
-        case ARRAY_NODE_ACCESS:
-            return interpret_access(interpreter, node);
-        
-        default:
-            array_interpreter_error("Unknown node type");
-            return error_result;
-    }
+    return result;
 }
 
 static ArrayInterpretResult interpret_declaration(ArrayInterpreter *interpreter, ArrayASTNode *node) {
@@ -86,6 +95,9 @@ static ArrayInterpretResult interpret_declaration(ArrayInterpreter *interpreter,
         return result;
     }
 
+    // Print debug info about the array being created
+    printf("Creating array '%s' of type %d\n", node->array_name, node->element_type);
+
     ArrayASTNode *current = node->children;
     while (current) {
         ArrayElement element = convert_ast_to_element(current);
@@ -94,6 +106,7 @@ static ArrayInterpretResult interpret_declaration(ArrayInterpreter *interpreter,
             array_interpreter_error("Failed to add element to array");
             return result;
         }
+        printf("Added element to array\n");
         current = current->next;
     }
 
@@ -144,35 +157,40 @@ static ArrayInterpretResult interpret_method_call(ArrayInterpreter *interpreter,
         return result;
     }
 
+    printf("Executing method on array '%s'\n", node->array_name);
+
     switch (node->type) {
-        case ARRAY_NODE_ADD_LAST: {
-            ArrayElement element = convert_ast_to_element(node->argument);
-            result.success = array_add_last(array, element);
+        case ARRAY_NODE_ADD_LAST:
+            if (node->argument) {
+                ArrayElement element = convert_ast_to_element(node->argument);
+                result.success = array_add_last(array, element);
+                printf("Added element to end of array\n");
+            }
             break;
-        }
-        
-        case ARRAY_NODE_ADD_FIRST: {
-            ArrayElement element = convert_ast_to_element(node->argument);
-            result.success = array_add_first(array, element);
+            
+        case ARRAY_NODE_ADD_FIRST:
+            if (node->argument) {
+                ArrayElement element = convert_ast_to_element(node->argument);
+                result.success = array_add_first(array, element);
+                printf("Added element to start of array\n");
+            }
             break;
-        }
-        
+            
         case ARRAY_NODE_REMOVE_LAST:
             result.success = array_remove_last(array);
+            printf("Removed last element from array\n");
             break;
-        
+            
         case ARRAY_NODE_REMOVE_FIRST:
             result.success = array_remove_first(array);
+            printf("Removed first element from array\n");
             break;
-        
+            
         case ARRAY_NODE_LENGTH:
             result.success = true;
             result.value.int_value = array_length(array);
+            printf("Array length: %zu\n", array_length(array));
             break;
-        
-        default:
-            array_interpreter_error("Unknown array method");
-            return result;
     }
 
     return result;

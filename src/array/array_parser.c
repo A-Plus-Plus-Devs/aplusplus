@@ -49,32 +49,56 @@ static bool expect_token(ArrayParser *parser, ArrayTokenType type) {
 }
 
 ArrayASTNode *array_parse(ArrayParser *parser) {
-    switch (parser->current_token->type) {
-        case ARRAY_TOKEN_IDENTIFIER:
-            if (parser->peek_token->type == ARRAY_TOKEN_LESS_THAN) {
-                return array_parse_declaration(parser);
-            } else if (parser->peek_token->type == ARRAY_TOKEN_DOT) {
-                char *array_name = strdup(parser->current_token->value);
-                advance_token(parser); // consume identifier
-                advance_token(parser); // consume dot
-                ArrayASTNode *node = array_parse_method_call(parser, array_name);
-                free(array_name);
-                return node;
-            } else if (parser->peek_token->type == ARRAY_TOKEN_LBRACKET) {
-                char *array_name = strdup(parser->current_token->value);
-                advance_token(parser); // consume identifier
-                ArrayASTNode *node = array_parse_access(parser, array_name);
-                free(array_name);
-                return node;
-            }
-            break;
-        case ARRAY_TOKEN_LBRACKET:
-            return array_parse_literal(parser);
-        default:
-            array_parser_error(parser, "Expected array declaration, method call, or literal");
-            return NULL;
+    if (!parser || !parser->current_token) {
+        array_parser_error(parser, "Invalid parser state");
+        return NULL;
     }
-    return NULL;
+
+    // Create a root node to hold all statements
+    ArrayASTNode *root = NULL;
+    ArrayASTNode *current = NULL;
+
+    while (parser->current_token->type != ARRAY_TOKEN_EOF) {
+        ArrayASTNode *statement = NULL;
+
+        // Handle array declaration
+        if (parser->current_token->type == ARRAY_TOKEN_IDENTIFIER) {
+            // Check next token to determine if it's a declaration or method call
+            if (parser->peek_token->type == ARRAY_TOKEN_LESS_THAN) {
+                statement = array_parse_declaration(parser);
+            } else if (parser->peek_token->type == ARRAY_TOKEN_DOT) {
+                statement = array_parse_method_call(parser, parser->current_token->value);
+            }
+        }
+
+        if (!statement) {
+            // Skip to next semicolon if we failed to parse
+            while (parser->current_token->type != ARRAY_TOKEN_SEMICOLON && 
+                   parser->current_token->type != ARRAY_TOKEN_EOF) {
+                advance_token(parser);
+            }
+            if (parser->current_token->type == ARRAY_TOKEN_SEMICOLON) {
+                advance_token(parser);
+            }
+            continue;
+        }
+
+        // Add statement to our list
+        if (!root) {
+            root = statement;
+            current = root;
+        } else {
+            current->next = statement;
+            current = statement;
+        }
+
+        // Skip any trailing semicolons
+        if (parser->current_token->type == ARRAY_TOKEN_SEMICOLON) {
+            advance_token(parser);
+        }
+    }
+
+    return root;
 }
 
 ArrayASTNode *array_parse_declaration(ArrayParser *parser) {

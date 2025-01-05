@@ -61,36 +61,55 @@ static void cleanup_array_subsystem() {
  * @param source The array operation source code
  * @return true if operation was successful, false otherwise
  */
-static bool handle_array_operation(const char *source) {
-    // Initialize array lexer
-    ArrayLexer *array_lexer = array_lexer_init(source);
+static bool handle_array_operation(const char *source_code) {
+    printf("Handling array operation:\n%s\n", source_code);
+    
+    // Initialize array subsystem components
+    ArrayLexer *array_lexer = array_lexer_init(source_code);
     if (!array_lexer) {
         printf("Error: Failed to initialize array lexer\n");
         return false;
     }
 
-    // Initialize array parser
     ArrayParser *array_parser = array_parser_init(array_lexer);
     if (!array_parser) {
-        printf("Error: Failed to initialize array parser\n");
         array_lexer_free(array_lexer);
+        printf("Error: Failed to initialize array parser\n");
         return false;
     }
 
-    // Parse array operation
+    // Parse the array operation
+    printf("Parsing array operation...\n");
     ArrayASTNode *array_ast = array_parse(array_parser);
     if (!array_ast) {
-        printf("Error: Failed to parse array operation\n");
         array_parser_free(array_parser);
+        array_lexer_free(array_lexer);
+        printf("Error: Failed to parse array operation\n");
         return false;
     }
+    printf("Successfully created AST\n");
 
-    // Interpret array operation
-    ArrayInterpretResult result = array_interpret(array_interpreter, array_ast);
+    // Initialize array interpreter
+    ArrayInterpreter *interpreter = array_interpreter_init();
+    if (!interpreter) {
+        array_free_ast(array_ast);
+        array_parser_free(array_parser);
+        array_lexer_free(array_lexer);
+        printf("Error: Failed to initialize array interpreter\n");
+        return false;
+    }
+    printf("Interpreter initialized\n");
 
-    // Clean up
+    // Interpret the array operation
+    printf("Interpreting array operation...\n");
+    ArrayInterpretResult result = array_interpret(interpreter, array_ast);
+    printf("Interpretation %s\n", result.success ? "succeeded" : "failed");
+
+    // Cleanup
+    array_interpreter_free(interpreter);
     array_free_ast(array_ast);
     array_parser_free(array_parser);
+    array_lexer_free(array_lexer);
 
     return result.success;
 }
@@ -156,20 +175,28 @@ static void run_file(const char *filename)
     source_code[bytes_read] = '\0';
     fclose(file);
 
-    // Initialize array subsystem
-    if (!init_array_subsystem()) {
-        printf("Error: Failed to initialize array subsystem\n");
+    printf("Processing file contents:\n%s\n", source_code);
+
+    // Check if this is an array operation
+    if (strstr(source_code, "<int>") || strstr(source_code, "<string>") ||
+        strstr(source_code, "<float>") || strstr(source_code, "<bool>") ||
+        strstr(source_code, "<char>")) {
+        
+        printf("Detected array operation\n");
+        if (!handle_array_operation(source_code)) {
+            printf("Error: Failed to handle array operation\n");
+            free(source_code);
+            exit(1);
+        }
         free(source_code);
-        exit(1);
+        return;
     }
 
-    // Initialize lexer
+    // Continue with regular parsing if not an array operation
     Lexer *lexer = init_lexer(source_code);
-    if (!lexer)
-    {
+    if (!lexer) {
         printf("Error: Failed to initialize lexer.\n");
         free(source_code);
-        cleanup_array_subsystem();
         exit(1);
     }
 
@@ -179,7 +206,6 @@ static void run_file(const char *filename)
     {
         printf("Error: Failed to initialize parser.\n");
         free(source_code);
-        cleanup_array_subsystem();
         exit(1);
     }
 
@@ -191,7 +217,6 @@ static void run_file(const char *filename)
         free_parser(parser);
         free(lexer);
         free(source_code);
-        cleanup_array_subsystem();
         exit(1);
     }
 
@@ -203,7 +228,6 @@ static void run_file(const char *filename)
     free_ast(ast);
     free(lexer);
     free(source_code);
-    cleanup_array_subsystem();
 }
 
 /**

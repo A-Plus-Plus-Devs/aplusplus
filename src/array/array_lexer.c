@@ -70,6 +70,8 @@ ArrayToken *array_lexer_next_token(ArrayLexer *lexer) {
     size_t current_line = lexer->line;
     size_t current_column = lexer->column;
 
+    printf("Current char: %c\n", lexer->current_char);
+
     switch (lexer->current_char) {
         case '\0':
             return create_token(ARRAY_TOKEN_EOF, NULL, current_line, current_column);
@@ -120,7 +122,9 @@ ArrayToken *array_lexer_next_token(ArrayLexer *lexer) {
         default:
             if (isalpha(lexer->current_char) || lexer->current_char == '_') {
                 char *identifier = read_identifier(lexer);
+                printf("Read identifier: %s\n", identifier);
                 ArrayTokenType type = check_keyword(identifier);
+                printf("Token type determined: %d\n", type);
                 return create_token(type, identifier, current_line, current_column);
             }
             else if (isdigit(lexer->current_char)) {
@@ -157,15 +161,20 @@ void array_token_free(ArrayToken *token) {
 
 static char *read_identifier(ArrayLexer *lexer) {
     size_t start = lexer->position;
+    
+    // Allow letters, digits, and underscores in identifiers
     while (isalnum(lexer->current_char) || lexer->current_char == '_') {
         advance(lexer);
     }
     
     size_t length = lexer->position - start;
     char *identifier = malloc(length + 1);
+    if (!identifier) return NULL;
+    
     strncpy(identifier, &lexer->input[start], length);
     identifier[length] = '\0';
     
+    printf("Read identifier: '%s'\n", identifier);
     return identifier;
 }
 
@@ -204,6 +213,9 @@ static char *read_string(ArrayLexer *lexer) {
 }
 
 static ArrayTokenType check_keyword(const char *identifier) {
+    // Debug output
+    printf("Checking keyword: %s\n", identifier);
+
     struct {
         const char *keyword;
         ArrayTokenType type;
@@ -225,10 +237,12 @@ static ArrayTokenType check_keyword(const char *identifier) {
 
     for (int i = 0; keywords[i].keyword != NULL; i++) {
         if (strcmp(identifier, keywords[i].keyword) == 0) {
+            printf("Found keyword match: %s -> %d\n", identifier, keywords[i].type);
             return keywords[i].type;
         }
     }
     
+    printf("No keyword match found, treating as identifier\n");
     return ARRAY_TOKEN_IDENTIFIER;
 }
 
