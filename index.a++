@@ -1,3 +1,2 @@
-print(indexOf("Hello", "l")); // Outputs: 2
-print(indexOf("Hello", "o")); // Outputs: 4
-print(indexOf("Hello", "z")); // Outputs: -1
+print(toLowerCase("Hello WORLD")); // Outputs: hello world
+print(toUpperCase("Hello world")); // Outputs: HELLO WORLD

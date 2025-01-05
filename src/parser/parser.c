@@ -534,7 +534,12 @@ static ASTNode *parse_factor(Parser *parser)
     
     if (token->type == TOKEN_LENGTH || 
         token->type == TOKEN_CHAR_AT || 
+        token->type == TOKEN_LOWERCASE ||
+        token->type == TOKEN_UPPERCASE ||
         token->type == TOKEN_INDEX_OF ||
+        token->type == TOKEN_REVERSE ||
+        token->type == TOKEN_TRIM ||
+        token->type == TOKEN_REPEAT ||
         (token->type == TOKEN_IDENTIFIER && peek_char(parser->lexer) == '(')) {
         char *func_name = strdup(token->value);
         get_next_token(parser);

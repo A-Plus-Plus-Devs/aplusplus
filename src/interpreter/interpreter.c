@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 
 /*
  * Interpreter Implementation
@@ -501,6 +502,53 @@ char *execute_function(const char *name, ASTNode *arguments)
         char result[32];
         snprintf(result, sizeof(result), "%d", index);
         return strdup(result);
+    }
+
+    else if (strcmp(name, "toLowerCase") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: toLowerCase() requires a string argument\n");
+            return strdup("");
+        }
+
+        char *str_value = evaluate_string_expression(arguments);
+        if (!str_value)
+        {
+            printf("Error: Argument to toLowerCase() must be a string\n");
+            return strdup("");
+        }
+
+        // Convert string to lowercase
+        for (char *p = str_value; *p; p++)
+        {
+            *p = tolower((unsigned char)*p);
+        }
+
+        return str_value; // Return the modified string
+    }
+    else if (strcmp(name, "toUpperCase") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: toUpperCase() requires a string argument\n");
+            return strdup("");
+        }
+
+        char *str_value = evaluate_string_expression(arguments);
+        if (!str_value)
+        {
+            printf("Error: Argument to toUpperCase() must be a string\n");
+            return strdup("");
+        }
+
+        // Convert string to uppercase
+        for (char *p = str_value; *p; p++)
+        {
+            *p = toupper((unsigned char)*p);
+        }
+
+        return str_value; // Return the modified string
     }
 
     Function *func = find_function(name);
@@ -1423,6 +1471,22 @@ static void register_builtin_functions(void)
         .body = NULL};
     functions[function_count++] = replace_func;
 
+    // Register toLowerCase function
+    Function to_lower_func = {
+        .name = "toLowerCase",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = to_lower_func;
+
+    // Register toUpperCase function
+    Function to_upper_func = {
+        .name = "toUpperCase",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = to_upper_func;
+
     builtins_registered = true;
 }
 
@@ -2199,11 +2263,6 @@ static void handle_type_cast(ASTNode *node)
                     printf("Error: Cannot cast type to boolean\n");
                     exit(1);
                 }
-            }
-            else
-            {
-                printf("Error: Undefined variable in cast\n");
-                exit(1);
             }
         }
         else
