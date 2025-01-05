@@ -1,4 +1,22 @@
 @echo off
+:: A++ Programming Language Launcher Script (Windows CMD)
+:: 
+:: This script serves as the Windows command prompt launcher for the A++ compiler.
+:: It handles compiler compilation if needed and forwards arguments to the compiler.
+:: 
+:: Key features:
+:: - Automatic compiler building
+:: - Path resolution
+:: - Argument forwarding
+:: - Error handling
+::
+:: Original Author: Paul Kabulu
+:: Created: JAnuary 2025
+:: 
+:: Edited by:
+::
+:: File: src/scripts/a++.cmd
+
 setlocal
 
 rem Get the script directory and project root

@@ -83,12 +83,16 @@ typedef enum
     TOKEN_METHOD_CALL,  // .methodName
     TOKEN_ADD_LAST,     // .addLast
     TOKEN_REMOVE_LAST,  // .removeLast
-    TOKEN_LENGTH,       // .length
+    TOKEN_LENGTH,       // length function
     TOKEN_ADD_FIRST,    // .addFirst
     TOKEN_REMOVE_FIRST, // .removeFirst
     TOKEN_NOTHING_TYPE,  // For 'nothing' keyword
     TOKEN_EMPTY,        // For 'empty' keyword
     TOKEN_INPUT,
+    TOKEN_INDEX,
+    TOKEN_SUBSTRING,    
+    TOKEN_CONCAT,
+    TOKEN_REPLACE,
 } TokenType;
 
 // Define keywords

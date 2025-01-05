@@ -1,3 +1,25 @@
+/*
+ * Lexer Implementation
+ * 
+ * This file implements the lexical analyser (lexer) for the A++ programming language.
+ * It converts source code text into a sequence of tokens for the parser.
+ * 
+ * Key features:
+ * - Token identification and classification
+ * - Keyword recognition
+ * - Number and string literal handling
+ * - Operator and symbol processing
+ * - Comment handling
+ * - Error detection and reporting
+ *
+ * Original Author: Paul Kabulu
+ * Created: March 2024
+ * 
+ * Edited by:
+ *
+ * File: src/lexer/lexer.c
+ */
+
 #include "lexer.h"
 #include <stdbool.h>
 #include <stdlib.h>
@@ -67,7 +89,17 @@ static Token *identifier_or_keyword(Lexer *lexer)
     token->value = strdup(buffer);
 
     // Check for keywords
-    if (strcmp(buffer, "if") == 0)
+    if (strcmp(buffer, "length") == 0)
+        token->type = TOKEN_LENGTH;
+    else if (strcmp(buffer, "index") == 0)
+        token->type = TOKEN_INDEX;
+    else if (strcmp(buffer, "substring") == 0)
+        token->type = TOKEN_SUBSTRING;
+    else if (strcmp(buffer, "concat") == 0)
+        token->type = TOKEN_CONCAT;
+    else if (strcmp(buffer, "replace") == 0)
+        token->type = TOKEN_REPLACE;
+    else if (strcmp(buffer, "if") == 0)
         token->type = TOKEN_IF;
     else if (strcmp(buffer, "else") == 0)
         token->type = TOKEN_ELSE;
@@ -93,8 +125,6 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_ADD_LAST;
     else if (strcmp(buffer, "removeLast") == 0)
         token->type = TOKEN_REMOVE_LAST;
-    else if (strcmp(buffer, "length") == 0)
-        token->type = TOKEN_LENGTH;
     else if (strcmp(buffer, "addFirst") == 0)
         token->type = TOKEN_ADD_FIRST;
     else if (strcmp(buffer, "removeFirst") == 0)
@@ -195,7 +225,25 @@ static Token *string(Lexer *lexer)
 
     while (lexer->current_char != '"' && lexer->current_char != '\0')
     {
-        buffer[i++] = lexer->current_char;
+        // Handle escape sequences
+        if (lexer->current_char == '\\')
+        {
+            advance(lexer); // Move past the backslash
+            switch (lexer->current_char)
+            {
+                case 'n':
+                    buffer[i++] = '\n';
+                    break;
+                default:
+                    // For unsupported escape sequences, just include the character
+                    buffer[i++] = lexer->current_char;
+                    break;
+            }
+        }
+        else
+        {
+            buffer[i++] = lexer->current_char;
+        }
         advance(lexer);
     }
 
@@ -213,7 +261,6 @@ static Token *string(Lexer *lexer)
     Token *token = malloc(sizeof(Token));
     token->type = TOKEN_STRING;
     token->value = strdup(buffer);
-    // printf("Debug: Created string token: %s\n", token->value);
 
     return token;
 }

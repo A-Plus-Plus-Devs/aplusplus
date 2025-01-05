@@ -3,6 +3,26 @@
 #include <string.h>  // This includes the string manipulation library
 #include "ast.h"     // This includes our custom Abstract Syntax Tree (AST) header file
 
+/*
+ * Abstract Syntax Tree Implementation
+ * 
+ * This file implements the Abstract Syntax Tree (AST) data structure used to
+ * represent the syntactic structure of A++ programs.
+ * 
+ * Key features:
+ * - Node creation for various language constructs
+ * - Memory management for AST nodes
+ * - Support for expressions, statements, and declarations
+ * - Tree traversal and manipulation utilities
+ *
+ * Original Author: Paul Kabulu
+ * Created: August 2024
+ * 
+ * Edited by:
+ *
+ * File: src/ast/ast.c
+ */
+
 // This function creates a new AST node
 ASTNode *create_node(ASTNodeType type, ASTNode *left, ASTNode *right, const char *value)
 {
@@ -253,6 +273,22 @@ ASTNode *create_type_cast_node(const char *target_type, ASTNode *expr)
     node->left = expr;
     node->right = NULL;
     node->value = NULL;
+    node->next = NULL;
+    
+    return node;
+}
+
+// Add this function implementation
+ASTNode *create_compound_assign_node(char *var_name, ASTNode *right, const char *operator)
+{
+    ASTNode *node = (ASTNode *)malloc(sizeof(ASTNode));
+    if (!node) return NULL;
+    
+    node->type = NODE_COMPOUND_ASSIGN;
+    node->var_name = strdup(var_name);
+    node->right = right;
+    node->value = strdup(operator);  // Store the operator type
+    node->left = NULL;
     node->next = NULL;
     
     return node;

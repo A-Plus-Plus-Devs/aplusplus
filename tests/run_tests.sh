@@ -1,5 +1,25 @@
 #!/bin/bash
 
+# A++ Test Runner Script (Bash)
+# 
+# This script runs the test suite for the A++ programming language.
+# It executes test files and compares outputs against expected results.
+# 
+# Key features:
+# - Automated test execution
+# - Expected output validation
+# - Error case testing
+# - Detailed logging
+# - Colorized output
+# - Test summary generation
+#
+# Original Author: Paul Kabulu
+# Created: December 2024
+# 
+# Edited by:
+#
+# File: tests/run_tests.sh
+
 # Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'

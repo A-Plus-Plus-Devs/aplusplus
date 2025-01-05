@@ -76,7 +76,7 @@ string str3 = (string) yup;   // "yup"
 ```c
 // Input conversion
 float age = (float) input("Enter your age: ");  // "20" → 20.0
-float ageIn5Years = age * 5;
+float ageIn5Years = age + 5;
 print("In 5 years you will be: " + ageIn5Years);  // "25.0"
 
 int x = (int) 42.9;  // 42 (truncates decimal)
@@ -138,11 +138,13 @@ A++ has several reserved keywords:
 - `yup`: True value
 - `nope`: False value
 
-### Other Keywords
+### Built-in Functions
 - `print`: Output to console
 - `yap`: Alternative output
 - `echo`: Alternative output
 - `input`: Get user input
+- `length`: Get string length
+- `index`: Get character at string index
 
 ## Built-in Functions
 
@@ -159,4 +161,68 @@ echo("Hello");      // Alternative output
 string name = input("What is your name?"); // Standard input
 
 print("Hello, " + name);
+```
+
+## String Operations
+
+### String Functions
+```c
+// Get string length
+string name = "Paul";
+print(length(name));    // Output: 4
+
+// Get character at index
+print(index(name, 0));  // Output: "P"
+print(index(name, 3));  // Output: "l"
+
+// Get part of string from start to end index
+print(substring("hello", 1, 3));  // Output: "el"
+
+// Combine two strings into one
+print(concat("he", "llo"));  // Output: "hello"
+
+// Replace character at index with new char
+print(replace("hello", 0, "j"));  // Output: "jello"
+```
+
+### String Function Rules
+1. **length(string)**
+   - Returns the number of characters in a string
+   - Returns 0 for empty strings
+   - Works with both string literals and variables
+
+2. **index(string, int)**
+   - Returns the character at the specified index as a string
+   - Index starts at 0
+   - Returns empty string if index is out of bounds
+   - Works with both string literals and variables
+
+3. **substring(string, int, int)**
+   - Returns a portion of the string from start index (inclusive) to end index (exclusive)
+   - Returns empty string if indices are invalid
+   - Example: substring("hello", 1, 3) returns "el"
+
+4. **concat(string, string)**
+   - Combines two strings into one
+   - Alternative to + operator for strings
+   - Example: concat("he", "llo") returns "hello"
+
+5. **replace(string, int, char)**
+   - Returns a new string with the character at specified index replaced
+   - Returns original string if index is invalid
+   - Example: replace("hello", 0, "j") returns "jello"
+
+### Examples
+```c
+string message = "Hello, World!";
+print(length(message));     // Output: 13
+print(index(message, 0));   // Output: "H"
+print(index(message, 7));   // Output: "W"
+
+// Using with string literals
+print(length("A++"));       // Output: 3
+print(index("A++", 2));     // Output: "+"
+
+// Error handling
+print(index(message, 50));  // Output: "" (empty string, index out of bounds)
 ``` 

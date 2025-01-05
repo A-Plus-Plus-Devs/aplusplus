@@ -1,4 +1,25 @@
 @echo off
+:: A++ Test Runner Script (Windows CMD)
+:: 
+:: This script runs the test suite for the A++ programming language.
+:: It executes test files and compares outputs against expected results.
+:: 
+:: Key features:
+:: - Automated test execution
+:: - Expected output validation
+:: - Error case testing
+:: - Detailed logging
+:: - Colorized output
+:: - Test summary generation
+::
+:: Original Author: Paul Kabulu
+:: Created: January 2025
+:: 
+::
+:: Edited by:
+::
+:: File: tests/run_tests.cmd
+
 setlocal EnableDelayedExpansion
 
 rem Colors for output

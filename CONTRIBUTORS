@@ -1,0 +1,31 @@
+# A++ Contributors File
+
+This is a credits file for individuals who have contributed to the A++ project. It is sorted by name and formatted to allow easy grepping.
+
+The fields are as follows:
+
+- Name (N): Contributor's full name.
+- Email (E): Contact email address.
+- Website (W): Personal or professional web address (optional).
+- Description (D): Brief description of contributions to A++.
+- GitHub (G): GitHub profile (because we love seeing those commits).
+- Country/City (C): Country, City, or Both (only if you feel like sharing).
+
+To everyone listed here: your efforts have been instrumental in making A++ awesome. Thank you for your creativity, your code, and your belief in this project. We're grateful to have you on this journey!
+
+----------
+
+Contributors:
+
+- N: Paul Kabulu
+- E: pkabulu@gmail.com
+- W: https://www.linkedin.com/in/paul-kabulu-04aa9922a/
+- D: Lead developer and creator of the A++ programming language.
+- D: Designed core language features and compiler architecture.
+- G: @paulkabzz
+- C: Cape Town
+- C: South Africa
+
+
+#### Don't add your name here unless it belongs alphabetically. 
+#### This file must maintain alphabetical ordering by name.

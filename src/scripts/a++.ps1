@@ -1,3 +1,21 @@
+# A++ Programming Language Launcher Script (PowerShell)
+# 
+# This script serves as the Windows PowerShell launcher for the A++ compiler.
+# It handles compiler compilation if needed and forwards arguments to the compiler.
+# 
+# Key features:
+# - Automatic compiler building
+# - Path resolution
+# - Argument forwarding
+# - Error handling
+#
+# Original Author: Paul Kabulu
+# Created: January 2024
+# 
+# Edited by:
+#
+# File: src/scripts/a++.ps1
+
 # Get the absolute path of the script
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
 $PROJECT_ROOT = Split-Path -Parent (Split-Path -Parent $SCRIPT_DIR)

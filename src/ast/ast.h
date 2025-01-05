@@ -211,4 +211,14 @@ ASTNode *create_array_literal_node(ASTNode *elements);
  */
 ASTNode *create_type_cast_node(const char *target_type, ASTNode *expr);
 
+/**
+ * @brief Creates a compound assignment node (e.g., +=, -=, etc.).
+ * 
+ * @param var_name The name of the variable being modified.
+ * @param right The right-hand expression.
+ * @param operator The compound operator (e.g., "+=").
+ * @return ASTNode* A pointer to the newly created compound assignment node.
+ */
+ASTNode *create_compound_assign_node(char *var_name, ASTNode *right, const char *operator);
+
 #endif // AST_H

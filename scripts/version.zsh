@@ -1,5 +1,24 @@
 #!/usr/bin/env zsh
 
+# A++ Version Management Script (Zsh)
+# 
+# This script manages version numbers for the A++ programming language.
+# It handles version bumping, setting specific versions, and Git tagging.
+# 
+# Key features:
+# - Semantic versioning support (major.minor.patch)
+# - Automatic version file updates
+# - Git integration for version tagging
+# - Version history management
+# - Easy version switching
+#
+# Original Author: Paul Kabulu
+# Created: Janury 2025
+# 
+# Edited by:
+#
+# File: scripts/version.zsh
+
 # Get the project root directory by following the symlink
 if [[ -L "$0" ]]; then
     SCRIPT_PATH=$(readlink "$0")

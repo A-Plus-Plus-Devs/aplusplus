@@ -4,6 +4,28 @@
 #include "parser.h"
 #include <limits.h>
 
+/*
+ * Parser Implementation
+ * 
+ * This file contains the implementation of a recursive descent parser for a custom programming language.
+ * It parses tokens from the lexer and builds an Abstract Syntax Tree (AST) representation of the code.
+ * 
+ * Key features:
+ * - Handles variable declarations and assignments
+ * - Parses arithmetic and logical expressions
+ * - Supports control flow (if statements, for loops)
+ * - Handles function definitions and calls
+ * - Supports arrays and array operations
+ * - Includes input/output operations
+ *
+ * Original Author: Paul Kabulu
+ * Created: August 2024
+ * 
+ * Edited by:
+ *
+ * File: src/parser/parser.c
+ */
+
 // These are function declarations. They tell the compiler that these functions will be defined later.
 static ASTNode *parse_statement(Parser *parser);
 static ASTNode *parse_assignment(Parser *parser);
@@ -293,13 +315,8 @@ void free_parser(Parser *parser)
 // This function parses a single statement from the source code
 static ASTNode *parse_assignment(Parser *parser)
 {
-    if (parser->current_token->type != TOKEN_IDENTIFIER)
-    {
-        return NULL;
-    }
-
     char *var_name = strdup(parser->current_token->value);
-    get_next_token(parser);
+    get_next_token(parser); // consume identifier
 
     TokenType assign_type = parser->current_token->type;
     if (assign_type != TOKEN_ASSIGN && 
@@ -340,6 +357,16 @@ static ASTNode *parse_assignment(Parser *parser)
         return NULL;
     }
 
+    // Check for semicolon
+    if (parser->current_token->type != TOKEN_SEMICOLON)
+    {
+        printf("Error: Expected semicolon after assignment\n");
+        free(var_name);
+        free_ast(value);
+        return NULL;
+    }
+    get_next_token(parser); // consume semicolon
+
     if (op) {
         // For compound assignments (+=, -=, etc.), create a binary operation node
         ASTNode *var_node = create_node(NODE_LITERAL, NULL, NULL, var_name);
@@ -348,6 +375,27 @@ static ASTNode *parse_assignment(Parser *parser)
     } else {
         // For simple assignment (=)
         return create_assignment_node(var_name, value);
+    }
+
+    if (parser->current_token->type == TOKEN_PLUS_ASSIGN) {
+        // Handle string concatenation with +=
+        get_next_token(parser); // consume +=
+        
+        ASTNode *right = parse_expression(parser);
+        if (!right) {
+            free(var_name);
+            return NULL;
+        }
+
+        if (parser->current_token->type != TOKEN_SEMICOLON) {
+            printf("Error: Expected ';' after assignment\n");
+            free(var_name);
+            free_ast(right);
+            return NULL;
+        }
+        get_next_token(parser); // consume ;
+
+        return create_compound_assign_node(var_name, right, "+=");
     }
 }
 
@@ -486,6 +534,64 @@ static ASTNode *parse_factor(Parser *parser)
     printf("DEBUG: parse_factor - token type: %d, value: %s\n", token->type, 
            token->value ? token->value : "NULL");
 
+    
+    if (token->type == TOKEN_LENGTH || token->type == TOKEN_INDEX || 
+        (token->type == TOKEN_IDENTIFIER && peek_char(parser->lexer) == '(')) {
+        char *func_name = strdup(token->value);
+        get_next_token(parser);
+        
+        if (parser->current_token->type != TOKEN_LPAREN) {
+            printf("Error: Expected '(' after function name\n");
+            free(func_name);
+            return NULL;
+        }
+        get_next_token(parser);
+        
+        ASTNode *argument = NULL;
+        ASTNode *current_arg = NULL;
+
+        // Parse arguments until we hit the closing parenthesis
+        while (parser->current_token->type != TOKEN_RPAREN) {
+            ASTNode *next_arg = parse_expression(parser);
+            if (!next_arg) {
+                printf("Error: Invalid argument in function call\n");
+                free(func_name);
+                if (argument) free_ast(argument);
+                return NULL;
+            }
+
+            if (!argument) {
+                argument = next_arg;
+                current_arg = argument;
+            } else {
+                current_arg->next = next_arg;
+                current_arg = next_arg;
+            }
+
+            // Check for comma if there might be more arguments
+            if (parser->current_token->type == TOKEN_COMMA) {
+                get_next_token(parser); // consume comma
+            } else if (parser->current_token->type != TOKEN_RPAREN) {
+                printf("Error: Expected ',' or ')' after function argument\n");
+                free(func_name);
+                free_ast(argument);
+                return NULL;
+            }
+        }
+        
+        if (parser->current_token->type != TOKEN_RPAREN) {
+            printf("Error: Expected ')' after function argument\n");
+            free(func_name);
+            if (argument) free_ast(argument);
+            return NULL;
+        }
+        get_next_token(parser);
+        
+        ASTNode *node = create_function_call_node(func_name, argument);
+        free(func_name);
+        return node;
+    }
+    
     // Add handling for unary minus
     if (token->type == TOKEN_MINUS)
     {
@@ -698,11 +804,102 @@ static ASTNode *parse_factor(Parser *parser)
         return parse_input(parser);
     }
 
+    // handling for length function
+    if (token->type == TOKEN_LENGTH) {
+        printf("DEBUG: Parsing length function call\n");
+        get_next_token(parser); // consume 'length'
+        
+        // Check for opening parenthesis
+        if (parser->current_token->type != TOKEN_LPAREN) {
+            printf("Error: Expected '(' after length\n");
+            return NULL;
+        }
+        get_next_token(parser); // consume '('
+        
+        // Parse the argument
+        ASTNode *argument = parse_expression(parser);
+        if (!argument) {
+            printf("Error: Invalid argument to length function\n");
+            return NULL;
+        }
+        
+        // Check for closing parenthesis
+        if (parser->current_token->type != TOKEN_RPAREN) {
+            printf("Error: Expected ')' after length argument\n");
+            free_ast(argument);
+            return NULL;
+        }
+        get_next_token(parser); // consume ')'
+        
+        return create_function_call_node("length", argument);
+    }
+
+    // Handle function calls
+    if (parser->current_token->type == TOKEN_IDENTIFIER ||
+        parser->current_token->type == TOKEN_LENGTH ||
+        parser->current_token->type == TOKEN_INDEX ||
+        parser->current_token->type == TOKEN_SUBSTRING || 
+        parser->current_token->type == TOKEN_CONCAT ||
+        parser->current_token->type == TOKEN_REPLACE)
+    {
+        char *function_name = strdup(parser->current_token->value);
+        get_next_token(parser); // Consume function name
+
+        if (parser->current_token->type != TOKEN_LPAREN)
+        {
+            printf("Error: Expected '(' after function name\n");
+            free(function_name);
+            return NULL;
+        }
+        get_next_token(parser); // Consume (
+
+        // Parse arguments
+        ASTNode *arguments = NULL;
+        ASTNode *current_arg = NULL;
+
+        while (parser->current_token->type != TOKEN_RPAREN)
+        {
+            ASTNode *arg = parse_expression(parser);
+            if (!arg)
+            {
+                printf("Error: Invalid function argument\n");
+                free(function_name);
+                return NULL;
+            }
+
+            if (!arguments)
+            {
+                arguments = arg;
+                current_arg = arg;
+            }
+            else
+            {
+                current_arg->next = arg;
+                current_arg = arg;
+            }
+
+            if (parser->current_token->type == TOKEN_COMMA)
+            {
+                get_next_token(parser); // Consume ,
+            }
+            else if (parser->current_token->type != TOKEN_RPAREN)
+            {
+                printf("Error: Expected ',' or ')' in function arguments\n");
+                free(function_name);
+                return NULL;
+            }
+        }
+
+        get_next_token(parser); // Consume )
+
+        return create_function_call_node(function_name, arguments);
+    }
+
     printf("Error: Unexpected token in factor: %d\n", token->type);
     return NULL;
 }
 
-// Add parsing for if statements
+//  parsing for if statements
 static ASTNode *parse_if_statement(Parser *parser)
 {
     get_next_token(parser); // consume 'if'

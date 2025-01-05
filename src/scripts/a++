@@ -1,5 +1,23 @@
 #!/bin/bash
 
+# A++ Programming Language Launcher Script (Bash)
+# 
+# This script serves as the Unix/Linux launcher for the A++ programming language compiler.
+# It handles compiler compilation if needed and forwards arguments to the compiler.
+# 
+# Key features:
+# - Automatic compiler building
+# - Path resolution
+# - Argument forwarding
+# - Error handling
+#
+# Original Author: Paul Kabulu
+# Created: December 2024
+# 
+# Edited by:
+#
+# File: src/scripts/a++
+
 # Get the absolute path of the script
 if [ -L "$0" ]; then
     SCRIPT_PATH=$(readlink "$0")
