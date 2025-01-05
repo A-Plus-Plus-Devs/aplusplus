@@ -1043,6 +1043,83 @@ char *execute_function(const char *name, ASTNode *arguments)
         return strdup(str_result);
     }
 
+    else if (strcmp(name, "sqrt") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: sqrt() requires one argument\n");
+            return strdup("0");
+        }
+
+        double number = evaluate_float_expression(arguments);
+        if (number < 0)
+        {
+            printf("Error: Cannot calculate square root of negative number\n");
+            return strdup("0");
+        }
+
+        double result = sqrt(number);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "cbrt") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: cbrt() requires one argument\n");
+            return strdup("0");
+        }
+
+        double number = evaluate_float_expression(arguments);
+        double result = cbrt(number); // cbrt handles negative numbers correctly
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "root") == 0)
+    {
+        if (!arguments || !arguments->next)
+        {
+            printf("Error: root() requires two arguments: number and nth root\n");
+            return strdup("0");
+        }
+
+        double number = evaluate_float_expression(arguments);
+        double n = evaluate_float_expression(arguments->next);
+        
+        // Check for valid input
+        if (n == 0)
+        {
+            printf("Error: Root index cannot be zero\n");
+            return strdup("0");
+        }
+
+        // Handle even roots of negative numbers
+        if (number < 0 && fmod(n, 2) == 0)
+        {
+            printf("Error: Cannot calculate even root of negative number\n");
+            return strdup("0");
+        }
+
+        // Calculate nth root using power function
+        double result;
+        if (number < 0)
+        {
+            // For negative numbers, calculate the root of absolute value
+            // and then negate the result
+            result = -pow(-number, 1.0 / n);
+        }
+        else
+        {
+            result = pow(number, 1.0 / n);
+        }
+
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+
     Function *func = find_function(name);
     if (!func)
     {
@@ -2107,6 +2184,28 @@ static void register_builtin_functions(void)
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = now_func;
+
+    // Register root functions
+    Function sqrt_func = {
+        .name = "sqrt",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = sqrt_func;
+
+    Function cbrt_func = {
+        .name = "cbrt",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = cbrt_func;
+
+    Function root_func = {
+        .name = "root",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = root_func;
 
     builtins_registered = true;
 }

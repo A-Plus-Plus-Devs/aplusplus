@@ -121,6 +121,10 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_ROUND;
     else if (strcmp(buffer, "sqrt") == 0)
         token->type = TOKEN_SQRT;
+    else if (strcmp(buffer, "cbrt") == 0)
+        token->type = TOKEN_CBRT;
+    else if (strcmp(buffer, "root") == 0)
+        token->type = TOKEN_ROOT;
     else if (strcmp(buffer, "sin") == 0)
         token->type = TOKEN_SIN;
     else if (strcmp(buffer, "cos") == 0)

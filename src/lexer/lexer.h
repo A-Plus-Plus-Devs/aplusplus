@@ -108,6 +108,8 @@ typedef enum
     TOKEN_FLOOR,
     TOKEN_ROUND,
     TOKEN_SQRT,
+    TOKEN_CBRT,
+    TOKEN_ROOT,
     TOKEN_SIN,
     TOKEN_COS,
     TOKEN_TAN,

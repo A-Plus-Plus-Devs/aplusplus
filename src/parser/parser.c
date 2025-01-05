@@ -545,6 +545,8 @@ static ASTNode *parse_factor(Parser *parser)
         token->type == TOKEN_FLOOR ||
         token->type == TOKEN_ROUND ||
         token->type == TOKEN_SQRT ||
+        token->type == TOKEN_CBRT ||
+        token->type == TOKEN_ROOT ||
         token->type == TOKEN_SIN ||
         token->type == TOKEN_COS ||
         token->type == TOKEN_TAN ||

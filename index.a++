@@ -1,10 +1,10 @@
-print(date());           // Outputs: 2024-03-14
-print(date("Y"));       // Outputs: 2024
-print(date("M"));       // Outputs: 03
-print(date("D"));       // Outputs: 14
-print(date("Y", "M")); // Outputs: 2024-03
-print(date("M", "D")); // Outputs: 03-14
-print(date("Y", "D")); // Outputs: 2024-14
+print(sqrt(16));       // Outputs: 4
+print(sqrt(2));        // Outputs: 1.414213562
 
-print(time());          // Outputs: 15:30:45
-print(now());          // Outputs: 2024-03-14 15:30:45
+print(cbrt(27));       // Outputs: 3
+print(cbrt(-8));       // Outputs: -2
+
+print(root(16, 2));    // Outputs: 4 (same as sqrt)
+print(root(27, 3));    // Outputs: 3 (same as cbrt)
+print(root(16, 4));    // Outputs: 2 (fourth root)
+print(root(-27, 3));   // Outputs: -3 (works with odd roots of negative numbers)
