@@ -862,6 +862,95 @@ char *execute_function(const char *name, ASTNode *arguments)
         }
     }
 
+    else if (strcmp(name, "sin") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: sin() requires one argument\n");
+            return strdup("0");
+        }
+        double angle = evaluate_float_expression(arguments);
+        double result = sin(angle);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "cos") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: cos() requires one argument\n");
+            return strdup("0");
+        }
+        double angle = evaluate_float_expression(arguments);
+        double result = cos(angle);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "tan") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: tan() requires one argument\n");
+            return strdup("0");
+        }
+        double angle = evaluate_float_expression(arguments);
+        double result = tan(angle);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "asin") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: asin() requires one argument\n");
+            return strdup("0");
+        }
+        double value = evaluate_float_expression(arguments);
+        if (value < -1 || value > 1)
+        {
+            printf("Error: asin() argument must be between -1 and 1\n");
+            return strdup("0");
+        }
+        double result = asin(value);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "acos") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: acos() requires one argument\n");
+            return strdup("0");
+        }
+        double value = evaluate_float_expression(arguments);
+        if (value < -1 || value > 1)
+        {
+            printf("Error: acos() argument must be between -1 and 1\n");
+            return strdup("0");
+        }
+        double result = acos(value);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "atan") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: atan() requires one argument\n");
+            return strdup("0");
+        }
+        double value = evaluate_float_expression(arguments);
+        double result = atan(value);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+
     Function *func = find_function(name);
     if (!func)
     {
@@ -1861,6 +1950,49 @@ static void register_builtin_functions(void)
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = max_func;
+
+    // Register trigonometric functions
+    Function sin_func = {
+        .name = "sin",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = sin_func;
+
+    Function cos_func = {
+        .name = "cos",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = cos_func;
+
+    Function tan_func = {
+        .name = "tan",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = tan_func;
+
+    Function asin_func = {
+        .name = "asin",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = asin_func;
+
+    Function acos_func = {
+        .name = "acos",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = acos_func;
+
+    Function atan_func = {
+        .name = "atan",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = atan_func;
 
     builtins_registered = true;
 }

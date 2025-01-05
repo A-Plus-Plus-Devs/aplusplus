@@ -127,6 +127,12 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_COS;
     else if (strcmp(buffer, "tan") == 0)
         token->type = TOKEN_TAN;
+    else if (strcmp(buffer, "arctan") == 0)
+        token->type = TOKEN_ARCTAN;
+    else if (strcmp(buffer, "arcsin") == 0)
+        token->type = TOKEN_ARCSIN;
+    else if (strcmp(buffer, "arccos") == 0)
+        token->type = TOKEN_ARCCOS;
     else if (strcmp(buffer, "max") == 0)
         token->type = TOKEN_MAX;
     else if (strcmp(buffer, "min") == 0)

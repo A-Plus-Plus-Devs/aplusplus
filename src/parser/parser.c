@@ -548,6 +548,9 @@ static ASTNode *parse_factor(Parser *parser)
         token->type == TOKEN_SIN ||
         token->type == TOKEN_COS ||
         token->type == TOKEN_TAN ||
+        token->type == TOKEN_ARCTAN ||
+        token->type == TOKEN_ARCSIN ||
+        token->type == TOKEN_ARCCOS ||
         token->type == TOKEN_MAX ||
         token->type == TOKEN_MIN ||
         token->type == TOKEN_RANDOM ||
