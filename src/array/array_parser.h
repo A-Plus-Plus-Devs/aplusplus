@@ -3,7 +3,7 @@
 
 #include "array_lexer.h"
 #include "array_ast.h"
-#include "array.h"  // For forward declaration
+#include "array.h"
 
 // Define the actual structure (using the forward declaration from array.h)
 struct ArrayParser {
@@ -18,10 +18,6 @@ void array_parser_free(ArrayParser *parser);
 
 // Main parsing functions
 ArrayASTNode *array_parse(ArrayParser *parser);
-ArrayASTNode *array_parse_declaration(ArrayParser *parser);
-ArrayASTNode *array_parse_literal(ArrayParser *parser);
-ArrayASTNode *array_parse_method_call(ArrayParser *parser, const char *array_name);
-ArrayASTNode *array_parse_access(ArrayParser *parser, const char *array_name);
 
 // Error handling
 void array_parser_error(ArrayParser *parser, const char *message);

@@ -3,46 +3,239 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Forward declarations of helper functions
+// Forward declarations of all helper functions
 static void advance_token(ArrayParser *parser);
 static bool expect_token(ArrayParser *parser, ArrayTokenType type);
 static VariableType token_to_variable_type(ArrayTokenType type);
 static ArrayASTNode *parse_array_elements(ArrayParser *parser);
 static ArrayASTNode *array_parse_expression(ArrayParser *parser);
 static ArrayASTNode *array_parse_statement(ArrayParser *parser);
+static ArrayASTNode *array_parse_method_call(ArrayParser *parser, const char *array_name);
+static ArrayASTNode *array_parse_array_operation(ArrayParser *parser, const char *name);
+static ArrayASTNode *array_parse_literal(ArrayParser *parser);
+static ArrayASTNode *array_create_assignment_node(const char *name, ArrayASTNode *value);
+static ArrayASTNode *array_create_print_node(ArrayASTNode *expr);
+static void debug_token(ArrayParser *parser, const char *location);
 
-// Add missing AST node creation functions
-static ArrayASTNode *array_create_assignment_node(const char *name, ArrayASTNode *value) {
-    ArrayASTNode *node = malloc(sizeof(ArrayASTNode));
-    if (!node) return NULL;
-    
-    node->type = ARRAY_NODE_ASSIGNMENT;
-    node->array_name = strdup(name);
-    node->children = value;
-    node->next = NULL;
-    return node;
+// Debug function implementation
+static void debug_token(ArrayParser *parser, const char *location) {
+    printf("DEBUG [%s] Current token: type=%d, value='%s'\n", 
+           location,
+           parser->current_token->type,
+           parser->current_token->value ? parser->current_token->value : "NULL");
 }
 
-static ArrayASTNode *array_create_print_node(ArrayASTNode *expr) {
-    ArrayASTNode *node = malloc(sizeof(ArrayASTNode));
-    if (!node) return NULL;
+// Helper function implementations
+static void advance_token(ArrayParser *parser) {
+    printf("DEBUG: Advancing token from type=%d", 
+           parser->current_token ? parser->current_token->type : -1);
     
-    node->type = ARRAY_NODE_PRINT;
-    node->children = expr;
-    node->array_name = NULL;
-    node->next = NULL;
-    return node;
+    array_token_free(parser->current_token);
+    parser->current_token = parser->peek_token;
+    parser->peek_token = array_lexer_next_token(parser->lexer);
+    
+    printf(" to type=%d\n", 
+           parser->current_token ? parser->current_token->type : -1);
 }
 
+static bool expect_token(ArrayParser *parser, ArrayTokenType type) {
+    printf("DEBUG: Expecting token type %d, got %d\n", type, parser->current_token->type);
+    
+    if (parser->current_token->type != type) {
+        char error[100];
+        snprintf(error, sizeof(error), "Expected token type %d, got %d", 
+                type, parser->current_token->type);
+        array_parser_error(parser, error);
+        return false;
+    }
+    advance_token(parser);
+    return true;
+}
+
+// Implementation of array_parse_literal
+static ArrayASTNode *array_parse_literal(ArrayParser *parser) {
+    printf("DEBUG: Parsing array literal\n");
+    return parse_array_elements(parser);
+}
+
+// Implementation of array_parse_method_call
+static ArrayASTNode *array_parse_method_call(ArrayParser *parser, const char *array_name) {
+    printf("DEBUG: Parsing method call for array '%s'\n", array_name);
+    debug_token(parser, "method_call");
+
+    ArrayNodeType method_type;
+    switch (parser->current_token->type) {
+        case ARRAY_TOKEN_METHOD_ADD_LAST:
+            method_type = ARRAY_NODE_ADD_LAST;
+            break;
+        case ARRAY_TOKEN_METHOD_ADD_FIRST:
+            method_type = ARRAY_NODE_ADD_FIRST;
+            break;
+        case ARRAY_TOKEN_METHOD_REMOVE_LAST:
+            method_type = ARRAY_NODE_REMOVE_LAST;
+            break;
+        case ARRAY_TOKEN_METHOD_REMOVE_FIRST:
+            method_type = ARRAY_NODE_REMOVE_FIRST;
+            break;
+        case ARRAY_TOKEN_METHOD_LENGTH:
+            method_type = ARRAY_NODE_LENGTH;
+            break;
+        default:
+            array_parser_error(parser, "Unknown array method");
+            return NULL;
+    }
+
+    advance_token(parser);
+    ArrayASTNode *argument = NULL;
+
+    if (method_type != ARRAY_NODE_LENGTH) {
+        if (!expect_token(parser, ARRAY_TOKEN_LPAREN)) return NULL;
+        argument = array_parse_expression(parser);
+        if (!argument) return NULL;
+        if (!expect_token(parser, ARRAY_TOKEN_RPAREN)) {
+            array_free_ast(argument);
+            return NULL;
+        }
+    }
+
+    if (!expect_token(parser, ARRAY_TOKEN_TERM)) {
+        if (argument) array_free_ast(argument);
+        return NULL;
+    }
+
+    return array_create_method_node(method_type, array_name, argument);
+}
+
+// Add the implementation of array_parse_array_operation
 static ArrayASTNode *array_parse_array_operation(ArrayParser *parser, const char *name) {
-    if (parser->current_token->type == ARRAY_TOKEN_DOT) {
+    printf("DEBUG: Entering array_parse_array_operation with name='%s'\n", name);
+    debug_token(parser, "array_parse_array_operation");
+
+    if (parser->current_token->type == ARRAY_TOKEN_LESS_THAN) {
+        printf("DEBUG: Found array declaration pattern for array '%s'\n", name);
+        advance_token(parser); // consume <
+
+        // Parse type
+        if (parser->current_token->type != ARRAY_TOKEN_TYPE_INT &&
+            parser->current_token->type != ARRAY_TOKEN_TYPE_STRING &&
+            parser->current_token->type != ARRAY_TOKEN_TYPE_FLOAT &&
+            parser->current_token->type != ARRAY_TOKEN_TYPE_BOOL &&
+            parser->current_token->type != ARRAY_TOKEN_TYPE_CHAR) {
+            array_parser_error(parser, "Expected type after <");
+            return NULL;
+        }
+
+        VariableType type = token_to_variable_type(parser->current_token->type);
+        printf("DEBUG: Array type: %d\n", type);
+        advance_token(parser);
+
+        if (!expect_token(parser, ARRAY_TOKEN_GREATER_THAN)) return NULL;
+        if (!expect_token(parser, ARRAY_TOKEN_ASSIGN)) return NULL;
+        if (!expect_token(parser, ARRAY_TOKEN_LBRACKET)) return NULL;
+
+        ArrayASTNode *elements = parse_array_elements(parser);
+        if (!elements) return NULL;
+
+        if (!expect_token(parser, ARRAY_TOKEN_RBRACKET)) {
+            array_free_ast(elements);
+            return NULL;
+        }
+
+        if (!expect_token(parser, ARRAY_TOKEN_TERM)) {
+            array_free_ast(elements);
+            return NULL;
+        }
+
+        return array_create_declaration_node(name, type, elements);
+    } 
+    else if (parser->current_token->type == ARRAY_TOKEN_DOT) {
+        printf("DEBUG: Found method call pattern for array '%s'\n", name);
         advance_token(parser); // consume dot
         return array_parse_method_call(parser, name);
-    } else if (parser->current_token->type == ARRAY_TOKEN_LESS_THAN) {
-        advance_token(parser); // consume <
-        return array_parse_declaration(parser);
     }
+
+    printf("DEBUG: No valid array operation found for '%s'\n", name);
     return NULL;
+}
+
+// Rest of the implementations...
+
+// Main parsing function
+ArrayASTNode *array_parse(ArrayParser *parser) {
+    printf("DEBUG: Starting array parse\n");
+    ArrayASTNode *statement = NULL;
+
+    // First token should be identifier (array name)
+    if (parser->current_token->type == ARRAY_TOKEN_IDENTIFIER) {
+        const char *array_name = strdup(parser->current_token->value);
+        printf("DEBUG: Found array name: %s\n", array_name);
+        advance_token(parser);
+
+        // Check for array declaration or method call
+        if (parser->current_token->type == ARRAY_TOKEN_LESS_THAN) {
+            printf("DEBUG: Found array declaration for %s\n", array_name);
+            advance_token(parser); // consume <
+
+            // Parse type
+            if (parser->current_token->type != ARRAY_TOKEN_TYPE_INT &&
+                parser->current_token->type != ARRAY_TOKEN_TYPE_STRING &&
+                parser->current_token->type != ARRAY_TOKEN_TYPE_FLOAT &&
+                parser->current_token->type != ARRAY_TOKEN_TYPE_BOOL &&
+                parser->current_token->type != ARRAY_TOKEN_TYPE_CHAR) {
+                array_parser_error(parser, "Expected type after <");
+                free((void*)array_name);
+                return NULL;
+            }
+
+            VariableType type = token_to_variable_type(parser->current_token->type);
+            printf("DEBUG: Array type: %d\n", type);
+            advance_token(parser);
+
+            if (!expect_token(parser, ARRAY_TOKEN_GREATER_THAN)) {
+                free((void*)array_name);
+                return NULL;
+            }
+
+            if (!expect_token(parser, ARRAY_TOKEN_ASSIGN)) {
+                free((void*)array_name);
+                return NULL;
+            }
+
+            if (!expect_token(parser, ARRAY_TOKEN_LBRACKET)) {
+                free((void*)array_name);
+                return NULL;
+            }
+
+            ArrayASTNode *elements = parse_array_elements(parser);
+            if (!elements) {
+                free((void*)array_name);
+                return NULL;
+            }
+
+            if (!expect_token(parser, ARRAY_TOKEN_RBRACKET)) {
+                array_free_ast(elements);
+                free((void*)array_name);
+                return NULL;
+            }
+
+            if (!expect_token(parser, ARRAY_TOKEN_TERM)) {
+                array_free_ast(elements);
+                free((void*)array_name);
+                return NULL;
+            }
+
+            statement = array_create_declaration_node(array_name, type, elements);
+            free((void*)array_name);
+        }
+        else if (parser->current_token->type == ARRAY_TOKEN_DOT) {
+            printf("DEBUG: Found method call for %s\n", array_name);
+            advance_token(parser); // consume dot
+            statement = array_parse_method_call(parser, array_name);
+            free((void*)array_name);
+        }
+    }
+
+    return statement;
 }
 
 ArrayParser *array_parser_init(ArrayLexer *lexer) {
@@ -62,24 +255,6 @@ void array_parser_free(ArrayParser *parser) {
         array_token_free(parser->peek_token);
         free(parser);
     }
-}
-
-static void advance_token(ArrayParser *parser) {
-    array_token_free(parser->current_token);
-    parser->current_token = parser->peek_token;
-    parser->peek_token = array_lexer_next_token(parser->lexer);
-}
-
-static bool expect_token(ArrayParser *parser, ArrayTokenType type) {
-    if (parser->current_token->type != type) {
-        char error[100];
-        snprintf(error, sizeof(error), "Expected token type %d, got %d", 
-                type, parser->current_token->type);
-        array_parser_error(parser, error);
-        return false;
-    }
-    advance_token(parser);
-    return true;
 }
 
 static ArrayASTNode *array_parse_statement(ArrayParser *parser) {
@@ -117,10 +292,6 @@ static ArrayASTNode *array_parse_statement(ArrayParser *parser) {
             return NULL;
     }
     return NULL;
-}
-
-ArrayASTNode *array_parse(ArrayParser *parser) {
-    return array_parse_statement(parser);
 }
 
 ArrayASTNode *array_parse_declaration(ArrayParser *parser) {
@@ -179,79 +350,6 @@ ArrayASTNode *array_parse_declaration(ArrayParser *parser) {
     return array_create_declaration_node(array_name, type, elements);
 }
 
-ArrayASTNode *array_parse_literal(ArrayParser *parser) {
-    if (!expect_token(parser, ARRAY_TOKEN_LBRACKET)) return NULL;
-    
-    ArrayASTNode *elements = parse_array_elements(parser);
-    
-    if (!expect_token(parser, ARRAY_TOKEN_RBRACKET)) {
-        array_free_ast(elements);
-        return NULL;
-    }
-    
-    return array_create_literal_node(elements);
-}
-
-ArrayASTNode *array_parse_method_call(ArrayParser *parser, const char *array_name) {
-    printf("Parsing method call for array: %s\n", array_name);
-    
-    // Get the method name
-    if (!parser->current_token) {
-        array_parser_error(parser, "Unexpected end of input");
-        return NULL;
-    }
-
-    ArrayNodeType method_type;
-    switch (parser->current_token->type) {
-        case ARRAY_TOKEN_METHOD_ADD_LAST:
-            method_type = ARRAY_NODE_ADD_LAST;
-            break;
-        case ARRAY_TOKEN_METHOD_ADD_FIRST:
-            method_type = ARRAY_NODE_ADD_FIRST;
-            break;
-        case ARRAY_TOKEN_METHOD_REMOVE_LAST:
-            method_type = ARRAY_NODE_REMOVE_LAST;
-            break;
-        case ARRAY_TOKEN_METHOD_REMOVE_FIRST:
-            method_type = ARRAY_NODE_REMOVE_FIRST;
-            break;
-        case ARRAY_TOKEN_METHOD_LENGTH:
-            method_type = ARRAY_NODE_LENGTH;
-            break;
-        default:
-            printf("Unknown method token type: %d\n", parser->current_token->type);
-            array_parser_error(parser, "Unknown array method");
-            return NULL;
-    }
-    advance_token(parser);  // Move past method name
-
-    // Handle method arguments if needed
-    ArrayASTNode *argument = NULL;
-    if (method_type == ARRAY_NODE_ADD_LAST || method_type == ARRAY_NODE_ADD_FIRST) {
-        if (!parser->current_token || parser->current_token->type != ARRAY_TOKEN_LPAREN) {
-            array_parser_error(parser, "Expected '(' after method name");
-            return NULL;
-        }
-        advance_token(parser);  // Move past '('
-
-        // Parse argument
-        argument = array_parse_expression(parser);
-        if (!argument) {
-            array_parser_error(parser, "Invalid method argument");
-            return NULL;
-        }
-
-        if (!parser->current_token || parser->current_token->type != ARRAY_TOKEN_RPAREN) {
-            array_parser_error(parser, "Expected ')' after method argument");
-            array_free_ast(argument);
-            return NULL;
-        }
-        advance_token(parser);  // Move past ')'
-    }
-
-    return array_create_method_node(method_type, array_name, argument);
-}
-
 ArrayASTNode *array_parse_access(ArrayParser *parser, const char *array_name) {
     if (!expect_token(parser, ARRAY_TOKEN_LBRACKET)) return NULL;
     
@@ -267,25 +365,40 @@ ArrayASTNode *array_parse_access(ArrayParser *parser, const char *array_name) {
 }
 
 static ArrayASTNode *parse_array_elements(ArrayParser *parser) {
-    if (parser->current_token->type == ARRAY_TOKEN_RBRACKET) {
-        return NULL; // Empty array
-    }
+    printf("DEBUG: Starting to parse array elements\n");
+    ArrayASTNode *first = NULL;
+    ArrayASTNode *current = NULL;
 
-    ArrayASTNode *first_element = array_parse_expression(parser);
-    if (!first_element) return NULL;
+    while (parser->current_token->type != ARRAY_TOKEN_RBRACKET) {
+        printf("DEBUG: Parsing array element\n");
+        debug_token(parser, "parse_array_elements");
 
-    ArrayASTNode *current = first_element;
-    while (parser->current_token->type == ARRAY_TOKEN_COMMA) {
-        advance_token(parser); // consume comma
-        current->next = array_parse_expression(parser);
-        if (!current->next) {
-            array_free_ast(first_element);
+        ArrayASTNode *element = array_parse_expression(parser);
+        if (!element) {
+            printf("DEBUG: Failed to parse element\n");
+            if (first) array_free_ast(first);
             return NULL;
         }
-        current = current->next;
+
+        if (!first) {
+            first = element;
+            current = element;
+        } else {
+            current->next = element;
+            current = element;
+        }
+
+        if (parser->current_token->type == ARRAY_TOKEN_COMMA) {
+            printf("DEBUG: Found comma, continuing to next element\n");
+            advance_token(parser);
+        } else {
+            printf("DEBUG: No comma found, ending element list\n");
+            break;
+        }
     }
 
-    return first_element;
+    printf("DEBUG: Finished parsing array elements\n");
+    return first;
 }
 
 static ArrayASTNode *array_parse_expression(ArrayParser *parser) {
@@ -333,7 +446,7 @@ static VariableType token_to_variable_type(ArrayTokenType type) {
 
 void array_parser_error(ArrayParser *parser, const char *message) {
     fprintf(stderr, "Parser error at line %zu, column %zu: %s\n",
-            parser->current_token->line,
-            parser->current_token->column,
+            parser->lexer->line,
+            parser->lexer->column,
             message);
 } 

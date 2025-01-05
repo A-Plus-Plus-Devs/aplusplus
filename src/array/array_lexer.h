@@ -6,35 +6,35 @@
 
 // Token types specific to array operations
 typedef enum {
-    ARRAY_TOKEN_EOF,
-    ARRAY_TOKEN_IDENTIFIER,    // Variable names
-    ARRAY_TOKEN_NUMBER,        // Numeric literals
-    ARRAY_TOKEN_STRING,        // String literals
-    ARRAY_TOKEN_BOOL,         // Boolean literals
-    ARRAY_TOKEN_CHAR,         // Character literals
-    ARRAY_TOKEN_LBRACKET,     // [
-    ARRAY_TOKEN_RBRACKET,     // ]
-    ARRAY_TOKEN_COMMA,        // ,
-    ARRAY_TOKEN_DOT,          // .
-    ARRAY_TOKEN_SEMICOLON,
-    ARRAY_TOKEN_LESS_THAN,    // <
-    ARRAY_TOKEN_GREATER_THAN, // >
-    ARRAY_TOKEN_ASSIGN,       // = (renamed from EQUALS)
-    ARRAY_TOKEN_TYPE_INT,     // "int"
-    ARRAY_TOKEN_TYPE_STRING,  // "string"
-    ARRAY_TOKEN_TYPE_FLOAT,   // "float"
-    ARRAY_TOKEN_TYPE_BOOL,    // "bool"
-    ARRAY_TOKEN_TYPE_CHAR,    // "char"
-    ARRAY_TOKEN_METHOD_ADD_LAST,    // "addLast"
-    ARRAY_TOKEN_METHOD_ADD_FIRST,   // "addFirst"
-    ARRAY_TOKEN_METHOD_REMOVE_LAST, // "removeLast"
-    ARRAY_TOKEN_METHOD_REMOVE_FIRST,// "removeFirst"
-    ARRAY_TOKEN_METHOD_LENGTH,      // "length"
-    ARRAY_TOKEN_LPAREN,      // (
-    ARRAY_TOKEN_RPAREN,      // )
-    ARRAY_TOKEN_TERM,        // ; (renamed from SEMICOLON)
-    ARRAY_TOKEN_ERROR,       // Invalid token
-    ARRAY_TOKEN_PRINT,       // print keyword
+    ARRAY_TOKEN_EOF = 0,
+    ARRAY_TOKEN_IDENTIFIER = 1,    // Variable names
+    ARRAY_TOKEN_NUMBER = 2,        // Numeric literals
+    ARRAY_TOKEN_STRING = 3,        // String literals
+    ARRAY_TOKEN_BOOL = 4,          // Boolean literals
+    ARRAY_TOKEN_CHAR = 5,          // Character literals
+    ARRAY_TOKEN_LBRACKET = 6,     // [
+    ARRAY_TOKEN_RBRACKET = 7,     // ]
+    ARRAY_TOKEN_COMMA = 8,        // ,
+    ARRAY_TOKEN_DOT = 9,          // .
+    ARRAY_TOKEN_SEMICOLON = 10,   // ;
+    ARRAY_TOKEN_LESS_THAN = 11,    // <
+    ARRAY_TOKEN_GREATER_THAN = 12, // >
+    ARRAY_TOKEN_ASSIGN = 13,       // =
+    ARRAY_TOKEN_TYPE_INT = 14,     // "int"
+    ARRAY_TOKEN_TYPE_STRING = 15,  // "string"
+    ARRAY_TOKEN_TYPE_FLOAT = 16,   // "float"
+    ARRAY_TOKEN_TYPE_BOOL = 17,    // "bool"
+    ARRAY_TOKEN_TYPE_CHAR = 18,    // "char"
+    ARRAY_TOKEN_METHOD_ADD_LAST = 19,    // "addLast"
+    ARRAY_TOKEN_METHOD_ADD_FIRST = 20,   // "addFirst"
+    ARRAY_TOKEN_METHOD_REMOVE_LAST = 21, // "removeLast"
+    ARRAY_TOKEN_METHOD_REMOVE_FIRST = 22,// "removeFirst"
+    ARRAY_TOKEN_METHOD_LENGTH = 23,      // "length"
+    ARRAY_TOKEN_LPAREN = 24,      // (
+    ARRAY_TOKEN_RPAREN = 25,      // )
+    ARRAY_TOKEN_TERM = 10,        // ; (same as SEMICOLON)
+    ARRAY_TOKEN_ERROR = 27,       // Invalid token
+    ARRAY_TOKEN_PRINT = 28,       // print keyword
 } ArrayTokenType;
 
 // Token structure
