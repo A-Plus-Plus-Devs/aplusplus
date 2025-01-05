@@ -193,24 +193,19 @@ static ASTNode *parse_statement(Parser *parser)
             node = parse_var_declaration(parser);
             break;
 
-        case TOKEN_IDENTIFIER:
-        {
-            // printf("DEBUG: Found identifier: %s\n", parser->current_token->value);
+        case TOKEN_IDENTIFIER: {
+            // Check if this is an array operation
+            if (is_array_operation(parser)) {
+                // Delegate to array subsystem
+                return parse_array_statement(parser);
+            }
+            
+            // Existing identifier handling
             char next_char = peek_next_non_whitespace(parser->lexer);
-            // printf("DEBUG: Next non-whitespace character after identifier: '%c'\n", next_char);
-            
-            if (next_char == '(')
-            {
+            if (next_char == '(') {
                 node = parse_function_call(parser);
-            }
-            else
-            {
-                // printf("DEBUG: Treating as regular assignment\n");
+            } else {
                 node = parse_assignment(parser);
-            }
-            
-            if (!node) {
-                printf("Error: Failed to parse identifier expression\n");
             }
             break;
         }
@@ -1746,4 +1741,81 @@ static ASTNode *parse_input(Parser *parser)
     get_next_token(parser); // consume ')'
 
     return create_node(NODE_INPUT, NULL, NULL, prompt);
+}
+
+bool is_array_operation(Parser *parser) {
+    // Look ahead for array syntax patterns
+    Token *current = parser->current_token;
+    Token *next = peek_next_token(parser->lexer);
+    
+    if (next && next->type == TOKEN_LESS_THAN) {
+        return true;  // Array declaration
+    }
+    
+    if (next && next->type == TOKEN_DOT) {
+        Token *method = peek_nth_token(parser->lexer, 2);
+        if (method && (
+            strcmp(method->value, "addLast") == 0 ||
+            strcmp(method->value, "addFirst") == 0 ||
+            strcmp(method->value, "removeLast") == 0 ||
+            strcmp(method->value, "removeFirst") == 0 ||
+            strcmp(method->value, "length") == 0
+        )) {
+            return true;  // Array method call
+        }
+    }
+    
+    return false;
+}
+
+ASTNode *parse_array_statement(Parser *parser) {
+    // Create temporary string buffer for the array operation
+    char buffer[1024] = {0};
+    size_t pos = 0;
+    Token *token = parser->current_token;
+    
+    // Collect tokens until we reach a semicolon
+    while (token && token->type != TOKEN_SEMICOLON) {
+        if (token->value) {
+            pos += snprintf(buffer + pos, sizeof(buffer) - pos, "%s", token->value);
+        }
+        token = next_token(parser->lexer);
+    }
+    
+    // Create array lexer and parser
+    ArrayLexer *array_lexer = array_lexer_init(buffer);
+    if (!array_lexer) return NULL;
+    
+    ArrayParser *array_parser = array_parser_init(array_lexer);
+    if (!array_parser) {
+        array_lexer_free(array_lexer);
+        return NULL;
+    }
+    
+    // Parse the array operation
+    ArrayASTNode *array_node = array_parse(array_parser);
+    
+    // Convert ArrayASTNode to regular ASTNode
+    ASTNode *result = convert_array_ast_to_ast(array_node);
+    
+    // Cleanup
+    array_free_ast(array_node);
+    array_parser_free(array_parser);
+    array_lexer_free(array_lexer);
+    
+    return result;
+}
+
+ASTNode *convert_array_ast_to_ast(ArrayASTNode *array_node) {
+    if (!array_node) return NULL;
+    
+    // Create a special node type for array operations
+    ASTNode *node = create_node(NODE_ARRAY_OPERATION, NULL, NULL, NULL);
+    if (!node) return NULL;
+    
+    // Store the array node pointer in the ASTNode
+    // You might need to add a void* field to ASTNode for this
+    node->array_node = array_node;
+    
+    return node;
 }

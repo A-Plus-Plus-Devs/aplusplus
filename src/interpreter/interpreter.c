@@ -1,4 +1,6 @@
 #include "interpreter.h"
+#include "../array/array_interpreter.h"
+#include "../array/array.h"
 #include "common/types.h"
 #include <stdbool.h>
 #include <stdio.h>
@@ -1476,14 +1478,14 @@ void interpret(ASTNode *node)
                 }
                 // Keep existing boolean expression handling
                 else if (node->left->value && (strcmp(node->left->value, "==") == 0 ||
-                                               strcmp(node->left->value, "!=") == 0 ||
-                                               strcmp(node->left->value, ">") == 0 ||
-                                               strcmp(node->left->value, "<") == 0 ||
-                                               strcmp(node->left->value, ">=") == 0 ||
-                                               strcmp(node->left->value, "<=") == 0 ||
-                                               strcmp(node->left->value, "&&") == 0 ||
-                                               strcmp(node->left->value, "||") == 0 ||
-                                               strcmp(node->left->value, "!") == 0))
+                           strcmp(node->left->value, "!=") == 0 ||
+                           strcmp(node->left->value, ">") == 0 ||
+                           strcmp(node->left->value, "<") == 0 ||
+                           strcmp(node->left->value, ">=") == 0 ||
+                           strcmp(node->left->value, "<=") == 0 ||
+                           strcmp(node->left->value, "&&") == 0 ||
+                           strcmp(node->left->value, "||") == 0 ||
+                           strcmp(node->left->value, "!") == 0))
                 {
                     bool result = evaluate_bool_expression(node->left);
                     printf("%s\n", result ? "yup" : "nope");
@@ -2058,7 +2060,7 @@ void interpret(ASTNode *node)
             if (!var)
             {
                 printf("Error: Undefined variable '%s'\n", node->var_name);
-                return;
+                exit(1);
             }
 
             if (var->type == STRING_TYPE)
@@ -2230,4 +2232,97 @@ static void handle_assignment(ASTNode *node)
         printf("Error: Unsupported type for variable '%s'\n", node->var_name);
         exit(1);
     }
+}
+
+static Value interpret_array_operation(Interpreter *interpreter, ASTNode *node)
+{
+    if (!node || !node->array_node) {
+        return create_null_value();
+    }
+    
+    // Create array interpreter if needed
+    if (!interpreter->array_interpreter) {
+        interpreter->array_interpreter = array_interpreter_init();
+        if (!interpreter->array_interpreter) {
+            return create_null_value();
+        }
+    }
+    
+    // Interpret the array operation
+    ArrayInterpretResult result = array_interpret(interpreter->array_interpreter, node->array_node);
+    
+    // Convert array result to regular Value
+    return convert_array_result_to_value(result);
+}
+
+Value create_null_value(void) {
+    Value value;
+    value.type = VALUE_NULL;
+    return value;
+}
+
+Value convert_array_result_to_value(ArrayInterpretResult result) {
+    Value value;
+    
+    if (!result.success) {
+        return create_null_value();
+    }
+    
+    // Handle different result types based on the operation
+    if (result.value.array_value) {
+        value.type = VALUE_ARRAY;
+        value.data.array_value = result.value.array_value;
+    } 
+    else if (result.value.int_value) {
+        value.type = VALUE_INT;
+        value.data.int_value = result.value.int_value;
+    }
+    else if (result.value.string_value) {
+        value.type = VALUE_STRING;
+        value.data.string_value = strdup(result.value.string_value);
+    }
+    else if (result.value.float_value) {
+        value.type = VALUE_FLOAT;
+        value.data.float_value = result.value.float_value;
+    }
+    else if (result.value.bool_value) {
+        value.type = VALUE_BOOL;
+        value.data.bool_value = result.value.bool_value;
+    }
+    else if (result.value.char_value) {
+        value.type = VALUE_CHAR;
+        value.data.char_value = result.value.char_value;
+    }
+    else if (result.value.element.int_value) {
+        value.type = VALUE_INT;
+        value.data.int_value = result.value.element.int_value;
+    }
+    else {
+        return create_null_value();
+    }
+    
+    return value;
+}
+
+Interpreter *init_interpreter(void) {
+    Interpreter *interpreter = malloc(sizeof(Interpreter));
+    if (!interpreter) return NULL;
+    
+    // Initialize other fields...
+    
+    interpreter->array_interpreter = NULL; // Will be initialized on first use
+    
+    return interpreter;
+}
+
+void free_interpreter(Interpreter *interpreter) {
+    if (!interpreter) return;
+    
+    if (interpreter->array_interpreter) {
+        array_interpreter_free(interpreter->array_interpreter);
+    }
+    
+    // Free other resources...
+    
+    free(interpreter);
 }

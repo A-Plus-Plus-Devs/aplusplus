@@ -183,4 +183,7 @@ Token *next_token(Lexer *lexer);
 // Get the next token without advancing the lexer
 Token *peek_next_token(Lexer *lexer);
 
+// Add this declaration
+Token *peek_nth_token(Lexer *lexer, int n);
+
 #endif // LEXER_H

@@ -30,7 +30,8 @@ typedef enum
     NODE_COMPOUND_ASSIGN,
 
     NODE_INPUT,
-    NODE_TYPE_CAST
+    NODE_TYPE_CAST,
+    NODE_ARRAY_OPERATION
 } ASTNodeType;
 
 typedef struct ASTNode
@@ -62,6 +63,7 @@ typedef struct ASTNode
     struct ASTNode *increment;
 
     char *target_type;  // For type casting operations
+    void *array_node;  // Add this field to store ArrayASTNode pointer
 } ASTNode;
 
 /**

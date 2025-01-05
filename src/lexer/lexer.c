@@ -725,3 +725,22 @@ Token *peek_next_token(Lexer *lexer) {
     
     return token;
 }
+
+// Add this implementation
+Token *peek_nth_token(Lexer *lexer, int n) {
+    // Save current position
+    size_t original_pos = lexer->position;
+    char original_char = lexer->current_char;
+    
+    // Peek ahead n tokens
+    Token *token = NULL;
+    for (int i = 0; i < n; i++) {
+        token = next_token(lexer);
+    }
+    
+    // Restore position
+    lexer->position = original_pos;
+    lexer->current_char = original_char;
+    
+    return token;
+}
