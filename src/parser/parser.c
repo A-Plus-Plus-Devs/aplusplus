@@ -540,6 +540,21 @@ static ASTNode *parse_factor(Parser *parser)
         token->type == TOKEN_REVERSE ||
         token->type == TOKEN_TRIM ||
         token->type == TOKEN_REPEAT ||
+        token->type == TOKEN_ABS ||
+        token->type == TOKEN_CEIL ||
+        token->type == TOKEN_FLOOR ||
+        token->type == TOKEN_ROUND ||
+        token->type == TOKEN_SQRT ||
+        token->type == TOKEN_SIN ||
+        token->type == TOKEN_COS ||
+        token->type == TOKEN_TAN ||
+        token->type == TOKEN_MAX ||
+        token->type == TOKEN_MIN ||
+        token->type == TOKEN_RANDOM ||
+        token->type == TOKEN_DATE ||
+        token->type == TOKEN_TIME ||
+        token->type == TOKEN_NOW ||
+        token->type == TOKEN_TO_PRECISION ||
         (token->type == TOKEN_IDENTIFIER && peek_char(parser->lexer) == '(')) {
         char *func_name = strdup(token->value);
         get_next_token(parser);

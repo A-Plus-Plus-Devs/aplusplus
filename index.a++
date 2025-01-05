@@ -1,3 +1,4 @@
-print(repeat("Hello", 3));      // Outputs: HelloHelloHello
-print(repeat("Hello", 3, "-")); // Outputs: Hello-Hello-Hello
-print(repeat("Hi", 2, " "));    // Outputs: Hi Hi
+print(round(1.5));     // Outputs: 2
+
+print(round(1.5, "D")); // Outputs: 1
+print(round(1.5, "U")); // Outputs: 2

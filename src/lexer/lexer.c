@@ -111,6 +111,36 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_TRIM;
     else if (strcmp(buffer, "repeat") == 0)
         token->type = TOKEN_REPEAT;
+    else if (strcmp(buffer, "abs") == 0)
+        token->type = TOKEN_ABS;
+    else if (strcmp(buffer, "ceil") == 0)
+        token->type = TOKEN_CEIL;
+    else if (strcmp(buffer, "floor") == 0)
+        token->type = TOKEN_FLOOR;
+    else if (strcmp(buffer, "round") == 0)
+        token->type = TOKEN_ROUND;
+    else if (strcmp(buffer, "sqrt") == 0)
+        token->type = TOKEN_SQRT;
+    else if (strcmp(buffer, "sin") == 0)
+        token->type = TOKEN_SIN;
+    else if (strcmp(buffer, "cos") == 0)
+        token->type = TOKEN_COS;
+    else if (strcmp(buffer, "tan") == 0)
+        token->type = TOKEN_TAN;
+    else if (strcmp(buffer, "max") == 0)
+        token->type = TOKEN_MAX;
+    else if (strcmp(buffer, "min") == 0)
+        token->type = TOKEN_MIN;
+    else if (strcmp(buffer, "random") == 0)
+        token->type = TOKEN_RANDOM;
+    else if (strcmp(buffer, "date") == 0)
+        token->type = TOKEN_DATE;
+    else if (strcmp(buffer, "time") == 0)
+        token->type = TOKEN_TIME;
+    else if (strcmp(buffer, "now") == 0)
+        token->type = TOKEN_NOW;
+    else if (strcmp(buffer, "toPrecision") == 0)
+        token->type = TOKEN_TO_PRECISION;
     else if (strcmp(buffer, "if") == 0)
         token->type = TOKEN_IF;
     else if (strcmp(buffer, "else") == 0)

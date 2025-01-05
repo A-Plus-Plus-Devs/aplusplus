@@ -699,6 +699,93 @@ char *execute_function(const char *name, ASTNode *arguments)
         return result;
     }
 
+    else if (strcmp(name, "round") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: round() requires at least one argument\n");
+            return strdup("0");
+        }
+
+        // Get the number to round
+        double number;
+        if (arguments->type == NODE_INT_LITERAL)
+        {
+            number = (double)evaluate_expression(arguments);
+        }
+        else
+        {
+            number = evaluate_float_expression(arguments);
+        }
+
+        // Get the optional direction (U for up, D for down)
+        char *direction = NULL;
+        if (arguments->next)
+        {
+            direction = evaluate_string_expression(arguments->next);
+            if (!direction)
+            {
+                printf("Error: Second argument to round() must be 'U' or 'D'\n");
+                return strdup("0");
+            }
+        }
+
+        int rounded;
+        if (direction)
+        {
+            if (strcmp(direction, "U") == 0)
+            {
+                rounded = (int)ceil(number);
+            }
+            else if (strcmp(direction, "D") == 0)
+            {
+                rounded = (int)floor(number);
+            }
+            else
+            {
+                printf("Error: Round direction must be 'U' or 'D'\n");
+                free(direction);
+                return strdup("0");
+            }
+            free(direction);
+        }
+        else
+        {
+            // Default rounding behavior
+            rounded = (int)(number + (number >= 0 ? 0.5 : -0.5));
+        }
+
+        char result[32];
+        snprintf(result, sizeof(result), "%d", rounded);
+        return strdup(result);
+    }
+    else if (strcmp(name, "abs") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: abs() requires one argument\n");
+            return strdup("0");
+        }
+
+        // Handle both integer and float inputs
+        if (arguments->type == NODE_INT_LITERAL)
+        {
+            int value = evaluate_expression(arguments);
+            int abs_value = value < 0 ? -value : value;
+            char result[32];
+            snprintf(result, sizeof(result), "%d", abs_value);
+            return strdup(result);
+        }
+        else
+        {
+            double value = evaluate_float_expression(arguments);
+            double abs_value = fabs(value);
+            char result[32];
+            snprintf(result, sizeof(result), "%g", abs_value);
+            return strdup(result);
+        }
+    }
+
     Function *func = find_function(name);
     if (!func)
     {
@@ -1658,6 +1745,22 @@ static void register_builtin_functions(void)
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = repeat_func;
+
+    // Register round function
+    Function round_func = {
+        .name = "round",
+        .return_type = "int",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = round_func;
+
+    // Register abs function
+    Function abs_func = {
+        .name = "abs",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = abs_func;
 
     builtins_registered = true;
 }
