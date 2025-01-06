@@ -77,6 +77,7 @@ static Variable *get_variable(const char *name);
 void* interpret_array_literal(ASTNode* node);
 void* interpret_array_access(ASTNode* node, ArrayValue* array);
 void* interpret_array_method_call(ASTNode* node, ArrayValue* array);
+char* extract_array_type(const char* var_type);
 
 
 static Function *find_function(const char *name);
@@ -1403,6 +1404,11 @@ static void set_variable(const char *name, VariableType type, void *value)
                 free(variables[i].value.string_value);
                 variables[i].value.string_value = strdup((char *)value);
             }
+             if (type == ARRAY_TYPE)  // Add array handling
+            {
+                printf("DEBUG: Setting array value at %p\n", value);
+                variables[i].value.array_value = (ArrayValue*)value;
+            }
             else if (type == BOOL_TYPE)
             {
                 variables[i].value.bool_value = *(bool *)value;
@@ -1429,6 +1435,11 @@ static void set_variable(const char *name, VariableType type, void *value)
         {
             // If it's an int, we store the int value
             variables[variable_count].value.int_value = *(int *)value;
+        }
+        else  if (type == ARRAY_TYPE)  // Add array handling
+        {
+            printf("DEBUG: Setting new array value at %p\n", value);
+            variables[variable_count].value.array_value = (ArrayValue*)value;
         }
         else if (type == STRING_TYPE)
         {
@@ -1466,15 +1477,23 @@ static bool strtobool(const char *str)
 // This function gets the value of a variable
 static Variable *get_variable(const char *name)
 {
+    printf("DEBUG: Looking up variable '%s'\n", name);
+
     // We loop through all variables
     for (int i = 0; i < variable_count; i++)
     {
+        printf("DEBUG: Checking variable %d: '%s' (type: %d)\n", 
+               i, variables[i].name, variables[i].type);
         // If we find a variable with the given name, we return it
         if (strcmp(variables[i].name, name) == 0)
         {
+            printf("DEBUG: Found variable '%s' of type %d\n", 
+                   name, variables[i].type);
             return &variables[i];
         }
     }
+        printf("DEBUG: Variable '%s' not found\n", name);
+
     // If we didn't find the variable, we return NULL
     return NULL;
 }
@@ -2708,7 +2727,23 @@ void interpret(ASTNode *node)
                 {
                     char value = node->left ? node->left->value[0] : '\0';
                     set_variable(node->var_name, CHAR_TYPE, &value);
-                }
+                } else if (strstr(node->var_type, "<")) {
+        // Array declaration
+        printf("DEBUG: Processing array declaration\n");
+        char *array_type = extract_array_type(node->var_type);
+        printf("DEBUG: Array type extracted: %s\n", array_type);
+        
+        void* array_value = interpret_array_declaration(node);
+        printf("DEBUG: Array initialization result: %p\n", array_value);
+        
+        if (array_value) {
+            set_variable(node->var_name, ARRAY_TYPE, array_value);
+            printf("DEBUG: Array variable '%s' set in variable table\n", node->var_name);
+        } else {
+            printf("ERROR: Failed to initialize array\n");
+        }
+        free(array_type);
+    }
                 break;
             }
             else
@@ -3240,4 +3275,34 @@ void* interpret_expression(ASTNode *node)
             printf("Error: Unknown expression type %d\n", node->type);
             return NULL;
     }
+}
+
+// Add this function before interpret()
+char* extract_array_type(const char* var_type) {
+    printf("DEBUG: Extracting array type from '%s'\n", var_type);
+    
+    // Find the opening '<' and closing '>'
+    const char* start = strchr(var_type, '<');
+    const char* end = strchr(var_type, '>');
+    
+    if (!start || !end || start >= end) {
+        printf("ERROR: Invalid array type format\n");
+        return NULL;
+    }
+    
+    // Calculate length of type name
+    size_t type_len = end - (start + 1);
+    char* array_type = malloc(type_len + 1);
+    
+    if (!array_type) {
+        printf("ERROR: Memory allocation failed\n");
+        return NULL;
+    }
+    
+    // Copy the type name (excluding the < >)
+    strncpy(array_type, start + 1, type_len);
+    array_type[type_len] = '\0';
+    
+    printf("DEBUG: Extracted array type: '%s'\n", array_type);
+    return array_type;
 }
