@@ -49,6 +49,8 @@ Requirements:
 - GCC or compatible C compiler
 - Make
 - Git
+- Node.js and npm (for syntax highlighting)
+- Visual Studio Code (for syntax highlighting)
 
 1. Clone the repository:
 ```sh
@@ -58,6 +60,19 @@ git clone https://github.com/A-Plus-Plus-Devs/aplusplus.git .
 2. Build the project:
 ```sh
 make
+```
+
+3. Install syntax highlighting for VS Code:
+
+**Unix/Linux/macOS:**
+```sh
+chmod +x install-syntax.sh
+./install-syntax.sh
+```
+
+**Windows PowerShell:**
+```powershell
+.\install-syntax.ps1
 ```
 
 ## Usage
