@@ -1620,18 +1620,20 @@ static int evaluate_expression(ASTNode *node)
         }
         return 0;
     }
-    case NODE_ARRAY_LITERAL: {
-            printf("DEBUG: Evaluating array literal\n");
-            // For array literals, evaluate each element
-            ASTNode* current = node->elements;
-            while (current) {
-                printf("DEBUG: Processing array literal element\n");
-                int value = evaluate_expression(current);
-                printf("DEBUG: Got array element value: %d\n", value);
-                current = current->next;
-            }
-            return 0;  // Array literals in expressions return 0
+    case NODE_ARRAY_LITERAL:
+    {
+        printf("DEBUG: Evaluating array literal\n");
+        // For array literals, evaluate each element
+        ASTNode *current = node->elements;
+        while (current)
+        {
+            printf("DEBUG: Processing array literal element\n");
+            int value = evaluate_expression(current);
+            printf("DEBUG: Got array element value: %d\n", value);
+            current = current->next;
         }
+        return 0; // Array literals in expressions return 0
+    }
     case NODE_ARRAY_ACCESS:
     {
         printf("DEBUG: Evaluating array access in evaluate_expression\n");
@@ -2308,19 +2310,23 @@ void interpret(ASTNode *node)
 
                 // Process each element in the array literal
                 ASTNode *current = node->elements;
-                while (current)
+                if (current && current->type == NODE_ARRAY_LITERAL)
                 {
-                    printf("DEBUG: Processing array element\n");
-                    if (array->type == INT_TYPE)
+                    printf("DEBUG: Processing array literal elements\n");
+                    ASTNode *element = current->elements; // Get the actual elements
+                    while (element)
                     {
-                        int value = evaluate_expression(current);
-                        int *element = malloc(sizeof(int));
-                        *element = value;
-                        array_add_last(array, element);
-                        printf("DEBUG: Added int element: %d\n", value);
+                        printf("DEBUG: Processing element node type: %d\n", element->type);
+                        if (array->type == INT_TYPE)
+                        {
+                            int value = evaluate_expression(element);
+                            int *element_value = malloc(sizeof(int));
+                            *element_value = value;
+                            array_add_last(array, element_value);
+                            printf("DEBUG: Added int element: %d\n", value);
+                        }
+                        element = element->next;
                     }
-                    // Add other type handlers here
-                    current = current->next;
                 }
 
                 printf("DEBUG: Final array length: %zu\n", array->length);
