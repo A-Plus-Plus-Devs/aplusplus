@@ -5,10 +5,18 @@ print(x);
 
 names<string> = ["Alice", "Bob", "Charlie"];
 
-// print(names[0]);
+print(names[0]);
 
-mixed<any> = [1, "two", true];
+mixed<any> = [1, "two", yup];
 
-// print(mixed[0]);
+floatArray<float> = [1.1, 2.2, 3.3];
+
+print(floatArray[0]);
+
+
+boolArray<boolean> = [yup, nope, yup];
+
+print(boolArray[0]);
+
 // print(mixed[1]);
 // print(mixed[2]);

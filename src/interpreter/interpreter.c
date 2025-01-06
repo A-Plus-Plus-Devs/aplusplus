@@ -2313,17 +2313,73 @@ void interpret(ASTNode *node)
                 if (current && current->type == NODE_ARRAY_LITERAL)
                 {
                     printf("DEBUG: Processing array literal elements\n");
-                    ASTNode *element = current->elements; // Get the actual elements
+                    ASTNode *element = current->elements;
                     while (element)
                     {
                         printf("DEBUG: Processing element node type: %d\n", element->type);
-                        if (array->type == INT_TYPE)
+                        switch (array->type)
+                        {
+                        case INT_TYPE:
                         {
                             int value = evaluate_expression(element);
                             int *element_value = malloc(sizeof(int));
                             *element_value = value;
                             array_add_last(array, element_value);
                             printf("DEBUG: Added int element: %d\n", value);
+                            break;
+                        }
+                        case STRING_TYPE:
+                        {
+                            if (element->type == NODE_STRING_LITERAL)
+                            {
+                                char *str_value = strdup(element->value);
+                                array_add_last(array, str_value);
+                                printf("DEBUG: Added string element: %s\n", str_value);
+                            }
+                            break;
+                        }
+                        case EMPTY_TYPE:
+                        { // For mixed/any type arrays
+                            void *value = NULL;
+                            switch (element->type)
+                            {
+                            case NODE_INT_LITERAL:
+                            {
+                                int *int_val = malloc(sizeof(int));
+                                *int_val = atoi(element->value);
+                                value = int_val;
+                                break;
+                            }
+                            case NODE_STRING_LITERAL:
+                            {
+                                value = strdup(element->value);
+                                break;
+                            }
+                            case NODE_BOOL_LITERAL:
+                            {
+                                bool *bool_val = malloc(sizeof(bool));
+                                *bool_val = strcmp(element->value, "true") == 0;
+                                value = bool_val;
+                                break;
+                            }
+                            }
+                            if (value)
+                            {
+                                array_add_last(array, value);
+                                printf("DEBUG: Added mixed type element\n");
+                            }
+                            break;
+                        }
+                        case FLOAT_TYPE: {
+                            if (element->type == NODE_FLOAT_LITERAL) {
+                                double value = atof(element->value);
+                                double* element_value = malloc(sizeof(double));
+                                *element_value = value;
+                                array_add_last(array, element_value);
+                                printf("DEBUG: Added float element: %f\n", value);
+                            }
+                            break;
+                        }
                         }
                         element = element->next;
                     }
