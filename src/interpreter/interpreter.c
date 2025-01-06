@@ -2929,6 +2929,19 @@ void interpret(ASTNode *node)
             // if we need to handle othr types, we can do it here
             break;
         }
+        case NODE_ARRAY_ACCESS: {
+            printf("DEBUG: Handling NODE_ARRAY_ACCESS in interpret()\n");
+            Variable *array_var = get_variable(node->var_name);
+            if (!array_var || !array_var->value.array_value) {
+                printf("ERROR: Array '%s' not found or uninitialized\n", node->var_name);
+                return;
+            }
+            void* result = interpret_array_access(node, array_var->value.array_value);
+            if (!result) {
+                printf("ERROR: Array access failed\n");
+            }
+            break;
+        }
         default:
             break;
         }
@@ -3086,9 +3099,33 @@ void* interpret_expression(ASTNode *node)
             }
 
             if (strcmp(node->value, "+") == 0) {
-                // ... existing binary op code ...
+                // Handle addition based on types
+                if (node->left->type == NODE_INT_LITERAL || 
+                    node->left->type == NODE_ARRAY_ACCESS) {  // Add array access support
+                    int left_val;
+                    if (node->left->type == NODE_ARRAY_ACCESS) {
+                        left_val = *(int*)left_result;
+                    } else {
+                        left_val = *(int*)left_result;
+                    }
+                    
+                    int right_val;
+                    if (node->right->type == NODE_ARRAY_ACCESS) {
+                        right_val = *(int*)right_result;
+                    } else {
+                        right_val = *(int*)right_result;
+                    }
+                    
+                    int* result = malloc(sizeof(int));
+                    *result = left_val + right_val;
+                    
+                    free(left_result);
+                    free(right_result);
+                    return result;
+                }
+                // ... rest of binary op cases ...
             }
-            // ... rest of binary op cases ...
+            // ... rest of operators ...
             return NULL;
         }
 
@@ -3132,88 +3169,33 @@ void* interpret_expression(ASTNode *node)
         }
 
         case NODE_ARRAY_ACCESS: {
-            printf("DEBUG: Interpreting array access for '%s'\n", node->var_name);
+            printf("DEBUG: Handling NODE_ARRAY_ACCESS in interpret_expression\n");
             
             Variable *array_var = get_variable(node->var_name);
+            printf("DEBUG: Looking up array variable '%s': %p\n", node->var_name, (void*)array_var);
+            
             if (!array_var) {
-                printf("DEBUG: Variable '%s' not found\n", node->var_name);
+                printf("ERROR: Array variable '%s' not found\n", node->var_name);
                 return NULL;
             }
-
-            ArrayValue *array = array_var->value.array_value;
-            printf("DEBUG: Array found with length %zu\n", array->length);
-            printf("DEBUG: Array contents:\n");
-            for (size_t i = 0; i < array->length; i++) {
-                void* elem = array->elements[i];
-                if (elem && array->type == INT_TYPE) {
-                    printf("  [%zu] = %d\n", i, *(int*)elem);
-                }
-            }
-
-            // Get index
-            void* index_result = interpret_expression(node->index);
-            if (!index_result) {
-                printf("DEBUG: Failed to interpret index\n");
+            
+            if (!array_var->value.array_value) {
+                printf("ERROR: Array '%s' is uninitialized\n", node->var_name);
                 return NULL;
             }
-
-            int index;
-            if (node->index->type == NODE_INT_LITERAL) {
-                index = atoi(node->index->value);
+            
+            printf("DEBUG: Found array at %p, type: %d, length: %zu\n", 
+                   (void*)array_var->value.array_value,
+                   array_var->value.array_value->type,
+                   array_var->value.array_value->length);
+            
+            void* result = interpret_array_access(node, array_var->value.array_value);
+            printf("DEBUG: interpret_array_access returned: %p\n", result);
+            
+            if (!result) {
+                printf("ERROR: Array access failed\n");
             } else {
-                index = *(int*)index_result;
-                free(index_result);
-            }
-            printf("DEBUG: Accessing index: %d\n", index);
-
-            if (index < 0 || index >= array->length) {
-                printf("DEBUG: Index out of bounds\n");
-                return NULL;
-            }
-
-            void* element = array->elements[index];
-            if (!element) {
-                printf("DEBUG: Element is NULL\n");
-                return NULL;
-            }
-
-            // Create a copy of the element
-            void* result = NULL;
-            switch (array->type) {
-                case INT_TYPE: {
-                    int* copy = malloc(sizeof(int));
-                    *copy = *(int*)element;
-                    printf("DEBUG: Retrieved int value: %d\n", *copy);
-                    result = copy;
-                    break;
-                }
-                case STRING_TYPE: {
-                    result = strdup((char*)element);
-                    printf("DEBUG: Retrieved string value: %s\n", (char*)result);
-                    break;
-                }
-                case FLOAT_TYPE: {
-                    double* copy = malloc(sizeof(double));
-                    *copy = *(double*)element;
-                    printf("DEBUG: Retrieved float value: %f\n", *copy);
-                    result = copy;
-                    break;
-                }
-                case BOOL_TYPE: {
-                    bool* copy = malloc(sizeof(bool));
-                    *copy = *(bool*)element;
-                    printf("DEBUG: Retrieved bool value: %d\n", *copy);
-                    result = copy;
-                    break;
-                }
-                case EMPTY_TYPE: {
-                    result = element;
-                    printf("DEBUG: Retrieved mixed type value\n");
-                    break;
-                }
-                default:
-                    printf("Error: Unsupported array type %d\n", array->type);
-                    return NULL;
+                printf("DEBUG: Array access successful, value type: %d\n", array_var->value.array_value->type);
             }
             
             return result;
