@@ -1620,6 +1620,18 @@ static int evaluate_expression(ASTNode *node)
         }
         return 0;
     }
+    case NODE_ARRAY_LITERAL: {
+            printf("DEBUG: Evaluating array literal\n");
+            // For array literals, evaluate each element
+            ASTNode* current = node->elements;
+            while (current) {
+                printf("DEBUG: Processing array literal element\n");
+                int value = evaluate_expression(current);
+                printf("DEBUG: Got array element value: %d\n", value);
+                current = current->next;
+            }
+            return 0;  // Array literals in expressions return 0
+        }
     case NODE_ARRAY_ACCESS:
     {
         printf("DEBUG: Evaluating array access in evaluate_expression\n");
@@ -2272,7 +2284,7 @@ void interpret(ASTNode *node)
 
     while (node)
     {
-                printf("DEBUG: Interpreting node type: %d\n", node->type);
+        printf("DEBUG: Interpreting node type: %d\n", node->type);
 
         switch (node->type)
         {
@@ -2286,17 +2298,36 @@ void interpret(ASTNode *node)
             }
             break;
         }
-           case NODE_ARRAY_DECLARATION: {
-                printf("DEBUG: Handling array declaration for '%s'\n", node->var_name);
-                void* array_value = interpret_array_declaration(node);
-                if (array_value) {
-                    printf("DEBUG: Setting array variable '%s'\n", node->var_name);
-                    set_variable(node->var_name, ARRAY_TYPE, array_value);
-                } else {
-                    printf("ERROR: Failed to initialize array\n");
+        case NODE_ARRAY_DECLARATION:
+        {
+            printf("DEBUG: Handling array declaration for '%s'\n", node->var_name);
+            ArrayValue *array = (ArrayValue *)interpret_array_declaration(node);
+            if (array)
+            {
+                printf("DEBUG: Processing array elements for '%s'\n", node->var_name);
+
+                // Process each element in the array literal
+                ASTNode *current = node->elements;
+                while (current)
+                {
+                    printf("DEBUG: Processing array element\n");
+                    if (array->type == INT_TYPE)
+                    {
+                        int value = evaluate_expression(current);
+                        int *element = malloc(sizeof(int));
+                        *element = value;
+                        array_add_last(array, element);
+                        printf("DEBUG: Added int element: %d\n", value);
+                    }
+                    // Add other type handlers here
+                    current = current->next;
                 }
-                break;
+
+                printf("DEBUG: Final array length: %zu\n", array->length);
+                set_variable(node->var_name, ARRAY_TYPE, array);
             }
+            break;
+        }
         case NODE_PRINT:
         {
             if (node->left->type == NODE_FUNCTION_CALL)
@@ -2527,8 +2558,8 @@ void interpret(ASTNode *node)
 
         case NODE_VAR_DECLARATION:
         {
-              printf("DEBUG: Interpreting var declaration for '%s' of type '%s'\n", 
-           node->var_name, node->var_type);
+            printf("DEBUG: Interpreting var declaration for '%s' of type '%s'\n",
+                   node->var_name, node->var_type);
             if (node->left && node->left->type == NODE_TYPE_CAST)
             {
                 // Handle type cast in variable declaration
