@@ -1597,6 +1597,26 @@ static int evaluate_expression(ASTNode *node)
         }
         return 0;
     }
+    case NODE_ARRAY_ACCESS: {
+            printf("DEBUG: Evaluating array access in evaluate_expression\n");
+            Variable *array_var = get_variable(node->var_name);
+            if (!array_var || !array_var->value.array_value) {
+                printf("ERROR: Array '%s' not found or uninitialized\n", node->var_name);
+                return 0;
+            }
+
+            void* result = interpret_array_access(node, array_var->value.array_value);
+            if (!result) {
+                printf("ERROR: Array access failed\n");
+                return 0;
+            }
+
+            // Convert the result to int
+            int value = *(int*)result;
+            free(result);
+            return value;
+        }
+
 
     default:
         printf("[ERROR] Unsupported node type in expression: %d\n", node->type);
