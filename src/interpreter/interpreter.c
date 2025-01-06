@@ -2272,6 +2272,8 @@ void interpret(ASTNode *node)
 
     while (node)
     {
+                printf("DEBUG: Interpreting node type: %d\n", node->type);
+
         switch (node->type)
         {
         case NODE_FUNCTION_CALL:
@@ -2284,6 +2286,17 @@ void interpret(ASTNode *node)
             }
             break;
         }
+           case NODE_ARRAY_DECLARATION: {
+                printf("DEBUG: Handling array declaration for '%s'\n", node->var_name);
+                void* array_value = interpret_array_declaration(node);
+                if (array_value) {
+                    printf("DEBUG: Setting array variable '%s'\n", node->var_name);
+                    set_variable(node->var_name, ARRAY_TYPE, array_value);
+                } else {
+                    printf("ERROR: Failed to initialize array\n");
+                }
+                break;
+            }
         case NODE_PRINT:
         {
             if (node->left->type == NODE_FUNCTION_CALL)
