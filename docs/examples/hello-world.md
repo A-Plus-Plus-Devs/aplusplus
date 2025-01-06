@@ -4,10 +4,12 @@ The classic first program in A++.
 
 ## Basic Example
 
-```a++
-fn main() {
-    print("Hello, World!")
+```c
+#define nothing main() {
+    print("Hello, World!");
 }
+
+main(); // Output: "Hello, World!"
 ```
 
 ## Explanation

@@ -1,0 +1,26 @@
+=== Mathematical Function Tests ===
+
+Basic Math Tests:
+5.5
+0
+3
+4
+-4
+
+Root Tests:
+4
+0
+-2
+2
+0
+
+Edge Cases:
+Error: Cannot calculate square root of negative number
+Error: Root index cannot be zero
+-2.5198421
+
+Min/Max Tests:
+1
+8
+-5
+-3

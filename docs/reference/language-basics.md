@@ -144,23 +144,95 @@ A++ has several reserved keywords:
 - `echo`: Alternative output
 - `input`: Get user input
 - `length`: Get string length
-- `index`: Get character at string index
+- `charAt`: Get character at string index
 
 ## Built-in Functions
 
-### Output Functions
+### Mathematical Operations
 ```c
-print("Hello");     // Standard output
-yap("Hello");       // Alternative output
-echo("Hello");      // Alternative output
+// Root calculations
+float root = sqrt(16);          // 4.0
+float cube = cbrt(-8);         // -2.0
+float fourth = root(16, 4);    // 2.0
+
+// Trigonometry
+float sine = sin(3.14159/2);   // 1.0
+float cosine = cos(0);         // 1.0
+float tangent = tan(0.785398); // 1.0
+
+// Number manipulation
+float absolute = abs(-5.5);    // 5.5
+int rounded = round(3.7);      // 4
+float precise = toPrecision(3.14159, 2);  // 3.14
+int minimum = min(5, 3, 8, 1); // 1
+int maximum = max(5, 3, 8, 1); // 8
 ```
 
-### Input Function
-
+### String Operations
 ```c
-string name = input("What is your name?"); // Standard input
+// String information
+int idx = indexOf("Hello", "e");     // 1
+int len = length("Hello");           // 5
 
-print("Hello, " + name);
+// String manipulation
+string lower = toLowerCase("Hello");  // "hello"
+string upper = toUpperCase("hello"); // "HELLO"
+string clean = trim("  hello  ");    // "hello"
+string rev = reverse("hello");       // "olleh"
+string rep = repeat("ha", 3);        // "hahaha"
+string repd = repeat("hi", 2, "-");  // "hi-hi"
+```
+
+### Date and Time Operations
+```c
+// Date handling
+string today = date();              // "2024-03-14"
+string year = date("Y");           // "2024"
+string month = date("M");          // "03"
+string day = date("D");            // "14"
+
+// Time handling
+string current = time();           // "15:30:45"
+string datetime = now();           // "2024-03-14 15:30:45"
+```
+
+### Type Conversion Rules
+
+1. **Integer Casting**
+   - From float: Truncates decimal portion
+   - From string: Parses numeric content
+   - From boolean: `yup` → 1, `nope` → 0
+
+2. **Float Casting**
+   - From int: Adds .0 for whole numbers
+   - From string: Parses decimal number
+   - From boolean: `yup` → 1.0, `nope` → 0.0
+
+3. **String Casting**
+   - From int: Direct conversion ("42")
+   - From float: Preserves decimals ("3.14")
+   - From boolean: "yup" or "nope"
+
+4. **Boolean Casting**
+   - From int: 0 → `nope`, non-zero → `yup`
+   - From string: Empty → `nope`, non-empty → `yup`
+   - From float: 0.0 → `nope`, non-zero → `yup`
+
+### Examples
+```c
+// Mathematical operations
+float root = sqrt(25);                    // 5.0
+float value = toPrecision(3.14159, 2);    // 3.14
+
+// String manipulation
+string text = "  Hello, World!  ";
+print(trim(text));                        // "Hello, World!"
+print(toLowerCase(text));                 // "  hello, world!  "
+print(repeat("Hi", 3, " "));             // "Hi Hi Hi"
+
+// Date and time
+print(date("Y") + "-" + date("M"));      // "2024-03"
+print(now());                            // "2024-03-14 15:30:45"
 ```
 
 ## String Operations
@@ -172,8 +244,8 @@ string name = "Paul";
 print(length(name));    // Output: 4
 
 // Get character at index
-print(index(name, 0));  // Output: "P"
-print(index(name, 3));  // Output: "l"
+print(charAt(name, 0));  // Output: "P"
+print(charAt(name, 3));  // Output: "l"
 
 // Get part of string from start to end index
 print(substring("hello", 1, 3));  // Output: "el"
@@ -191,7 +263,7 @@ print(replace("hello", 0, "j"));  // Output: "jello"
    - Returns 0 for empty strings
    - Works with both string literals and variables
 
-2. **index(string, int)**
+2. **charAt(string, int)**
    - Returns the character at the specified index as a string
    - Index starts at 0
    - Returns empty string if index is out of bounds
@@ -216,13 +288,13 @@ print(replace("hello", 0, "j"));  // Output: "jello"
 ```c
 string message = "Hello, World!";
 print(length(message));     // Output: 13
-print(index(message, 0));   // Output: "H"
-print(index(message, 7));   // Output: "W"
+print(charAt(message, 0));   // Output: "H"
+print(charAt(message, 7));   // Output: "W"
 
 // Using with string literals
 print(length("A++"));       // Output: 3
-print(index("A++", 2));     // Output: "+"
+print(charAt("A++", 2));     // Output: "+"
 
 // Error handling
-print(index(message, 50));  // Output: "" (empty string, index out of bounds)
+print(charAt(message, 50));  // Output: "" (empty string, index out of bounds)
 ``` 

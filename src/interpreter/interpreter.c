@@ -7,6 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
+#include <time.h>
+
 
 /*
  * Interpreter Implementation
@@ -307,12 +310,102 @@ char *execute_function(const char *name, ASTNode *arguments)
 
         return strdup("0");
     }
-    else if (strcmp(name, "index") == 0)
+    
+    else if (strcmp(name, "date") == 0)
+    {
+        time_t t = time(NULL);
+        struct tm *tm_info = localtime(&t);
+        char result[64] = {0};
+
+        if (!arguments)
+        {
+            // Default format: YYYY-MM-DD
+            strftime(result, sizeof(result), "%Y-%m-%d", tm_info);
+        }
+        else
+        {
+            // Parse arguments and build custom format
+            char format[32] = {0};
+            char *ptr = format;
+            ASTNode *current = arguments;
+            bool has_year = false, has_month = false, has_day = false;
+
+            while (current)
+            {
+                char *arg = evaluate_string_expression(current);
+                if (!arg)
+                {
+                    printf("Error: Invalid argument for date()\n");
+                    return strdup("");
+                }
+
+                if (strcmp(arg, "Y") == 0 && !has_year)
+                {
+                    if (ptr != format) *ptr++ = '-';
+                    strcpy(ptr, "%Y");
+                    ptr += 2;
+                    has_year = true;
+                }
+                else if (strcmp(arg, "M") == 0 && !has_month)
+                {
+                    if (ptr != format) *ptr++ = '-';
+                    strcpy(ptr, "%m");
+                    ptr += 2;
+                    has_month = true;
+                }
+                else if (strcmp(arg, "D") == 0 && !has_day)
+                {
+                    if (ptr != format) *ptr++ = '-';
+                    strcpy(ptr, "%d");
+                    ptr += 2;
+                    has_day = true;
+                }
+
+                free(arg);
+                current = current->next;
+            }
+
+            if (format[0] == 0)
+            {
+                // If no valid format specified, use default
+                strftime(result, sizeof(result), "%Y-%m-%d", tm_info);
+            }
+            else
+            {
+                strftime(result, sizeof(result), format, tm_info);
+            }
+        }
+
+        return strdup(result);
+    }
+    else if (strcmp(name, "time") == 0)
+    {
+        time_t t = time(NULL);
+        struct tm *tm_info = localtime(&t);
+        char result[64];
+        
+        // Format: HH:MM:SS
+        strftime(result, sizeof(result), "%H:%M:%S", tm_info);
+        return strdup(result);
+    }
+    else if (strcmp(name, "now") == 0)
+    {
+        time_t t = time(NULL);
+        struct tm *tm_info = localtime(&t);
+        char result[64];
+        
+        // Format: YYYY-MM-DD HH:MM:SS
+        strftime(result, sizeof(result), "%Y-%m-%d %H:%M:%S", tm_info);
+        return strdup(result);
+    }
+
+
+    else if (strcmp(name, "charAt") == 0)
     {
         // Get the string argument
         if (!arguments)
         {
-            printf("Error: index() requires two arguments: string and index\n");
+            printf("Error: charAt() requires two arguments: string and index\n");
             return strdup("");
         }
 
@@ -335,7 +428,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         ASTNode *index_arg = arguments->next;
         if (!index_arg)
         {
-            printf("Error: index() requires an index argument\n");
+            printf("Error: charAt() requires an index argument\n");
             return strdup("");
         }
 
@@ -344,7 +437,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         // Validate string and index
         if (!str_value)
         {
-            printf("Error: First argument to index() must be a string\n");
+            printf("Error: First argument to charAt() must be a string\n");
             return strdup("");
         }
 
@@ -470,6 +563,570 @@ char *execute_function(const char *name, ASTNode *arguments)
         free(str_value);
         free(new_char);
         return result;
+    }
+
+    else if (strcmp(name, "indexOf") == 0)
+    {
+        if (!arguments || !arguments->next)
+        {
+            printf("Error: indexOf() requires two arguments: string and character\n");
+            return strdup("-1");
+        }
+
+        // Get the string argument
+        char *str_value = evaluate_string_expression(arguments);
+        if (!str_value)
+        {
+            printf("Error: First argument to indexOf() must be a string\n");
+            return strdup("-1");
+        }
+
+        // Get the character to search for
+        char *char_value = evaluate_string_expression(arguments->next);
+        if (!char_value || strlen(char_value) != 1)
+        {
+            printf("Error: Second argument to indexOf() must be a single character\n");
+            free(str_value);
+            free(char_value);
+            return strdup("-1");
+        }
+
+        // Search for the character
+        char *pos = strchr(str_value, char_value[0]);
+        int index = (pos != NULL) ? (int)(pos - str_value) : -1;
+
+        // Clean up
+        free(str_value);
+        free(char_value);
+
+        // Return result as string
+        char result[32];
+        snprintf(result, sizeof(result), "%d", index);
+        return strdup(result);
+    }
+
+    else if (strcmp(name, "toLowerCase") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: toLowerCase() requires a string argument\n");
+            return strdup("");
+        }
+
+        char *str_value = evaluate_string_expression(arguments);
+        if (!str_value)
+        {
+            printf("Error: Argument to toLowerCase() must be a string\n");
+            return strdup("");
+        }
+
+        // Convert string to lowercase
+        for (char *p = str_value; *p; p++)
+        {
+            *p = tolower((unsigned char)*p);
+        }
+
+        return str_value; // Return the modified string
+    }
+    else if (strcmp(name, "toUpperCase") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: toUpperCase() requires a string argument\n");
+            return strdup("");
+        }
+
+        char *str_value = evaluate_string_expression(arguments);
+        if (!str_value)
+        {
+            printf("Error: Argument to toUpperCase() must be a string\n");
+            return strdup("");
+        }
+
+        // Convert string to uppercase
+        for (char *p = str_value; *p; p++)
+        {
+            *p = toupper((unsigned char)*p);
+        }
+
+        return str_value; // Return the modified string
+    }
+
+    else if (strcmp(name, "reverse") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: reverse() requires a string argument\n");
+            return strdup("");
+        }
+
+        char *str_value = evaluate_string_expression(arguments);
+        if (!str_value)
+        {
+            printf("Error: Argument to reverse() must be a string\n");
+            return strdup("");
+        }
+
+        // Get string length
+        size_t len = strlen(str_value);
+        
+        // Reverse the string in place
+        for (size_t i = 0; i < len / 2; i++)
+        {
+            char temp = str_value[i];
+            str_value[i] = str_value[len - 1 - i];
+            str_value[len - 1 - i] = temp;
+        }
+
+        return str_value;
+    }
+    else if (strcmp(name, "trim") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: trim() requires a string argument\n");
+            return strdup("");
+        }
+
+        char *str_value = evaluate_string_expression(arguments);
+        if (!str_value)
+        {
+            printf("Error: Argument to trim() must be a string\n");
+            return strdup("");
+        }
+
+        // Find first non-whitespace character
+        char *start = str_value;
+        while (*start && isspace((unsigned char)*start))
+        {
+            start++;
+        }
+
+        // Find last non-whitespace character
+        char *end = str_value + strlen(str_value);
+        while (end > start && isspace((unsigned char)*(end - 1)))
+        {
+            end--;
+        }
+
+        // Calculate new length
+        size_t new_len = end - start;
+
+        // Create new trimmed string
+        char *result = malloc(new_len + 1);
+        if (result)
+        {
+            strncpy(result, start, new_len);
+            result[new_len] = '\0';
+        }
+
+        free(str_value);
+        return result ? result : strdup("");
+    }
+
+    else if (strcmp(name, "repeat") == 0)
+    {
+        if (!arguments || !arguments->next)
+        {
+            printf("Error: repeat() requires at least two arguments: string and count\n");
+            return strdup("");
+        }
+
+        // Get the string to repeat
+        char *str_value = evaluate_string_expression(arguments);
+        if (!str_value)
+        {
+            printf("Error: First argument to repeat() must be a string\n");
+            return strdup("");
+        }
+
+        // Get the number of repetitions
+        int count = evaluate_expression(arguments->next);
+        if (count < 0)
+        {
+            printf("Error: Repeat count must be non-negative\n");
+            free(str_value);
+            return strdup("");
+        }
+
+        // Get the optional delimiter (default to empty string)
+        char *delimiter = "";
+        if (arguments->next->next)
+        {
+            delimiter = evaluate_string_expression(arguments->next->next);
+            if (!delimiter)
+            {
+                printf("Error: Third argument to repeat() must be a string\n");
+                free(str_value);
+                return strdup("");
+            }
+        }
+
+        // Calculate the total length needed
+        size_t str_len = strlen(str_value);
+        size_t delim_len = strlen(delimiter);
+        size_t total_len = (str_len * count) + (delim_len * (count - 1));
+
+        // Allocate memory for the result
+        char *result = malloc(total_len + 1);
+        if (!result)
+        {
+            printf("Error: Memory allocation failed\n");
+            free(str_value);
+            if (arguments->next->next) free(delimiter);
+            return strdup("");
+        }
+
+        // Build the repeated string
+        char *ptr = result;
+        for (int i = 0; i < count; i++)
+        {
+            // Copy the string
+            strcpy(ptr, str_value);
+            ptr += str_len;
+
+            // Add delimiter if not the last iteration
+            if (i < count - 1 && delim_len > 0)
+            {
+                strcpy(ptr, delimiter);
+                ptr += delim_len;
+            }
+        }
+
+        // Clean up
+        free(str_value);
+        if (arguments->next->next) free(delimiter);
+
+        return result;
+    }
+
+    else if (strcmp(name, "round") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: round() requires at least one argument\n");
+            return strdup("0");
+        }
+
+        // Get the number to round
+        double number;
+        if (arguments->type == NODE_INT_LITERAL)
+        {
+            number = (double)evaluate_expression(arguments);
+        }
+        else
+        {
+            number = evaluate_float_expression(arguments);
+        }
+
+        // Get the optional direction (U for up, D for down)
+        char *direction = NULL;
+        if (arguments->next)
+        {
+            direction = evaluate_string_expression(arguments->next);
+            if (!direction)
+            {
+                printf("Error: Second argument to round() must be 'U' or 'D'\n");
+                return strdup("0");
+            }
+        }
+
+        int rounded;
+        if (direction)
+        {
+            if (strcmp(direction, "U") == 0)
+            {
+                rounded = (int)ceil(number);
+            }
+            else if (strcmp(direction, "D") == 0)
+            {
+                rounded = (int)floor(number);
+            }
+            else
+            {
+                printf("Error: Round direction must be 'U' or 'D'\n");
+                free(direction);
+                return strdup("0");
+            }
+            free(direction);
+        }
+        else
+        {
+            // Default rounding behavior
+            rounded = (int)(number + (number >= 0 ? 0.5 : -0.5));
+        }
+
+        char result[32];
+        snprintf(result, sizeof(result), "%d", rounded);
+        return strdup(result);
+    }
+    else if (strcmp(name, "abs") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: abs() requires one argument\n");
+            return strdup("0");
+        }
+
+        // Handle both integer and float inputs
+        if (arguments->type == NODE_INT_LITERAL)
+        {
+            int value = evaluate_expression(arguments);
+            int abs_value = value < 0 ? -value : value;
+            char result[32];
+            snprintf(result, sizeof(result), "%d", abs_value);
+            return strdup(result);
+        }
+        else
+        {
+            double value = evaluate_float_expression(arguments);
+            double abs_value = fabs(value);
+            char result[32];
+            snprintf(result, sizeof(result), "%g", abs_value);
+            return strdup(result);
+        }
+    }
+
+    else if (strcmp(name, "toPrecision") == 0)
+    {
+        if (!arguments || !arguments->next)
+        {
+            printf("Error: toPrecision() requires two arguments: number and decimal places\n");
+            return strdup("0");
+        }
+
+        // Get the number
+        double number = evaluate_float_expression(arguments);
+
+        // Get the number of decimal places
+        int decimals = evaluate_expression(arguments->next);
+        if (decimals < 0)
+        {
+            printf("Error: Number of decimal places cannot be negative\n");
+            return strdup("0");
+        }
+
+        // Calculate the rounding factor
+        double factor = pow(10, decimals);
+        
+        // Round the number using the factor
+        double rounded = round(number * factor) / factor;
+
+        // Create format string for specified precision
+        char format[32];
+        snprintf(format, sizeof(format), "%%.%df", decimals);
+
+        // Format the number with specified precision
+        char result[64];
+        snprintf(result, sizeof(result), format, rounded);
+        return strdup(result);
+    }
+    else if (strcmp(name, "min") == 0 || strcmp(name, "max") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: %s() requires at least one argument\n", name);
+            return strdup("0");
+        }
+
+        bool is_max = (strcmp(name, "max") == 0);
+        double result = evaluate_float_expression(arguments);
+        ASTNode *current = arguments->next;
+
+        // Iterate through all arguments
+        while (current)
+        {
+            double value = evaluate_float_expression(current);
+            if (is_max)
+            {
+                if (value > result) result = value;
+            }
+            else
+            {
+                if (value < result) result = value;
+            }
+            current = current->next;
+        }
+
+        // Check if result is a whole number
+        if (result == (int)result)
+        {
+            char str_result[32];
+            snprintf(str_result, sizeof(str_result), "%d", (int)result);
+            return strdup(str_result);
+        }
+        else
+        {
+            char str_result[32];
+            snprintf(str_result, sizeof(str_result), "%g", result);
+            return strdup(str_result);
+        }
+    }
+
+    else if (strcmp(name, "sin") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: sin() requires one argument\n");
+            return strdup("0");
+        }
+        double angle = evaluate_float_expression(arguments);
+        double result = sin(angle);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "cos") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: cos() requires one argument\n");
+            return strdup("0");
+        }
+        double angle = evaluate_float_expression(arguments);
+        double result = cos(angle);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "tan") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: tan() requires one argument\n");
+            return strdup("0");
+        }
+        double angle = evaluate_float_expression(arguments);
+        double result = tan(angle);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "asin") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: asin() requires one argument\n");
+            return strdup("0");
+        }
+        double value = evaluate_float_expression(arguments);
+        if (value < -1 || value > 1)
+        {
+            printf("Error: asin() argument must be between -1 and 1\n");
+            return strdup("0");
+        }
+        double result = asin(value);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "acos") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: acos() requires one argument\n");
+            return strdup("0");
+        }
+        double value = evaluate_float_expression(arguments);
+        if (value < -1 || value > 1)
+        {
+            printf("Error: acos() argument must be between -1 and 1\n");
+            return strdup("0");
+        }
+        double result = acos(value);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "atan") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: atan() requires one argument\n");
+            return strdup("0");
+        }
+        double value = evaluate_float_expression(arguments);
+        double result = atan(value);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+
+    else if (strcmp(name, "sqrt") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: sqrt() requires one argument\n");
+            return strdup("0");
+        }
+
+        double number = evaluate_float_expression(arguments);
+        if (number < 0)
+        {
+            printf("Error: Cannot calculate square root of negative number\n");
+            return strdup("0");
+        }
+
+        double result = sqrt(number);
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "cbrt") == 0)
+    {
+        if (!arguments)
+        {
+            printf("Error: cbrt() requires one argument\n");
+            return strdup("0");
+        }
+
+        double number = evaluate_float_expression(arguments);
+        double result = cbrt(number); // cbrt handles negative numbers correctly
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
+    }
+    else if (strcmp(name, "root") == 0)
+    {
+        if (!arguments || !arguments->next)
+        {
+            printf("Error: root() requires two arguments: number and nth root\n");
+            return strdup("0");
+        }
+
+        double number = evaluate_float_expression(arguments);
+        double n = evaluate_float_expression(arguments->next);
+        
+        // Check for valid input
+        if (n == 0)
+        {
+            printf("Error: Root index cannot be zero\n");
+            return strdup("0");
+        }
+
+        // Handle even roots of negative numbers
+        if (number < 0 && fmod(n, 2) == 0)
+        {
+            printf("Error: Cannot calculate even root of negative number\n");
+            return strdup("0");
+        }
+
+        // Calculate nth root using power function
+        double result;
+        if (number < 0)
+        {
+            // For negative numbers, calculate the root of absolute value
+            // and then negate the result
+            result = -pow(-number, 1.0 / n);
+        }
+        else
+        {
+            result = pow(number, 1.0 / n);
+        }
+
+        char str_result[32];
+        snprintf(str_result, sizeof(str_result), "%.10g", result);
+        return strdup(str_result);
     }
 
     Function *func = find_function(name);
@@ -1353,12 +2010,20 @@ static void register_builtin_functions(void)
     functions[function_count++] = length_func;
 
     // Register index function
-    Function index_func = {
-        .name = "index",
+    Function char_at_func = {
+        .name = "charAt",
         .return_type = "string",
         .parameters = NULL,
         .body = NULL};
-    functions[function_count++] = index_func;
+    functions[function_count++] = char_at_func;
+
+    // Register indexOf function
+    Function index_of_func = {
+        .name = "indexOf",
+        .return_type = "int",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = index_of_func;
 
     // Register substring function
     Function substring_func = {
@@ -1383,6 +2048,173 @@ static void register_builtin_functions(void)
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = replace_func;
+
+    // Register toLowerCase function
+    Function to_lower_func = {
+        .name = "toLowerCase",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = to_lower_func;
+
+    // Register toUpperCase function
+    Function to_upper_func = {
+        .name = "toUpperCase",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = to_upper_func;
+
+    // Register reverse function
+    Function reverse_func = {
+        .name = "reverse",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = reverse_func;
+
+    // Register trim function
+    Function trim_func = {
+        .name = "trim",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = trim_func;
+
+    // Register repeat function
+    Function repeat_func = {
+        .name = "repeat",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = repeat_func;
+
+    // Register round function
+    Function round_func = {
+        .name = "round",
+        .return_type = "int",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = round_func;
+
+    // Register abs function
+    Function abs_func = {
+        .name = "abs",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = abs_func;
+
+    // Register toPrecision function
+    Function precision_func = {
+        .name = "toPrecision",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = precision_func;
+
+    // Register min function
+    Function min_func = {
+        .name = "min",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = min_func;
+
+    // Register max function
+    Function max_func = {
+        .name = "max",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = max_func;
+
+    // Register trigonometric functions
+    Function sin_func = {
+        .name = "sin",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = sin_func;
+
+    Function cos_func = {
+        .name = "cos",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = cos_func;
+
+    Function tan_func = {
+        .name = "tan",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = tan_func;
+
+    Function asin_func = {
+        .name = "asin",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = asin_func;
+
+    Function acos_func = {
+        .name = "acos",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = acos_func;
+
+    Function atan_func = {
+        .name = "atan",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = atan_func;
+
+    // Register date/time functions
+    Function date_func = {
+        .name = "date",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = date_func;
+
+    Function time_func = {
+        .name = "time",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = time_func;
+
+    Function now_func = {
+        .name = "now",
+        .return_type = "string",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = now_func;
+
+    // Register root functions
+    Function sqrt_func = {
+        .name = "sqrt",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = sqrt_func;
+
+    Function cbrt_func = {
+        .name = "cbrt",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = cbrt_func;
+
+    Function root_func = {
+        .name = "root",
+        .return_type = "float",
+        .parameters = NULL,
+        .body = NULL};
+    functions[function_count++] = root_func;
 
     builtins_registered = true;
 }
@@ -1485,14 +2317,14 @@ void interpret(ASTNode *node)
                 }
                 // Keep existing boolean expression handling
                 else if (node->left->value && (strcmp(node->left->value, "==") == 0 ||
-                                               strcmp(node->left->value, "!=") == 0 ||
-                                               strcmp(node->left->value, ">") == 0 ||
-                                               strcmp(node->left->value, "<") == 0 ||
-                                               strcmp(node->left->value, ">=") == 0 ||
-                                               strcmp(node->left->value, "<=") == 0 ||
-                                               strcmp(node->left->value, "&&") == 0 ||
-                                               strcmp(node->left->value, "||") == 0 ||
-                                               strcmp(node->left->value, "!") == 0))
+                           strcmp(node->left->value, "!=") == 0 ||
+                           strcmp(node->left->value, ">") == 0 ||
+                           strcmp(node->left->value, "<") == 0 ||
+                           strcmp(node->left->value, ">=") == 0 ||
+                           strcmp(node->left->value, "<=") == 0 ||
+                           strcmp(node->left->value, "&&") == 0 ||
+                           strcmp(node->left->value, "||") == 0 ||
+                           strcmp(node->left->value, "!") == 0))
                 {
                     bool result = evaluate_bool_expression(node->left);
                     printf("%s\n", result ? "yup" : "nope");
@@ -2067,7 +2899,7 @@ void interpret(ASTNode *node)
             if (!var)
             {
                 printf("Error: Undefined variable '%s'\n", node->var_name);
-                return;
+                exit(1);
             }
 
             if (var->type == STRING_TYPE)
@@ -2160,11 +2992,6 @@ static void handle_type_cast(ASTNode *node)
                     printf("Error: Cannot cast type to boolean\n");
                     exit(1);
                 }
-            }
-            else
-            {
-                printf("Error: Undefined variable in cast\n");
-                exit(1);
             }
         }
         else

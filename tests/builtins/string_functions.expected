@@ -1,0 +1,28 @@
+=== String Function Tests ===
+
+Length Tests:
+0
+5
+8
+
+Trim Tests:
+hello
+hello
+
+
+Case Conversion Tests:
+hello
+HELLO
+
+
+String Manipulation Tests:
+olleh
+
+hahaha
+hi-hi
+
+
+String Information Tests:
+1
+-1
+H

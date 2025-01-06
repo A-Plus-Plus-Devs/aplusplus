@@ -1,0 +1,19 @@
+// Date and Time Function Tests
+print("=== Date/Time Function Tests ===");
+
+// Date tests
+print("\nDate Tests:");
+print(date());           // Should print current date: YYYY-MM-DD
+print(date("Y"));       // Should print current year
+print(date("M"));       // Should print current month
+print(date("D"));       // Should print current day
+
+// Time tests
+print("\nTime Tests:");
+print(time());          // Should print current time: HH:MM:SS
+print(now());           // Should print current datetime: YYYY-MM-DD HH:MM:SS
+
+// Format tests
+print("\nFormat Tests:");
+print(date("Y", "M"));  // Should print: YYYY-MM
+print(date("M", "D"));  // Should print: MM-DD 

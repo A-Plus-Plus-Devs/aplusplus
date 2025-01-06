@@ -2,6 +2,8 @@
 
 A++ is a modern programming language and compiler written in C, designed for readability and ease of use while maintaining powerful features. The project implements a complete compilation pipeline including lexer, parser, and interpreter.
 
+View documentation [here](https://a-plus-plus-devs.github.io/aplusplus/)
+
 ## Features
 
 - **Rich Type System:**
@@ -47,15 +49,30 @@ Requirements:
 - GCC or compatible C compiler
 - Make
 - Git
+- Node.js and npm (for syntax highlighting)
+- Visual Studio Code (for syntax highlighting)
 
 1. Clone the repository:
 ```sh
-git clone https://github.com/A-Plus-Plus-Devs/aplusplus.git
+git clone https://github.com/A-Plus-Plus-Devs/aplusplus.git .
 ```
 
 2. Build the project:
 ```sh
 make
+```
+
+3. Install syntax highlighting for VS Code:
+
+**Unix/Linux/macOS:**
+```sh
+chmod +x install-syntax.sh
+./install-syntax.sh
+```
+
+**Windows PowerShell:**
+```powershell
+.\install-syntax.ps1
 ```
 
 ## Usage
@@ -279,7 +296,7 @@ Please ensure your code:
 
 ### Working with Issues
 
-1. Check the [A++ Issue Tracker](https://github.com/A-Plus-Plus-Devs/projects/1) for open tasks
+1. Check the [A++ Issue Tracker](https://github.com/orgs/A-Plus-Plus-Devs/projects/1) for open tasks
 2. Comment on issues you'd like to work on
 3. Reference issue numbers in commits and pull requests
 4. Update issue status as you make progress
@@ -291,5 +308,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Authors
 
 - **Paul Kabulu** - *Initial work* - Created August 2024
+
+
+- **Last Updated:** - *06 January 2025*
 
 See also the list of contributors who have participated in this project.

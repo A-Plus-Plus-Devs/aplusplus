@@ -1,0 +1,35 @@
+// String Function Tests
+print("=== String Function Tests ===");
+
+// Length tests
+print("\nLength Tests:");
+print(length(""));           // Should print: 0
+print(length("hello"));      // Should print: 5
+print(length("Hello, 世界")); // Should print: 8
+
+// Trim tests
+print("\nTrim Tests:");
+print(trim("  hello  "));    // Should print: hello
+print(trim("hello"));        // Should print: hello
+print(trim("   "));         // Should print: ""
+
+// Case conversion tests
+print("\nCase Conversion Tests:");
+print(toLowerCase("HELLO"));  // Should print: hello
+print(toUpperCase("hello")); // Should print: HELLO
+print(toLowerCase(""));      // Should print: ""
+
+// String manipulation tests
+print("\nString Manipulation Tests:");
+print(reverse("hello"));     // Should print: olleh
+print(reverse(""));         // Should print: ""
+print(repeat("ha", 3));     // Should print: hahaha
+print(repeat("hi", 2, "-")); // Should print: hi-hi
+print(repeat("x", 0));      // Should print: ""
+
+// String information tests
+print("\nString Information Tests:");
+print(indexOf("Hello", "e")); // Should print: 1
+print(indexOf("Hello", "z")); // Should print: -1
+print(charAt("Hello", 0));    // Should print: H
+print(charAt("Hello", 10));   // Should print: "" 

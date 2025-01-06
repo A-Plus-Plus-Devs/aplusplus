@@ -7,7 +7,7 @@
 /*
  * Parser Implementation
  * 
- * This file contains the implementation of a recursive descent parser for a custom programming language.
+ * This file contains the implementation of a recursive descent parser for the A++ programming language.
  * It parses tokens from the lexer and builds an Abstract Syntax Tree (AST) representation of the code.
  * 
  * Key features:
@@ -535,7 +535,34 @@ static ASTNode *parse_factor(Parser *parser)
            token->value ? token->value : "NULL");
 
     
-    if (token->type == TOKEN_LENGTH || token->type == TOKEN_INDEX || 
+    if (token->type == TOKEN_LENGTH || 
+        token->type == TOKEN_CHAR_AT || 
+        token->type == TOKEN_LOWERCASE ||
+        token->type == TOKEN_UPPERCASE ||
+        token->type == TOKEN_INDEX_OF ||
+        token->type == TOKEN_REVERSE ||
+        token->type == TOKEN_TRIM ||
+        token->type == TOKEN_REPEAT ||
+        token->type == TOKEN_ABS ||
+        token->type == TOKEN_CEIL ||
+        token->type == TOKEN_FLOOR ||
+        token->type == TOKEN_ROUND ||
+        token->type == TOKEN_SQRT ||
+        token->type == TOKEN_CBRT ||
+        token->type == TOKEN_ROOT ||
+        token->type == TOKEN_SIN ||
+        token->type == TOKEN_COS ||
+        token->type == TOKEN_TAN ||
+        token->type == TOKEN_ARCTAN ||
+        token->type == TOKEN_ARCSIN ||
+        token->type == TOKEN_ARCCOS ||
+        token->type == TOKEN_MAX ||
+        token->type == TOKEN_MIN ||
+        token->type == TOKEN_RANDOM ||
+        token->type == TOKEN_DATE ||
+        token->type == TOKEN_TIME ||
+        token->type == TOKEN_NOW ||
+        token->type == TOKEN_TO_PRECISION ||
         (token->type == TOKEN_IDENTIFIER && peek_char(parser->lexer) == '(')) {
         char *func_name = strdup(token->value);
         get_next_token(parser);
@@ -837,7 +864,7 @@ static ASTNode *parse_factor(Parser *parser)
     // Handle function calls
     if (parser->current_token->type == TOKEN_IDENTIFIER ||
         parser->current_token->type == TOKEN_LENGTH ||
-        parser->current_token->type == TOKEN_INDEX ||
+        parser->current_token->type == TOKEN_CHAR_AT ||
         parser->current_token->type == TOKEN_SUBSTRING || 
         parser->current_token->type == TOKEN_CONCAT ||
         parser->current_token->type == TOKEN_REPLACE)

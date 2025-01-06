@@ -91,14 +91,66 @@ static Token *identifier_or_keyword(Lexer *lexer)
     // Check for keywords
     if (strcmp(buffer, "length") == 0)
         token->type = TOKEN_LENGTH;
-    else if (strcmp(buffer, "index") == 0)
-        token->type = TOKEN_INDEX;
+    else if (strcmp(buffer, "charAt") == 0)
+        token->type = TOKEN_CHAR_AT;
     else if (strcmp(buffer, "substring") == 0)
         token->type = TOKEN_SUBSTRING;
     else if (strcmp(buffer, "concat") == 0)
         token->type = TOKEN_CONCAT;
     else if (strcmp(buffer, "replace") == 0)
         token->type = TOKEN_REPLACE;
+    else if (strcmp(buffer, "toLowerCase") == 0)
+        token->type = TOKEN_LOWERCASE;
+    else if (strcmp(buffer, "toUpperCase") == 0)
+        token->type = TOKEN_UPPERCASE;
+    else if (strcmp(buffer, "reverse") == 0)
+        token->type = TOKEN_REVERSE;
+    else if (strcmp(buffer, "indexOf") == 0)
+        token->type = TOKEN_INDEX_OF;
+    else if (strcmp(buffer, "trim") == 0)
+        token->type = TOKEN_TRIM;
+    else if (strcmp(buffer, "repeat") == 0)
+        token->type = TOKEN_REPEAT;
+    else if (strcmp(buffer, "abs") == 0)
+        token->type = TOKEN_ABS;
+    else if (strcmp(buffer, "ceil") == 0)
+        token->type = TOKEN_CEIL;
+    else if (strcmp(buffer, "floor") == 0)
+        token->type = TOKEN_FLOOR;
+    else if (strcmp(buffer, "round") == 0)
+        token->type = TOKEN_ROUND;
+    else if (strcmp(buffer, "sqrt") == 0)
+        token->type = TOKEN_SQRT;
+    else if (strcmp(buffer, "cbrt") == 0)
+        token->type = TOKEN_CBRT;
+    else if (strcmp(buffer, "root") == 0)
+        token->type = TOKEN_ROOT;
+    else if (strcmp(buffer, "sin") == 0)
+        token->type = TOKEN_SIN;
+    else if (strcmp(buffer, "cos") == 0)
+        token->type = TOKEN_COS;
+    else if (strcmp(buffer, "tan") == 0)
+        token->type = TOKEN_TAN;
+    else if (strcmp(buffer, "arctan") == 0)
+        token->type = TOKEN_ARCTAN;
+    else if (strcmp(buffer, "arcsin") == 0)
+        token->type = TOKEN_ARCSIN;
+    else if (strcmp(buffer, "arccos") == 0)
+        token->type = TOKEN_ARCCOS;
+    else if (strcmp(buffer, "max") == 0)
+        token->type = TOKEN_MAX;
+    else if (strcmp(buffer, "min") == 0)
+        token->type = TOKEN_MIN;
+    else if (strcmp(buffer, "random") == 0)
+        token->type = TOKEN_RANDOM;
+    else if (strcmp(buffer, "date") == 0)
+        token->type = TOKEN_DATE;
+    else if (strcmp(buffer, "time") == 0)
+        token->type = TOKEN_TIME;
+    else if (strcmp(buffer, "now") == 0)
+        token->type = TOKEN_NOW;
+    else if (strcmp(buffer, "toPrecision") == 0)
+        token->type = TOKEN_TO_PRECISION;
     else if (strcmp(buffer, "if") == 0)
         token->type = TOKEN_IF;
     else if (strcmp(buffer, "else") == 0)

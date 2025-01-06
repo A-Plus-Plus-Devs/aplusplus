@@ -1,0 +1,31 @@
+// Mathematical Function Tests
+print("=== Mathematical Function Tests ===");
+
+// Basic math tests
+print("\nBasic Math Tests:");
+print(abs(-5.5));          // Should print: 5.5
+print(abs(0));            // Should print: 0
+print(round(3.4));        // Should print: 3
+print(round(3.6));        // Should print: 4
+print(round(-3.6));       // Should print: -4
+
+// Root calculations
+print("\nRoot Tests:");
+print(sqrt(16));          // Should print: 4
+print(sqrt(0));          // Should print: 0
+print(cbrt(-8));         // Should print: -2
+print(root(16, 4));      // Should print: 2
+print(root(0, 2));       // Should print: 0
+
+// Edge cases
+print("\nEdge Cases:");
+print(sqrt(-1));         // Should print error or NaN
+print(root(16, 0));      // Should print error
+print(root(-16, 3));     // Should print real cube root
+
+// Min/Max tests
+print("\nMin/Max Tests:");
+print(min(5, 3, 8, 1));  // Should print: 1
+print(max(5, 3, 8, 1));  // Should print: 8
+print(min(-5, -3));      // Should print: -5
+print(max(-5, -3));      // Should print: -3 
