@@ -278,7 +278,6 @@ ASTNode *create_type_cast_node(const char *target_type, ASTNode *expr)
     return node;
 }
 
-// Add this function implementation
 ASTNode *create_compound_assign_node(char *var_name, ASTNode *right, const char *operator)
 {
     ASTNode *node = (ASTNode *)malloc(sizeof(ASTNode));

@@ -347,7 +347,7 @@ char peek_char(Lexer *lexer)
     return lexer->input[lexer->read_position];
 }
 
-// Add this function to peek at the next non-whitespace character
+//function to peek at the next non-whitespace character
 char peek_next_non_whitespace(Lexer *lexer)
 {
     size_t pos = lexer->position;
@@ -439,7 +439,6 @@ void skip_whitespace(Lexer *lexer)
     }
 }
 
-// Add this helper function at the top with other static functions
 static Token* array_type(Lexer* lexer) {
     Token* token = malloc(sizeof(Token));
     char buffer[256] = {0};

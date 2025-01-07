@@ -2370,18 +2370,22 @@ void interpret(ASTNode *node)
                             }
                             break;
                         }
-                        case FLOAT_TYPE: {
-                            if (element->type == NODE_FLOAT_LITERAL) {
+                        case FLOAT_TYPE:
+                        {
+                            if (element->type == NODE_FLOAT_LITERAL)
+                            {
                                 double value = atof(element->value);
-                                double* element_value = malloc(sizeof(double));
+                                double *element_value = malloc(sizeof(double));
                                 *element_value = value;
                                 array_add_last(array, element_value);
                                 printf("DEBUG: Added float element: %f\n", value);
                             }
                             break;
                         }
-                        case BOOL_TYPE: {
-                            if (element->type == NODE_BOOL_LITERAL) {
+                        case BOOL_TYPE:
+                        {
+                            if (element->type == NODE_BOOL_LITERAL)
+                            {
                                 bool *element_value = malloc(sizeof(bool));
                                 *element_value = strcmp(element->value, "yup") == 0;
                                 array_add_last(array, element_value);
@@ -3325,9 +3329,7 @@ void *interpret_expression(ASTNode *node)
                 free(right_result);
                 return result;
             }
-            // ... rest of binary op cases ...
         }
-        // ... rest of operators ...
         return NULL;
     }
 
@@ -3373,7 +3375,6 @@ void *interpret_expression(ASTNode *node)
             printf("Error: Undefined variable '%s'\n", node->value);
             return NULL;
         }
-        // ... existing literal handling code ...
         return NULL;
     }
 
@@ -3414,24 +3415,6 @@ void *interpret_expression(ASTNode *node)
         }
 
         return result;
-    }
-
-    case NODE_ARRAY_LITERAL:
-    {
-        // ... existing array literal code ...
-        return NULL;
-    }
-
-    case NODE_FUNCTION_CALL:
-    {
-        // ... existing function call code ...
-        return NULL;
-    }
-
-    case NODE_TYPE_CAST:
-    {
-        // ... existing type cast code ...
-        return NULL;
     }
 
     default:
