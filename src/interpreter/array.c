@@ -151,4 +151,32 @@ void debug_print_array(ArrayValue* array) {
         }
         printf("\n");
     }
+}
+
+void array_insert(ArrayValue* array, size_t index, void* element) {
+    DEBUG_LOG("Inserting element at index %zu", index);
+    
+    if (!array) {
+        DEBUG_LOG("Array is NULL!");
+        return;
+    }
+    
+    if (index > array->length) {
+        DEBUG_LOG("Index out of bounds: %zu (length: %zu)", index, array->length);
+        return;
+    }
+    
+    ensure_capacity(array);
+    
+    // Shift elements to make room for new element
+    if (index < array->length) {
+        memmove(&array->elements[index + 1], 
+                &array->elements[index], 
+                (array->length - index) * sizeof(void*));
+    }
+    
+    array->elements[index] = element;
+    array->length++;
+    
+    DEBUG_LOG("Successfully inserted element, new length: %zu", array->length);
 } 

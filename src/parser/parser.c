@@ -1412,6 +1412,7 @@ static ASTNode *parse_function_definition(Parser *parser)
     {
         // printf("[DEBUG] Error: Expected return type, got token type %d\n",
         //        parser->current_token->type);
+        free(return_type);
         return NULL;
     }
 
@@ -2065,26 +2066,20 @@ static ASTNode *parse_array_method_call(Parser *parser, char *array_name)
 {
     printf("DEBUG: Parsing array method call for array '%s'\n", array_name);
     
-    // Make a copy of array_name before we start
     char *array_name_copy = strdup(array_name);
     if (!array_name_copy) {
         printf("ERROR: Failed to copy array name\n");
         return NULL;
     }
     
-    // Skip the dot
-    get_next_token(parser);
+    get_next_token(parser); // Skip the dot
     
-    // Get the method name
     Token *method_token = parser->current_token;
     if (!method_token) {
         printf("ERROR: Expected method name after dot\n");
         free(array_name_copy);
         return NULL;
     }
-    
-    printf("DEBUG: Method token type: %d, value: %s\n", 
-           method_token->type, method_token->value);
     
     char *method_name = strdup(method_token->value);
     if (!method_name) {
@@ -2095,46 +2090,58 @@ static ASTNode *parse_array_method_call(Parser *parser, char *array_name)
     
     get_next_token(parser); // consume method name
     
-    // Parse argument if present
-    ASTNode *argument = NULL;
+    // Parse arguments if present
+    ASTNode *arguments = NULL;
+    ASTNode *current_arg = NULL;
+    
     if (parser->current_token->type == TOKEN_LPAREN) {
         get_next_token(parser); // consume (
         
-        if (parser->current_token->type != TOKEN_RPAREN) {
-            argument = parse_expression(parser);
-            if (!argument) {
+        while (parser->current_token->type != TOKEN_RPAREN) {
+            ASTNode *arg = parse_expression(parser);
+            if (!arg) {
                 printf("ERROR: Failed to parse method argument\n");
                 free(method_name);
                 free(array_name_copy);
+                if (arguments) free_ast(arguments);
+                return NULL;
+            }
+            
+            // Add argument to list
+            if (!arguments) {
+                arguments = arg;
+                current_arg = arg;
+            } else {
+                current_arg->next = arg;
+                current_arg = arg;
+            }
+            
+            // Check for comma
+            if (parser->current_token->type == TOKEN_COMMA) {
+                get_next_token(parser); // consume comma
+            } else if (parser->current_token->type != TOKEN_RPAREN) {
+                printf("ERROR: Expected comma or closing parenthesis\n");
+                free(method_name);
+                free(array_name_copy);
+                free_ast(arguments);
                 return NULL;
             }
         }
         
-        if (parser->current_token->type != TOKEN_RPAREN) {
-            printf("ERROR: Expected ) after method argument\n");
-            free(method_name);
-            free(array_name_copy);
-            if (argument) free_ast(argument);
-            return NULL;
-        }
         get_next_token(parser); // consume )
     }
 
     // Check for semicolon
     if (parser->current_token->type != TOKEN_SEMICOLON) {
-        printf("ERROR: Expected semicolon after method call, got token type: %d\n", 
-               parser->current_token->type);
+        printf("ERROR: Expected semicolon after method call\n");
         free(method_name);
         free(array_name_copy);
-        if (argument) free_ast(argument);
+        if (arguments) free_ast(arguments);
         return NULL;
     }
     get_next_token(parser); // consume semicolon
     
-    printf("DEBUG: Creating array method call node: %s.%s()\n", 
-           array_name_copy, method_name);
-           
-    ASTNode *node = create_array_method_call_node(array_name_copy, method_name, argument);
+    ASTNode *node = create_array_method_call_node(array_name_copy, method_name, arguments);
     
     // Free our copies since create_array_method_call_node makes its own copies
     free(method_name);

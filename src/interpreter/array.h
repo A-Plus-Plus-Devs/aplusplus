@@ -22,5 +22,6 @@ void* array_get(ArrayValue* array, size_t index);
 void array_set(ArrayValue* array, size_t index, void* element);
 void free_array(ArrayValue* array);
 void debug_print_array(ArrayValue* array);
+void array_insert(ArrayValue* array, size_t index, void* element);
 
 #endif // ARRAY_H 

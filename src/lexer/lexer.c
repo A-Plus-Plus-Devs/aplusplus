@@ -187,6 +187,8 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_EMPTY;
     else if (strcmp(buffer, "input") == 0)
         token->type = TOKEN_INPUT;
+    else if (strcmp(buffer, "insert") == 0)
+        token->type = TOKEN_INSERT;
     else
         token->type = TOKEN_IDENTIFIER;
 
@@ -781,7 +783,10 @@ Token *next_token(Lexer *lexer)
                 token->type = TOKEN_REMOVE_LAST;
             else if (strcmp(method_buffer, "length") == 0)
                 token->type = TOKEN_LENGTH;
+            else if (strcmp(method_buffer, "insert") == 0)
+                token->type = TOKEN_INSERT;
             else
+
                 token->type = TOKEN_METHOD_CALL;
             
             token->value = strdup(method_buffer);

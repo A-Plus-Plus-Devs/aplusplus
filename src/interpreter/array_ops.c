@@ -221,6 +221,69 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
         return array_remove_first(array);
     }
 
+    if (strcmp(node->method_name, "insert") == 0)
+    {
+        if (!node->right || !node->right->next)
+        {
+            DEBUG_LOG("Insert requires two arguments: index and value");
+            return NULL;
+        }
+
+        // Get index
+        void *index_result = interpret_expression(node->right);
+        if (!index_result)
+        {
+            DEBUG_LOG("Failed to interpret index argument");
+            return NULL;
+        }
+        int index = *(int *)index_result;
+        free(index_result);
+
+        // Get value
+        void *value = interpret_expression(node->right->next);
+        if (!value)
+        {
+            DEBUG_LOG("Failed to interpret value argument");
+            return NULL;
+        }
+
+        // Create a copy of the element based on array type
+        void *element_copy = NULL;
+        switch (array->type)
+        {
+            case STRING_TYPE:
+                element_copy = strdup((char *)value);
+                break;
+            case INT_TYPE:
+                element_copy = malloc(sizeof(int));
+                if (element_copy) *(int *)element_copy = *(int *)value;
+                break;
+            case FLOAT_TYPE:
+                element_copy = malloc(sizeof(double));
+                if (element_copy) *(double *)element_copy = *(double *)value;
+                break;
+            case BOOL_TYPE:
+                element_copy = malloc(sizeof(bool));
+                if (element_copy) *(bool *)element_copy = *(bool *)value;
+                break;
+            default:
+                DEBUG_LOG("Unsupported array type: %d", array->type);
+                free(value);
+                return NULL;
+        }
+
+        if (!element_copy)
+        {
+            DEBUG_LOG("Failed to copy element");
+            free(value);
+            return NULL;
+        }
+
+        free(value);
+        array_insert(array, index, element_copy);
+        return NULL;
+    }
+
     DEBUG_LOG("Unknown array method: %s", node->method_name);
     if (element) free(element);
     return NULL;
