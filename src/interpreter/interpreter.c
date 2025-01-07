@@ -282,11 +282,24 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
+            printf("Error: length() requires an argument\n");
             return strdup("0");
         }
 
-        char *str_value = NULL;
+        // Handle array length
+        if (arguments->type == NODE_LITERAL)
+        {
+            Variable *var = get_variable(arguments->value);
+            if (var && var->type == ARRAY_TYPE && var->value.array_value)
+            {
+                char result[32];
+                snprintf(result, sizeof(result), "%zu", var->value.array_value->length);
+                return strdup(result);
+            }
+        }
 
+        // Handle string length (existing functionality)
+        char *str_value = NULL;
         if (arguments->type == NODE_STRING_LITERAL)
         {
             str_value = arguments->value;
@@ -318,6 +331,7 @@ char *execute_function(const char *name, ASTNode *arguments)
             return strdup(result);
         }
 
+        printf("Error: Argument to length() must be a string or array\n");
         return strdup("0");
     }
 

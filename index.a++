@@ -1,14 +1,4 @@
-numbers<int> = [1, 2, 3, 4, 5];
+numbers<int> = [1, 2, 3, 4, 5, 7, 9];
 print("Array 'numbers': ");
-print(numbers);  // Should print: [1, 2, 3, 4, 5]
-print("\n");
-
-names<string> = ["Alice", "Bob", "Charlie"];
-print("Array 'names': ");
-print(names);    // Should print: ["Alice", "Bob", "Charlie"]
-print("\n");
-
-names.addFirst("Dylan");
-print("After addFirst: ");
-print(names[0]);    // Should print: ["Dylan", "Alice", "Bob", "Charlie"]
-print("\n");
+numbers.removeFirst();
+print(length(numbers));
