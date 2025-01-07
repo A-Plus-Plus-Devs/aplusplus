@@ -1,3 +1,32 @@
+/*
+ * Array Implementation
+ *
+ * This file contains the core implementation of dynamic arrays for the A++ language,
+ * providing fundamental array operations and memory management.
+ *
+ * Key features:
+ * - Dynamic array creation and memory management
+ * - Array resizing and capacity handling
+ * - Element insertion and removal operations
+ * - Support for multiple data types
+ * - Debug utilities for array inspection
+ *
+ * The array implementation supports:
+ * - Adding/removing elements at start/end
+ * - Inserting elements at specific positions
+ * - Automatic capacity management
+ * - Type-safe element storage
+ * - Memory cleanup and deallocation
+ *
+ * Original Author: Paul Kabulu
+ * Created: January 2025
+ *
+ * Edited by:
+ *
+ *
+ * File: src/interpreter/array.c
+ */
+
 #include "array.h"
 #include <stdlib.h>
 #include <string.h>

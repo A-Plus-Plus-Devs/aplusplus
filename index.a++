@@ -1,11 +1,3 @@
-numbers<int> = [1, 2, 3, 4, 5, 7, 9];
-print("Length of numbers: ");
-print(length(numbers));
-
-print(numbers[0]);
-
-string x = "Hello, world!";
-
-for (int i = 0; i < length(x); i++) {
-    print(charAt(x, i));
-}
+int x = (int) input("Enter a number: ");
+print("You entered: ");
+print(x);

@@ -1,9 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "parser.h"
-#include <limits.h>
-
 /*
  * Parser Implementation
  *
@@ -21,10 +15,16 @@
  * Original Author: Paul Kabulu
  * Created: August 2024
  *
- * Edited by:
+ * Edited by: Paul Kabulu - January 2025 - Integrated array parsing array.c and array_ops.c
  *
  * File: src/parser/parser.c
  */
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "parser.h"
+#include <limits.h>
 
 // These are function declarations. They tell the compiler that these functions will be defined later.
 static ASTNode *parse_statement(Parser *parser);
@@ -522,7 +522,7 @@ static ASTNode *parse_term(Parser *parser)
            parser->current_token->type == TOKEN_MODULUS)
     {
         Token *op_token = parser->current_token;
-        char *op = NULL; // Initialize to NULL to fix warning
+        char *op = NULL; // Initialise to NULL to fix warning
 
         if (op_token->type == TOKEN_MULTIPLY)
             op = "*";
@@ -663,7 +663,6 @@ static ASTNode *parse_factor(Parser *parser)
         return node;
     }
 
-    // Add handling for unary minus
     if (token->type == TOKEN_MINUS)
     {
         get_next_token(parser); // consume '-'

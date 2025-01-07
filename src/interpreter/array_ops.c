@@ -1,3 +1,33 @@
+/*
+ * Array Operations Implementation
+ *
+ * This file implements the high-level array operations for the A++ language,
+ * handling array manipulation through the interpreter.
+ *
+ * Key features:
+ * - Array literal interpretation
+ * - Array declaration processing
+ * - Array method calls (addFirst, addLast, etc.)
+ * - Array element access and modification
+ * - Type conversion and validation
+ * - Error handling for array operations
+ *
+ * Supported array operations:
+ * - Creation from literals and declarations
+ * - Element access and bounds checking
+ * - Method calls (length, add, remove, insert)
+ * - Type-safe element handling
+ * - Mixed-type array support
+ *
+ * Original Author: Paul Kabulu
+ * Created: January 2025
+ *
+ * Edited by:
+ *
+ *
+ * File: src/interpreter/array_ops.c
+ */
+
 #include "array_ops.h"
 #include "interpreter.h"
 #include <stdlib.h>

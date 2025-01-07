@@ -1,8 +1,3 @@
-#include <stdlib.h>  // This includes the standard library for functions like malloc and free
-#include <stdio.h>   // This includes the standard input/output library
-#include <string.h>  // This includes the string manipulation library
-#include "ast.h"     // This includes our custom Abstract Syntax Tree (AST) header file
-
 /*
  * Abstract Syntax Tree Implementation
  * 
@@ -22,6 +17,11 @@
  *
  * File: src/ast/ast.c
  */
+
+#include <stdlib.h>  // This includes the standard library for functions like malloc and free
+#include <stdio.h>   // This includes the standard input/output library
+#include <string.h>  // This includes the string manipulation library
+#include "ast.h"     // This includes our custom Abstract Syntax Tree (AST) header file
 
 // This function creates a new AST node
 ASTNode *create_node(ASTNodeType type, ASTNode *left, ASTNode *right, const char *value)

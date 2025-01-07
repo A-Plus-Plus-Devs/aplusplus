@@ -13,9 +13,9 @@
  * - Error detection and reporting
  *
  * Original Author: Paul Kabulu
- * Created: March 2024
+ * Created: August 2024
  * 
- * Edited by:
+ * Edited by: Paul Kabulu - January 2025 - Added array methods keywords
  *
  * File: src/lexer/lexer.c
  */

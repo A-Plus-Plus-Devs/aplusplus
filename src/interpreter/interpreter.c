@@ -1,16 +1,3 @@
-#include <stdarg.h>
-#include "interpreter.h"
-#include "common/types.h"
-#include <stdbool.h>
-#include "array.h"
-#include "array_ops.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <ctype.h>
-#include <time.h>
-
 /*
  * Interpreter Implementation
  *
@@ -28,11 +15,24 @@
  * Original Author: Paul Kabulu
  * Created: August 2024
  *
- * Edited by:
+ * Edited by: Paul Kabulu - January 2025 - Integrated array interpretation and element accessing from array.c and array_ops.c
  *
  *
  * File: src/interpreter/interpreter.c
  */
+
+#include <stdarg.h>
+#include "interpreter.h"
+#include "common/types.h"
+#include <stdbool.h>
+#include "array.h"
+#include "array_ops.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <ctype.h>
+#include <time.h>
 
 // This defines the maximum number of variables our program can handle
 #define MAX_VARIABLES 100
@@ -49,8 +49,8 @@ typedef struct
         double float_value;
         char *string_value;
         bool bool_value;
-        char char_value;         // For character literals
-        ArrayValue *array_value; // Add this line
+        char char_value;
+        ArrayValue *array_value;
     } value;
 } Variable;
 
@@ -1433,9 +1433,8 @@ static void set_variable(const char *name, VariableType type, void *value)
                 free(variables[i].value.string_value);
                 variables[i].value.string_value = strdup((char *)value);
             }
-            if (type == ARRAY_TYPE) // Add array handling
+            if (type == ARRAY_TYPE)
             {
-                // printf("DEBUG: Setting array value at %p\n", value);
                 variables[i].value.array_value = (ArrayValue *)value;
             }
             else if (type == BOOL_TYPE)
@@ -1506,22 +1505,15 @@ static bool strtobool(const char *str)
 // This function gets the value of a variable
 static Variable *get_variable(const char *name)
 {
-    // printf("DEBUG: Looking up variable '%s'\n", name);
-
     // We loop through all variables
     for (int i = 0; i < variable_count; i++)
     {
-        // printf("DEBUG: Checking variable %d: '%s' (type: %d)\n",
-        //        i, variables[i].name, variables[i].type);
         // If we find a variable with the given name, we return it
         if (strcmp(variables[i].name, name) == 0)
         {
-            // printf("DEBUG: Found variable '%s' of type %d\n",
-            //        name, variables[i].type);
             return &variables[i];
         }
     }
-    // printf("DEBUG: Variable '%s' not found\n", name);
 
     // If we didn't find the variable, we return NULL
     return NULL;
@@ -1628,7 +1620,7 @@ static int evaluate_expression(ASTNode *node)
                 }
             }
             printf("]");
-            fflush(stdout); // Ensure output is flushed
+            fflush(stdout);
             return -1;
         }
 
@@ -2367,6 +2359,7 @@ void print_array_element(void *element, VariableType type)
     }
 }
 
+
 // This is the main function that interprets our AST
 void interpret(ASTNode *node)
 {
@@ -3001,21 +2994,21 @@ void interpret(ASTNode *node)
                 else if (strstr(node->var_type, "<"))
                 {
                     // Array declaration
-                    printf("DEBUG: Found array declaration\n");
+                    // printf("DEBUG: Found array declaration\n");
 
-                    printf("DEBUG: Processing array declaration\n");
+                    // printf("DEBUG: Processing array declaration\n");
                     char *array_type = extract_array_type(node->var_type);
-                    printf("DEBUG: Array type extracted: %s\n", array_type);
+                    // printf("DEBUG: Array type extracted: %s\n", array_type);
 
                     void *array_value = interpret_array_declaration(node);
-                    printf("DEBUG: Array initialization returned: %p\n", array_value);
+                    // printf("DEBUG: Array initialization returned: %p\n", array_value);
 
                     if (array_value)
                     {
-                        printf("DEBUG: About to set array variable '%s'\n", node->var_name);
+                        // printf("DEBUG: About to set array variable '%s'\n", node->var_name);
 
                         set_variable(node->var_name, ARRAY_TYPE, array_value);
-                        printf("DEBUG: Array variable '%s' set in variable table\n", node->var_name);
+                        // printf("DEBUG: Array variable '%s' set in variable table\n", node->var_name);
                     }
                     else
                     {
@@ -3444,7 +3437,7 @@ void *interpret_expression(ASTNode *node)
             // Handle addition based on types
             if (node->left->type == NODE_INT_LITERAL ||
                 node->left->type == NODE_ARRAY_ACCESS)
-            { // Add array access support
+            {
                 int left_val;
                 if (node->left->type == NODE_ARRAY_ACCESS)
                 {
@@ -3589,7 +3582,6 @@ void *interpret_expression(ASTNode *node)
     }
 }
 
-// Add this function before interpret()
 char *extract_array_type(const char *var_type)
 {
     // printf("DEBUG: Extracting array type from '%s'\n", var_type);
