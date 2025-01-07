@@ -14,6 +14,11 @@ string greeting = "Hello, World!";  // String
 
 // Booleans
 boolean isValid = yup;   // Boolean (yup/nope)
+
+// Arrays (New!)
+numbers<int> = [1, 2, 3];         // Integer array
+names<string> = ["John", "Jane"]; // String array
+mixed<any> = [1, "two", yup];    // Mixed type array
 ```
 
 ### Type Rules
@@ -297,4 +302,40 @@ print(charAt("A++", 2));     // Output: "+"
 
 // Error handling
 print(charAt(message, 50));  // Output: "" (empty string, index out of bounds)
+```
+
+## Arrays
+
+### Array Declaration
+Arrays in A++ are declared using angle brackets for type specification:
+```c
+names<string> = ["Alice", "Bob"];    // String array
+scores<int> = [95, 87, 92];         // Integer array
+mixed<any> = [1, "two", yup];       // Mixed type array
+```
+
+### Array Operations
+Arrays support several built-in methods:
+```c
+// Adding elements
+numbers.addLast(42);     // Add to end
+numbers.addFirst(10);    // Add to start
+numbers.insert(1, 25);   // Insert at index 1
+
+// Removing elements
+numbers.removeLast();    // Remove from end
+numbers.removeFirst();   // Remove from start
+
+// Getting array information
+int len = length(numbers);   // Get array length
+```
+
+### Array Access
+```c
+// Reading elements
+int first = numbers[0];      // Get first element
+int last = numbers[length(numbers) - 1];  // Get last element
+
+// Updating elements
+int numbers[1] = 50;        // Update second element
 ``` 

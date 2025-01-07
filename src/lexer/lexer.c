@@ -457,7 +457,7 @@ static Token* array_type(Lexer* lexer) {
     
     // Expect closing '>'
     if (lexer->current_char != '>') {
-        printf("[DEBUG] Expected '>', got '%c'\n", lexer->current_char);
+        // printf("[DEBUG] Expected '>', got '%c'\n", lexer->current_char);
         free(token);
         return NULL;
     }

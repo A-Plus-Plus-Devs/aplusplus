@@ -8,10 +8,10 @@
 
 static VariableType get_array_type(const char *type_str)
 {
-    DEBUG_LOG("Getting array type for: %s", type_str);
+    // DEBUG_LOG("Getting array type for: %s", type_str);
     if (!type_str)
     {
-        DEBUG_LOG("type_str is NULL");
+        // DEBUG_LOG("type_str is NULL");
         return EMPTY_TYPE;
     }
 
@@ -26,43 +26,43 @@ static VariableType get_array_type(const char *type_str)
     if (strcmp(type_str, "any") == 0)
         return EMPTY_TYPE;
 
-    DEBUG_LOG("Unknown type, returning EMPTY_TYPE");
+    // DEBUG_LOG("Unknown type, returning EMPTY_TYPE");
     return EMPTY_TYPE;
 }
 
 void *interpret_array_literal(ASTNode *node)
 {
-    DEBUG_LOG("Interpreting array literal");
+    // DEBUG_LOG("Interpreting array literal");
     if (!node)
     {
-        DEBUG_LOG("Node is NULL");
+        //  DEBUG_LOG("Node is NULL");
         return NULL;
     }
 
     ArrayValue *array = create_array(EMPTY_TYPE, 1);
     if (!array)
     {
-        DEBUG_LOG("Failed to create array");
+        // DEBUG_LOG("Failed to create array");
         return NULL;
     }
 
-    DEBUG_LOG("Created array with capacity %zu", array->capacity);
-    debug_print_array(array);
+    // DEBUG_LOG("Created array with capacity %zu", array->capacity);
+    // debug_print_array(array);
 
     ASTNode *current = node->elements;
     while (current)
     {
-        DEBUG_LOG("Processing array element of type %d", current->type);
+        // DEBUG_LOG("Processing array element of type %d", current->type);
         void *element = interpret_expression(current);
         if (element)
         {
             array_add_last(array, element);
-            DEBUG_LOG("Added element to array");
-            debug_print_array(array);
+            // DEBUG_LOG("Added element to array");
+            // debug_print_array(array);
         }
         else
         {
-            DEBUG_LOG("Failed to interpret element");
+            // DEBUG_LOG("Failed to interpret element");
         }
         current = current->next;
     }
@@ -72,23 +72,23 @@ void *interpret_array_literal(ASTNode *node)
 
 void *interpret_array_declaration(ASTNode *node)
 {
-    DEBUG_LOG("Interpreting array declaration");
+    // DEBUG_LOG("Interpreting array declaration");
     if (!node)
     {
-        DEBUG_LOG("Node is NULL");
+        // DEBUG_LOG("Node is NULL");
         return NULL;
     }
 
-    DEBUG_LOG("Array type: %s", node->array_type);
+    // DEBUG_LOG("Array type: %s", node->array_type);
     VariableType type = get_array_type(node->array_type);
     int is_mixed = (type == EMPTY_TYPE);
 
     ArrayValue *array = create_array(type, is_mixed);
-    DEBUG_LOG("Created array with type %d, is_mixed: %d", type, is_mixed);
+    // DEBUG_LOG("Created array with type %d, is_mixed: %d", type, is_mixed);
 
     if (node->elements)
     {
-        DEBUG_LOG("Processing initial elements");
+        // DEBUG_LOG("Processing initial elements");
         ASTNode *current = node->elements;
         while (current)
         {
@@ -96,7 +96,7 @@ void *interpret_array_declaration(ASTNode *node)
             if (element)
             {
                 array_add_last(array, element);
-                DEBUG_LOG("Added element to array, new length: %zu", array->length);
+                // DEBUG_LOG("Added element to array, new length: %zu", array->length);
             }
             current = current->next;
         }
@@ -107,16 +107,16 @@ void *interpret_array_declaration(ASTNode *node)
 
 void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
 {
-    DEBUG_LOG("Interpreting array method call");
+    // DEBUG_LOG("Interpreting array method call");
     if (!array || !node || !node->method_name)
     {
-        DEBUG_LOG("Invalid parameters: array=%p, node=%p, method_name=%s", 
-                 (void*)array, (void*)node, node ? node->method_name : "NULL");
+        // DEBUG_LOG("Invalid parameters: array=%p, node=%p, method_name=%s", 
+                //  (void*)array, (void*)node, node ? node->method_name : "NULL");
         return NULL;
     }
 
-    DEBUG_LOG("Method: %s, Array type: %d, Length: %zu", 
-             node->method_name, array->type, array->length);
+    // DEBUG_LOG("Method: %s, Array type: %d, Length: %zu", 
+    //          node->method_name, array->type, array->length);
 
     // Handle length property first (no argument needed)
     if (strcmp(node->method_name, "length") == 0)
@@ -124,11 +124,11 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
         int *length = malloc(sizeof(int));
         if (!length)
         {
-            DEBUG_LOG("Failed to allocate memory for length");
+            // DEBUG_LOG("Failed to allocate memory for length");
             return NULL;
         }
         *length = array->length;
-        DEBUG_LOG("Length method returning: %d", *length);
+        // DEBUG_LOG("Length method returning: %d", *length);
         return length;
     }
 
@@ -177,7 +177,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
 
         if (!element_copy)
         {
-            DEBUG_LOG("Failed to copy element");
+            // DEBUG_LOG("Failed to copy element");
             free(element);
             return NULL;
         }
@@ -190,14 +190,14 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
     if (strcmp(node->method_name, "addLast") == 0)
     {
         array_add_last(array, element);
-        DEBUG_LOG("Added element to end of array");
+        // DEBUG_LOG("Added element to end of array");
         return NULL;
     }
 
     if (strcmp(node->method_name, "addFirst") == 0)
     {
         array_add_first(array, element);
-        DEBUG_LOG("Added element to start of array");
+        // DEBUG_LOG("Added element to start of array");
         return NULL;
     }
 
@@ -205,7 +205,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
     {
         if (array->length == 0)
         {
-            DEBUG_LOG("Cannot remove from empty array");
+            // DEBUG_LOG("Cannot remove from empty array");
             return NULL;
         }
         return array_remove_last(array);
@@ -215,7 +215,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
     {
         if (array->length == 0)
         {
-            DEBUG_LOG("Cannot remove from empty array");
+            // DEBUG_LOG("Cannot remove from empty array");
             return NULL;
         }
         return array_remove_first(array);
@@ -233,7 +233,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
         void *index_result = interpret_expression(node->right);
         if (!index_result)
         {
-            DEBUG_LOG("Failed to interpret index argument");
+            // DEBUG_LOG("Failed to interpret index argument");
             return NULL;
         }
         int index = *(int *)index_result;
@@ -291,7 +291,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
 
 void *interpret_array_access(ASTNode *node, ArrayValue *array)
 {
-    DEBUG_LOG("Interpreting array access");
+    // DEBUG_LOG("Interpreting array access");
     if (!node || !array)
     {
         DEBUG_LOG("Node or array is NULL");
@@ -302,7 +302,7 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
     void *index_result = interpret_expression(node->index);
     if (!index_result)
     {
-        DEBUG_LOG("Failed to evaluate index expression");
+        // DEBUG_LOG("Failed to evaluate index expression");
         return NULL;
     }
 
@@ -318,7 +318,7 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
         free(index_result);
     }
 
-    DEBUG_LOG("Accessing array at index: %d", index);
+    // DEBUG_LOG("Accessing array at index: %d", index);
 
     // Check bounds
     if (index < 0 || index >= array->length)
@@ -331,7 +331,7 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
     void *element = array->elements[index];
     if (!element)
     {
-        DEBUG_LOG("Element at index %d is NULL", index);
+        // DEBUG_LOG("Element at index %d is NULL", index);
         return NULL;
     }
 
@@ -344,13 +344,13 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
         int *copy = malloc(sizeof(int));
         *copy = *(int *)element;
         result = copy;
-        printf("DEBUG: Retrieved int value: %d\n", *copy);
+        // printf("DEBUG: Retrieved int value: %d\n", *copy);
 
         break;
     }
     case STRING_TYPE:
         result = strdup((char *)element);
-        printf("DEBUG: Retrieved string value: %s\n", (char *)result);
+        // printf("DEBUG: Retrieved string value: %s\n", (char *)result);
 
         break;
     case FLOAT_TYPE:
@@ -358,7 +358,7 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
         double *copy = malloc(sizeof(double));
         *copy = *(double *)element;
         result = copy;
-        printf("DEBUG: Retrieved float value: %f\n", *copy);
+        // printf("DEBUG: Retrieved float value: %f\n", *copy);
         break;
     }
     case BOOL_TYPE:
@@ -366,7 +366,7 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
         bool *copy = malloc(sizeof(bool));
         *copy = *(bool *)element;
         result = copy;
-        printf("DEBUG: Retrieved boolean value: %d\n", *copy);
+        // printf("DEBUG: Retrieved boolean value: %d\n", *copy);
         break;
     }
     default:
@@ -375,6 +375,6 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
         result = element;
     }
 
-    DEBUG_LOG("Successfully retrieved element at index %d", index);
+    // DEBUG_LOG("Successfully retrieved element at index %d", index);
     return result;
 }

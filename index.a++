@@ -1,9 +1,11 @@
 numbers<int> = [1, 2, 3, 4, 5, 7, 9];
-print("Array 'numbers': ");
-numbers.addLast(100);
-numbers.insert(1, 10);
-numbers.removeFirst();
-numbers.removeLast();
-numbers.insert(0, 66);
-numbers.insert(5, 88);
-print(numbers);
+print("Length of numbers: ");
+print(length(numbers));
+
+print(numbers[0]);
+
+string x = "Hello, world!";
+
+for (int i = 0; i < length(x); i++) {
+    print(charAt(x, i));
+}
