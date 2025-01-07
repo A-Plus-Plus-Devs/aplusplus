@@ -2380,6 +2380,15 @@ void interpret(ASTNode *node)
                             }
                             break;
                         }
+                        case BOOL_TYPE: {
+                            if (element->type == NODE_BOOL_LITERAL) {
+                                bool *element_value = malloc(sizeof(bool));
+                                *element_value = strcmp(element->value, "yup") == 0;
+                                array_add_last(array, element_value);
+                                printf("DEBUG: Added bool element: %s\n", element->value);
+                            }
+                            break;
+                        }
                         }
                         element = element->next;
                     }
