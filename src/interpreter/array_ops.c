@@ -108,28 +108,96 @@ void *interpret_array_declaration(ASTNode *node)
 void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
 {
     DEBUG_LOG("Interpreting array method call");
-    if (!array || !node->method_name)
+    if (!array || !node || !node->method_name)
     {
-        DEBUG_LOG("Array or method name is NULL");
+        DEBUG_LOG("Invalid parameters: array=%p, node=%p, method_name=%s", 
+                 (void*)array, (void*)node, node ? node->method_name : "NULL");
         return NULL;
     }
 
-    DEBUG_LOG("Method name: %s", node->method_name);
-    DEBUG_LOG("Array at %p, type: %d, length: %zu", (void *)array, array->type, array->length);
+    DEBUG_LOG("Method: %s, Array type: %d, Length: %zu", 
+             node->method_name, array->type, array->length);
 
-    if (strcmp(node->method_name, "addLast") == 0)
+    // Handle length property first (no argument needed)
+    if (strcmp(node->method_name, "length") == 0)
+    {
+        int *length = malloc(sizeof(int));
+        if (!length)
+        {
+            DEBUG_LOG("Failed to allocate memory for length");
+            return NULL;
+        }
+        *length = array->length;
+        DEBUG_LOG("Length method returning: %d", *length);
+        return length;
+    }
+
+    // For methods that require arguments, interpret the argument first
+    void *element = NULL;
+    if (strcmp(node->method_name, "addFirst") == 0 || 
+        strcmp(node->method_name, "addLast") == 0)
     {
         if (!node->right)
         {
-            DEBUG_LOG("No argument provided for addLast");
+            DEBUG_LOG("No argument provided for %s", node->method_name);
             return NULL;
         }
-        void *element = interpret_expression(node->right);
-        if (element)
+
+        element = interpret_expression(node->right);
+        if (!element)
         {
-            array_add_last(array, element);
-            DEBUG_LOG("Added element to end of array");
+            DEBUG_LOG("Failed to interpret argument for %s", node->method_name);
+            return NULL;
         }
+
+        // Create a copy of the element based on array type
+        void *element_copy = NULL;
+        switch (array->type)
+        {
+            case STRING_TYPE:
+                element_copy = strdup((char *)element);
+                break;
+            case INT_TYPE:
+                element_copy = malloc(sizeof(int));
+                if (element_copy) *(int *)element_copy = *(int *)element;
+                break;
+            case FLOAT_TYPE:
+                element_copy = malloc(sizeof(double));
+                if (element_copy) *(double *)element_copy = *(double *)element;
+                break;
+            case BOOL_TYPE:
+                element_copy = malloc(sizeof(bool));
+                if (element_copy) *(bool *)element_copy = *(bool *)element;
+                break;
+            default:
+                DEBUG_LOG("Unsupported array type: %d", array->type);
+                free(element);
+                return NULL;
+        }
+
+        if (!element_copy)
+        {
+            DEBUG_LOG("Failed to copy element");
+            free(element);
+            return NULL;
+        }
+
+        free(element);  // Free the original element
+        element = element_copy;
+    }
+
+    // Execute the method
+    if (strcmp(node->method_name, "addLast") == 0)
+    {
+        array_add_last(array, element);
+        DEBUG_LOG("Added element to end of array");
+        return NULL;
+    }
+
+    if (strcmp(node->method_name, "addFirst") == 0)
+    {
+        array_add_first(array, element);
+        DEBUG_LOG("Added element to start of array");
         return NULL;
     }
 
@@ -140,25 +208,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
             DEBUG_LOG("Cannot remove from empty array");
             return NULL;
         }
-        void *element = array_remove_last(array);
-        DEBUG_LOG("Removed element from end of array: %p", element);
-        return element;
-    }
-
-    if (strcmp(node->method_name, "addFirst") == 0)
-    {
-        if (!node->right)
-        {
-            DEBUG_LOG("No argument provided for addFirst");
-            return NULL;
-        }
-        void *element = interpret_expression(node->right);
-        if (element)
-        {
-            array_add_first(array, element);
-            DEBUG_LOG("Added element to start of array");
-        }
-        return NULL;
+        return array_remove_last(array);
     }
 
     if (strcmp(node->method_name, "removeFirst") == 0)
@@ -168,20 +218,11 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
             DEBUG_LOG("Cannot remove from empty array");
             return NULL;
         }
-        void *element = array_remove_first(array);
-        DEBUG_LOG("Removed element from start of array: %p", element);
-        return element;
-    }
-
-    if (strcmp(node->method_name, "length") == 0)
-    {
-        int *length = malloc(sizeof(int));
-        *length = array->length;
-        DEBUG_LOG("Retrieved array length: %d", *length);
-        return length;
+        return array_remove_first(array);
     }
 
     DEBUG_LOG("Unknown array method: %s", node->method_name);
+    if (element) free(element);
     return NULL;
 }
 

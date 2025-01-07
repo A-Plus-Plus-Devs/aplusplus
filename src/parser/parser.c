@@ -2063,35 +2063,84 @@ static ASTNode *parse_array_access(Parser *parser, char *array_name)
 
 static ASTNode *parse_array_method_call(Parser *parser, char *array_name)
 {
-    get_next_token(parser); // Consume .
-
-    char *method_name = strdup(parser->current_token->value);
-    TokenType method_type = parser->current_token->type;
-    get_next_token(parser); // Consume method name
-
+    printf("DEBUG: Parsing array method call for array '%s'\n", array_name);
+    
+    // Make a copy of array_name before we start
+    char *array_name_copy = strdup(array_name);
+    if (!array_name_copy) {
+        printf("ERROR: Failed to copy array name\n");
+        return NULL;
+    }
+    
+    // Skip the dot
+    get_next_token(parser);
+    
+    // Get the method name
+    Token *method_token = parser->current_token;
+    if (!method_token) {
+        printf("ERROR: Expected method name after dot\n");
+        free(array_name_copy);
+        return NULL;
+    }
+    
+    printf("DEBUG: Method token type: %d, value: %s\n", 
+           method_token->type, method_token->value);
+    
+    char *method_name = strdup(method_token->value);
+    if (!method_name) {
+        printf("ERROR: Failed to copy method name\n");
+        free(array_name_copy);
+        return NULL;
+    }
+    
+    get_next_token(parser); // consume method name
+    
+    // Parse argument if present
     ASTNode *argument = NULL;
-    if (parser->current_token->type == TOKEN_LPAREN)
-    {
-        get_next_token(parser); // Consume (
-
-        if (parser->current_token->type != TOKEN_RPAREN)
-        {
+    if (parser->current_token->type == TOKEN_LPAREN) {
+        get_next_token(parser); // consume (
+        
+        if (parser->current_token->type != TOKEN_RPAREN) {
             argument = parse_expression(parser);
-            if (!argument)
-            {
+            if (!argument) {
+                printf("ERROR: Failed to parse method argument\n");
+                free(method_name);
+                free(array_name_copy);
                 return NULL;
             }
         }
-
-        if (parser->current_token->type != TOKEN_RPAREN)
-        {
-            printf("Error: Expected ')' after method argument\n");
+        
+        if (parser->current_token->type != TOKEN_RPAREN) {
+            printf("ERROR: Expected ) after method argument\n");
+            free(method_name);
+            free(array_name_copy);
+            if (argument) free_ast(argument);
             return NULL;
         }
-        get_next_token(parser); // Consume )
+        get_next_token(parser); // consume )
     }
 
-    return create_array_method_call_node(array_name, method_name, argument);
+    // Check for semicolon
+    if (parser->current_token->type != TOKEN_SEMICOLON) {
+        printf("ERROR: Expected semicolon after method call, got token type: %d\n", 
+               parser->current_token->type);
+        free(method_name);
+        free(array_name_copy);
+        if (argument) free_ast(argument);
+        return NULL;
+    }
+    get_next_token(parser); // consume semicolon
+    
+    printf("DEBUG: Creating array method call node: %s.%s()\n", 
+           array_name_copy, method_name);
+           
+    ASTNode *node = create_array_method_call_node(array_name_copy, method_name, argument);
+    
+    // Free our copies since create_array_method_call_node makes its own copies
+    free(method_name);
+    free(array_name_copy);
+    
+    return node;
 }
 
 static ASTNode *parse_input(Parser *parser)

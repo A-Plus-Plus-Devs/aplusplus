@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include "interpreter.h"
 #include "common/types.h"
 #include <stdbool.h>
@@ -97,6 +98,16 @@ static int function_count = 0;
 static Variable variables[MAX_VARIABLES];
 static int variable_count = 0;
 static bool builtins_registered = false;
+
+static void DEBUG_LOG(const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    printf("[DEBUG] ");
+    vprintf(format, args);
+    printf("\n");
+    va_end(args);
+}
 
 // Helper function to convert type string to VariableType
 static VariableType get_type_from_string(const char *type_str)
@@ -1620,20 +1631,20 @@ static int evaluate_expression(ASTNode *node)
         }
         return 0;
     }
-    case NODE_ARRAY_LITERAL:
-    {
-        printf("DEBUG: Evaluating array literal\n");
-        // For array literals, evaluate each element
-        ASTNode *current = node->elements;
-        while (current)
-        {
-            printf("DEBUG: Processing array literal element\n");
-            int value = evaluate_expression(current);
-            printf("DEBUG: Got array element value: %d\n", value);
-            current = current->next;
-        }
-        return 0; // Array literals in expressions return 0
-    }
+    // case NODE_ARRAY_LITERAL:
+    // {
+    //     printf("DEBUG: Evaluating array literal\n");
+    //     // For array literals, evaluate each element
+    //     ASTNode *current = node->elements;
+    //     while (current)
+    //     {
+    //         printf("DEBUG: Processing array literal element\n");
+    //         int value = evaluate_expression(current);
+    //         printf("DEBUG: Got array element value: %d\n", value);
+    //         current = current->next;
+    //     }
+    //     return 0; // Array literals in expressions return 0
+    // }
     case NODE_ARRAY_ACCESS:
     {
         printf("DEBUG: Evaluating array access in evaluate_expression\n");
@@ -2278,30 +2289,32 @@ static void register_builtin_functions(void)
     builtins_registered = true;
 }
 
-void print_array_element(void *element, VariableType type) {
-    if (!element) {
+void print_array_element(void *element, VariableType type)
+{
+    if (!element)
+    {
         printf("null");
         return;
     }
 
-    switch (type) {
-        case INT_TYPE:
-            printf("%d\n", *(int*)element);
-            break;
-        case FLOAT_TYPE:
-            printf("%g\n", *(double*)element);
-            break;
-        case STRING_TYPE:
-            printf("%s\n", (char*)element);
-            break;
-        case BOOL_TYPE:
-            printf("%s\n", *(bool*)element ? "yup" : "nope");
-            break;
-        default:
-            printf("Error: Unsupported type %d", type);
+    switch (type)
+    {
+    case INT_TYPE:
+        printf("%d\n", *(int *)element);
+        break;
+    case FLOAT_TYPE:
+        printf("%g\n", *(double *)element);
+        break;
+    case STRING_TYPE:
+        printf("%s\n", (char *)element);
+        break;
+    case BOOL_TYPE:
+        printf("%s\n", *(bool *)element ? "yup" : "nope");
+        break;
+    default:
+        printf("Error: Unsupported type %d", type);
     }
 }
-
 
 // This is the main function that interprets our AST
 void interpret(ASTNode *node)
@@ -2428,6 +2441,39 @@ void interpret(ASTNode *node)
             }
             break;
         }
+        case NODE_ARRAY_METHOD_CALL:
+        {
+            DEBUG_LOG("Interpreting array method call");
+            if (!node || !node->var_name)
+            {
+                DEBUG_LOG("Invalid array method call node");
+                break;
+            }
+
+            Variable *array_var = get_variable(node->var_name);
+            if (!array_var)
+            {
+                printf("Error: Array '%s' not found\n", node->var_name);
+                break;
+            }
+
+            if (array_var->type != ARRAY_TYPE || !array_var->value.array_value)
+            {
+                printf("Error: '%s' is not a valid array\n", node->var_name);
+                break;
+            }
+
+            DEBUG_LOG("Found array '%s', executing method '%s'",
+                      node->var_name, node->method_name);
+
+            void *result = interpret_array_method_call(node, array_var->value.array_value);
+            if (result)
+            {
+                // Handle the result if needed (for methods that return values)
+                free(result);
+            }
+            break;
+        }
         case NODE_PRINT:
         {
             if (node->left->type == NODE_FUNCTION_CALL)
@@ -2540,14 +2586,16 @@ void interpret(ASTNode *node)
             {
                 // Get the array variable
                 Variable *array_var = get_variable(node->left->var_name);
-                if (!array_var || !array_var->value.array_value) {
+                if (!array_var || !array_var->value.array_value)
+                {
                     printf("Error: Invalid array access\n");
                     return;
                 }
 
                 // Get the array element
                 void *result = interpret_array_access(node->left, array_var->value.array_value);
-                if (result) {
+                if (result)
+                {
                     print_array_element(result, array_var->value.array_value->type);
                     free(result); // Free the copied result
                 }
@@ -3419,6 +3467,23 @@ void *interpret_expression(ASTNode *node)
         return NULL;
     }
 
+    case NODE_ARRAY_METHOD_CALL:
+    {
+        printf("DEBUG: Handling array method call for '%s'\n", node->var_name);
+        Variable *array_var = get_variable(node->var_name);
+        if (!array_var)
+        {
+            printf("ERROR: Array '%s' not found\n", node->var_name);
+            return NULL;
+        }
+        if (!array_var->value.array_value)
+        {
+            printf("ERROR: Array '%s' is not initialized\n", node->var_name);
+            return NULL;
+        }
+        return interpret_array_method_call(node, array_var->value.array_value);
+    }
+
     case NODE_ARRAY_ACCESS:
     {
         printf("DEBUG: Handling NODE_ARRAY_ACCESS in interpret_expression\n");
@@ -3457,6 +3522,11 @@ void *interpret_expression(ASTNode *node)
 
         return result;
     }
+    // case NODE_ARRAY_LITERAL:
+    // {
+    //     printf("DEBUG: Creating array literal\n");
+    //     return interpret_array_literal(node);
+    // }
 
     default:
         printf("Error: Unknown expression type %d\n", node->type);

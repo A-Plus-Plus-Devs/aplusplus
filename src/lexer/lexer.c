@@ -757,11 +757,35 @@ Token *next_token(Lexer *lexer)
 
     case '.':
         token->type = TOKEN_DOT;
-        // Check for method calls
-        if (isalpha(peek_char(lexer))) {
-            token->type = TOKEN_METHOD_CALL;
-        }
         advance(lexer);
+        
+        // Check for method names
+        if (isalpha(lexer->current_char)) {
+            char method_buffer[256] = {0};
+            int i = 0;
+            
+            while (isalpha(lexer->current_char)) {
+                method_buffer[i++] = lexer->current_char;
+                advance(lexer);
+            }
+            method_buffer[i] = '\0';
+            
+            // Check for specific method names
+            if (strcmp(method_buffer, "addFirst") == 0)
+                token->type = TOKEN_ADD_FIRST;
+            else if (strcmp(method_buffer, "addLast") == 0)
+                token->type = TOKEN_ADD_LAST;
+            else if (strcmp(method_buffer, "removeFirst") == 0)
+                token->type = TOKEN_REMOVE_FIRST;
+            else if (strcmp(method_buffer, "removeLast") == 0)
+                token->type = TOKEN_REMOVE_LAST;
+            else if (strcmp(method_buffer, "length") == 0)
+                token->type = TOKEN_LENGTH;
+            else
+                token->type = TOKEN_METHOD_CALL;
+            
+            token->value = strdup(method_buffer);
+        }
         return token;
 
     case '[':

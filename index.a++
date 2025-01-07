@@ -1,28 +1,13 @@
 numbers<int> = [1, 2, 3, 4, 5];
-int x = numbers[0];
+print("Array 'numbers' created\n");
 
+int x = numbers[0];
 print(x);
-print("\n\n\n");
+print("\n");
 
 names<string> = ["Alice", "Bob", "Charlie"];
+print("Array 'names' created\n");
 
-print(names[0]);
-print("\n\n\n");
-
-mixed<any> = [1, "two", yup];
-
-print(mixed[1]);
-print("\n\n\n");
-
-floatArray<float> = [1.1, 2.2, 3.3];
-
-print(floatArray[0]);
-print("\n\n\n");
-
-boolArray<boolean> = [yup, nope, yup];
-
-print(boolArray[0]);
-print("\n\n\n");
-
-// print(mixed[1]);
-// print(mixed[2]);
+print("About to call addFirst on names\n");
+names.addFirst("Dylan");
+print("Successfully called addFirst\n");
