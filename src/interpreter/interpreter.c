@@ -2278,6 +2278,31 @@ static void register_builtin_functions(void)
     builtins_registered = true;
 }
 
+void print_array_element(void *element, VariableType type) {
+    if (!element) {
+        printf("null");
+        return;
+    }
+
+    switch (type) {
+        case INT_TYPE:
+            printf("%d\n", *(int*)element);
+            break;
+        case FLOAT_TYPE:
+            printf("%g\n", *(double*)element);
+            break;
+        case STRING_TYPE:
+            printf("%s\n", (char*)element);
+            break;
+        case BOOL_TYPE:
+            printf("%s\n", *(bool*)element ? "yup" : "nope");
+            break;
+        default:
+            printf("Error: Unsupported type %d", type);
+    }
+}
+
+
 // This is the main function that interprets our AST
 void interpret(ASTNode *node)
 {
@@ -2510,6 +2535,22 @@ void interpret(ASTNode *node)
                 char *result = evaluate_string_expression(node->left);
                 printf("%s\n", result);
                 free(result);
+            }
+            else if (node->left->type == NODE_ARRAY_ACCESS)
+            {
+                // Get the array variable
+                Variable *array_var = get_variable(node->left->var_name);
+                if (!array_var || !array_var->value.array_value) {
+                    printf("Error: Invalid array access\n");
+                    return;
+                }
+
+                // Get the array element
+                void *result = interpret_array_access(node->left, array_var->value.array_value);
+                if (result) {
+                    print_array_element(result, array_var->value.array_value->type);
+                    free(result); // Free the copied result
+                }
             }
             else
             {
