@@ -1,13 +1,14 @@
 numbers<int> = [1, 2, 3, 4, 5];
-print("Array 'numbers' created\n");
-
-int x = numbers[0];
-print(x);
+print("Array 'numbers': ");
+print(numbers);  // Should print: [1, 2, 3, 4, 5]
 print("\n");
 
 names<string> = ["Alice", "Bob", "Charlie"];
-print("Array 'names' created\n");
+print("Array 'names': ");
+print(names);    // Should print: ["Alice", "Bob", "Charlie"]
+print("\n");
 
-print("About to call addFirst on names\n");
 names.addFirst("Dylan");
-print("Successfully called addFirst\n");
+print("After addFirst: ");
+print(names[0]);    // Should print: ["Dylan", "Alice", "Bob", "Charlie"]
+print("\n");

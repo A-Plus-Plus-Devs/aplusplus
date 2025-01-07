@@ -1581,6 +1581,42 @@ static int evaluate_expression(ASTNode *node)
             printf("[ERROR] Undefined variable: %s\n", node->value);
             return 0;
         }
+            // Special handling for array printing
+    if (var->type == ARRAY_TYPE && var->value.array_value)
+    {
+        ArrayValue *array = var->value.array_value;
+        printf("[");
+        for (size_t i = 0; i < array->length; i++)
+        {
+            if (i > 0) printf(", ");
+            
+            void *element = array->elements[i];
+            switch (array->type)
+            {
+                case INT_TYPE:
+                    printf("%d", *(int*)element);
+                    break;
+                case STRING_TYPE:
+                    printf("\"%s\"", (char*)element);
+                    break;
+                case FLOAT_TYPE:
+                    printf("%g", *(double*)element);
+                    break;
+                case BOOL_TYPE:
+                    printf("%s", *(bool*)element ? "yup" : "nope");
+                    break;
+                case CHAR_TYPE:
+                    printf("'%c'", *(char*)element);
+                    break;
+                default:
+                    printf("?");
+            }
+        }
+        printf("]");
+        fflush(stdout);  // Ensure output is flushed
+        return -1;
+    }
+
         switch (var->type)
         {
         case INT_TYPE:
@@ -2603,7 +2639,10 @@ void interpret(ASTNode *node)
             else
             {
                 int result = evaluate_expression(node->left);
-                printf("%d\n", result);
+                if (result != (void*)-1)
+                {
+                    printf("%d\n", result);
+                }
             }
             break;
         }
@@ -3522,6 +3561,7 @@ void *interpret_expression(ASTNode *node)
 
         return result;
     }
+    
     // case NODE_ARRAY_LITERAL:
     // {
     //     printf("DEBUG: Creating array literal\n");
