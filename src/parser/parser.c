@@ -52,6 +52,7 @@ static ASTNode *parse_array_access(Parser *parser, char *array_name);
 static ASTNode *parse_array_method_call(Parser *parser, char *array_name);
 static ASTNode *parse_input(Parser *parser);
 static ASTNode *parse_import(Parser *parser);
+static ASTNode *parse_export(Parser *parser);
 
 // This function is used to get the next token from the lexer
 static Token *get_next_token(Parser *parser)
@@ -140,10 +141,12 @@ ASTNode *parse_tokens(Parser *parser)
 
         switch (parser->current_token->type)
         {
+            case TOKEN_EXPORT:
+                statement = parse_export(parser);
+                break;
             case TOKEN_IMPORT:
                 statement = parse_import(parser);
                 break;
-
             default:
                 statement = parse_statement(parser);
         }
@@ -2262,4 +2265,28 @@ static ASTNode *parse_import(Parser *parser) {
     get_next_token(parser); // consume semicolon
     
     return module;
+}
+
+static ASTNode *parse_export(Parser *parser) {
+    get_next_token(parser); // consume 'export'
+    
+    // Parse the function definition or variable declaration
+    ASTNode *exported_item = NULL;
+    
+    if (parser->current_token->type == TOKEN_DEFINE) {
+        exported_item = parse_function_definition(parser);
+    } else {
+        exported_item = parse_var_declaration(parser);
+    }
+    
+    if (!exported_item) {
+        printf("Error: Failed to parse export statement\n");
+        return NULL;
+    }
+    
+    // Create export node wrapping the exported item
+    ASTNode *export_node = create_node(NODE_EXPORT, exported_item, NULL, exported_item->function_name);
+    export_node->var_type = strdup(exported_item->return_type);
+    
+    return export_node;
 }

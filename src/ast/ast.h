@@ -73,6 +73,7 @@ typedef struct ASTNode
     struct ASTNode *increment;
 
     char *target_type;  // For type casting operations
+    void *function;  // Add this field to store function pointers
 } ASTNode;
 
 /**

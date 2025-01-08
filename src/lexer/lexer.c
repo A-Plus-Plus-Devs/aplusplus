@@ -89,12 +89,12 @@ static Token *identifier_or_keyword(Lexer *lexer)
     token->value = strdup(buffer);
 
     // Check for keywords
-    if (strcmp(buffer, "import") == 0)
+    if (strcmp(buffer, "export") == 0)
+        token->type = TOKEN_EXPORT;
+    else if (strcmp(buffer, "import") == 0)
         token->type = TOKEN_IMPORT;
     else if (strcmp(buffer, "from") == 0)
         token->type = TOKEN_FROM;
-    else if (strcmp(buffer, "export") == 0)
-        token->type = TOKEN_EXPORT;
     else if (strcmp(buffer, "length") == 0)
         token->type = TOKEN_LENGTH;
     else if (strcmp(buffer, "charAt") == 0)
