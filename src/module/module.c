@@ -38,10 +38,45 @@ void init_module_system(void) {
 }
 
 static char *resolve_module_path(const char *module_name) {
-    // Implement path resolution logic here
-    // For example: convert "math/utils" to "./math/utils.a++"
-    char *path = malloc(strlen(module_name) + 6); // +6 for "./" ".a++" and null terminator
-    sprintf(path, "./%s.a++", module_name);
+    // Remove any quotes from the module name
+    if (module_name[0] == '"' || module_name[0] == '\'') {
+        module_name++; // Skip opening quote
+    }
+    
+    // Calculate length without quotes
+    size_t len = strlen(module_name);
+    if (len > 0 && (module_name[len-1] == '"' || module_name[len-1] == '\'')) {
+        len--;
+    }
+
+    // If the path already has .a++ extension, don't add it again
+    bool has_extension = (len > 4 && strcmp(module_name + len - 4, ".a++") == 0);
+    
+    // Allocate space for the path
+    // If it starts with ./ or ../, don't add ./
+    bool add_prefix = (module_name[0] != '.' && module_name[0] != '/');
+    
+    size_t path_len = (add_prefix ? 2 : 0) + len + (has_extension ? 0 : 4) + 1;
+    char *path = malloc(path_len);
+    
+    if (!path) return NULL;
+    
+    // Build the path
+    char *p = path;
+    if (add_prefix) {
+        *p++ = '.';
+        *p++ = '/';
+    }
+    
+    // Copy the module name without quotes
+    strncpy(p, module_name, len);
+    p[len] = '\0';
+    
+    // Add .a++ extension if needed
+    if (!has_extension) {
+        strcat(path, ".a++");
+    }
+    
     return path;
 }
 

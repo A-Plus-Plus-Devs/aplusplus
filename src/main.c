@@ -27,6 +27,7 @@
 #include "parser/parser.h"         
 #include "interpreter/interpreter.h" 
 #include "common/version.h" 
+#include "module/module.h"  // Add this include
 
 /**
  * @brief Prints the usage instructions for the A++ compiler.
@@ -164,6 +165,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // Initialize module system
+    init_module_system();
+
+    // Run the file
     run_file(filename);
+
+    // Cleanup module system
+    cleanup_module_system();
+
     return 0;
 }

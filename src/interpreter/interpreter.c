@@ -33,6 +33,9 @@
 #include <math.h>
 #include <ctype.h>
 #include <time.h>
+#include "../module/module.h"  
+#include "../lexer/lexer.h"    
+#include "../parser/parser.h" 
 
 // This defines the maximum number of variables our program can handle
 #define MAX_VARIABLES 100
@@ -91,6 +94,7 @@ void *interpret_expression(ASTNode *node);
 static int get_string_length(const char *str);
 static void register_builtin_functions(void);
 static void handle_assignment(ASTNode *node);
+static void interpret_import(ASTNode *node);
 
 // Global variables
 static Function functions[MAX_FUNCTIONS];
@@ -98,6 +102,15 @@ static int function_count = 0;
 static Variable variables[MAX_VARIABLES];
 static int variable_count = 0;
 static bool builtins_registered = false;
+static Module *current_module = NULL;
+
+void set_current_module(Module *module) {
+    current_module = module;
+}
+
+Module *get_current_module(void) {
+    return current_module;
+}
 
 static void DEBUG_LOG(const char *format, ...)
 {
@@ -2372,6 +2385,20 @@ void interpret(ASTNode *node)
 
         switch (node->type)
         {
+         case NODE_MODULE:
+            interpret_import(node);
+            break;
+            
+        case NODE_EXPORT:
+            // Handle export statements
+            if (node->left) {
+                void *value = interpret_expression(node->left);
+                if (current_module) {
+                    register_export(current_module, node->value, value, 
+                                  get_type_from_string(node->var_type));
+                }
+            }
+            break;
         case NODE_FUNCTION_CALL:
         {
             // Only execute the function, don't print the result
@@ -2647,7 +2674,7 @@ void interpret(ASTNode *node)
             else
             {
                 int result = evaluate_expression(node->left);
-                if (result != (void *)-1)
+                if (result != NULL && (intptr_t)result != -1)
                 {
                     printf("%d\n", result);
                 }
@@ -3613,3 +3640,87 @@ char *extract_array_type(const char *var_type)
     // printf("DEBUG: Extracted array type: '%s'\n", array_type);
     return array_type;
 }
+
+static void interpret_import(ASTNode *node) {
+    if (!node || node->type != NODE_MODULE) {
+        printf("Error: Invalid import node\n");
+        return;
+    }
+
+    // Extract module path (remove quotes if present)
+    char *module_path = node->value;
+    if (module_path[0] == '"' || module_path[0] == '\'') {
+        module_path++; // Skip opening quote
+        module_path[strlen(module_path) - 1] = '\0'; // Remove closing quote
+    }
+
+    // Load the module
+    Module *module = load_module(module_path);
+    if (!module) {
+        printf("Error: Failed to load module '%s'\n", module_path);
+        return;
+    }
+
+    // If module not yet loaded, parse and interpret it
+    if (!module->is_loaded) {
+        // Read the module file
+        FILE *file = fopen(module->path, "r");
+        if (!file) {
+            printf("Error: Could not open module file '%s'\n", module->path);
+            return;
+        }
+
+        // Read file contents
+        fseek(file, 0, SEEK_END);
+        long file_size = ftell(file);
+        fseek(file, 0, SEEK_SET);
+
+        char *source = malloc(file_size + 1);
+        if (!source) {
+            fclose(file);
+            return;
+        }
+        
+        fread(source, 1, file_size, file);
+        source[file_size] = '\0';
+        fclose(file);
+
+        // Parse and interpret the module
+        Lexer *lexer = init_lexer(source);
+        Parser *parser = create_parser(lexer);
+        ASTNode *module_ast = parse_tokens(parser);
+
+        if (module_ast) {
+            // Save current module
+            Module *prev_module = current_module;
+            current_module = module;
+            
+            // Process exports while interpreting
+            interpret(module_ast);
+            module->is_loaded = true;
+            
+            // Restore previous module
+            current_module = prev_module;
+        }
+
+        // Cleanup
+        free(source);
+        free_parser(parser);
+        free_ast(module_ast);
+    }
+
+    // Import the requested items
+    ASTNode *import_item = node->left; // First import item
+    while (import_item) {
+        void *exported_value = get_export(module_path, import_item->value);
+        if (exported_value) {
+            // Register the imported item in current scope
+            set_variable(import_item->value, STRING_TYPE, exported_value); // Adjust type as needed
+        } else {
+            printf("Error: Could not find export '%s' in module '%s'\n", 
+                   import_item->value, module_path);
+        }
+        import_item = import_item->next;
+    }
+}
+
