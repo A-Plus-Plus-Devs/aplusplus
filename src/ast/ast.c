@@ -292,3 +292,21 @@ ASTNode *create_compound_assign_node(char *var_name, ASTNode *right, const char 
     
     return node;
 }
+
+ASTNode *copy_ast(ASTNode *node) {
+    if (!node) return NULL;
+    
+    ASTNode *copy = malloc(sizeof(ASTNode));
+    copy->type = node->type;
+    copy->value = node->value ? strdup(node->value) : NULL;
+    copy->var_type = node->var_type ? strdup(node->var_type) : NULL;
+    copy->var_name = node->var_name ? strdup(node->var_name) : NULL;
+    copy->function_name = node->function_name ? strdup(node->function_name) : NULL;
+    copy->return_type = node->return_type ? strdup(node->return_type) : NULL;
+    
+    copy->left = copy_ast(node->left);
+    copy->right = copy_ast(node->right);
+    copy->next = copy_ast(node->next);
+    
+    return copy;
+}

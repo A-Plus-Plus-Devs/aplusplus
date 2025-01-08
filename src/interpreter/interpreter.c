@@ -3781,19 +3781,35 @@ static void interpret_import(ASTNode *node)
     DEBUG_LOG("Processing import items");
     
     // Import the requested items
- ASTNode *import_item = node->left;
+    ASTNode *import_item = node->left;
     while (import_item) {
         void *exported_value = get_export(module_path, import_item->value);
         if (exported_value) {
             Function *func = malloc(sizeof(Function));
             if (func) {
-                func->name = strdup(import_item->value);
-                func->parameters = NULL;
-                func->body = exported_value;
-                func->return_type = strdup("string");  // Fix: Use string instead of enum
+                // Get the original exported function
+                Function *exported_func = (Function *)exported_value;
                 
-                register_function(func, func->return_type, func->parameters, func->body);  // Add GLOBAL_SCOPE parameter
-                DEBUG_LOG("Registered imported function: %s", func->name);
+                // Copy all properties from the exported function
+                func->name = strdup(import_item->value);
+                func->return_type = strdup(exported_func->return_type);
+                func->parameters = copy_ast(exported_func->parameters);
+                func->body = copy_ast(exported_func->body);
+                
+                // Check if function already exists before registering
+                if ( find_function(func->name) != NULL) {
+                    // Function exists, clean up and skip
+                    free(func->name);
+                    free(func->return_type);
+                    free_ast(func->parameters);
+                    free_ast(func->body);
+                    free(func);
+                    DEBUG_LOG("Skipping already defined function: %s", import_item->value);
+                } else {
+                    // Register the new function
+                    register_function(func->name, func->return_type, func->parameters, func->body);
+                    DEBUG_LOG("Successfully registered imported function: %s", func->name);
+                }
             }
         } else {
             printf("Error: Could not find export '%s' in module '%s'\n", 

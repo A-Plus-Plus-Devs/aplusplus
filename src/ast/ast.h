@@ -225,4 +225,6 @@ ASTNode *create_type_cast_node(const char *target_type, ASTNode *expr);
  */
 ASTNode *create_compound_assign_node(char *var_name, ASTNode *right, const char *operator);
 
+ASTNode *copy_ast(ASTNode *node);
+
 #endif // AST_H
