@@ -51,6 +51,7 @@ static ASTNode *parse_array_literal(Parser *parser);
 static ASTNode *parse_array_access(Parser *parser, char *array_name);
 static ASTNode *parse_array_method_call(Parser *parser, char *array_name);
 static ASTNode *parse_input(Parser *parser);
+static ASTNode *parse_import(Parser *parser);
 
 // This function is used to get the next token from the lexer
 static Token *get_next_token(Parser *parser)
@@ -135,18 +136,30 @@ ASTNode *parse_tokens(Parser *parser)
 
     while (parser->current_token->type != TOKEN_EOF)
     {
-        ASTNode *statement = parse_statement(parser);
+        ASTNode *statement = NULL;
+
+        switch (parser->current_token->type)
+        {
+            case TOKEN_IMPORT:
+                statement = parse_import(parser);
+                break;
+
+            default:
+                statement = parse_statement(parser);
+        }
+
         if (!statement)
         {
-            // printf("DEBUG: Failed to parse statement\n");
-            free_ast(root);
+            printf("Error: Failed to parse statement\n");
+            if (root) free_ast(root);
             return NULL;
         }
 
+        // Add the statement to our program
         if (!root)
         {
             root = statement;
-            current = root;
+            current = statement;
         }
         else
         {
@@ -1958,9 +1971,7 @@ static ASTNode *parse_array_literal(Parser *parser)
     }
 
     get_next_token(parser); // Consume [
-    // printf("[DEBUG] After [, token type: %d, value: %s\n",
-    //        parser->current_token->type,
-    //        parser->current_token->value ? parser->current_token->value : "NULL");
+    // printf("[DEBUG] After [, token type: %d\n", parser->current_token->type);
 
     ASTNode *elements = NULL;
     ASTNode *current = NULL;
@@ -2180,4 +2191,75 @@ static ASTNode *parse_input(Parser *parser)
     get_next_token(parser); // consume ')'
 
     return create_node(NODE_INPUT, NULL, NULL, prompt);
+}
+
+static ASTNode *parse_import(Parser *parser) {
+    get_next_token(parser); // consume 'import'
+    
+    // Check for opening brace
+    if (parser->current_token->type != TOKEN_LBRACE) {
+        printf("Error: Expected '{' after import keyword\n");
+        return NULL;
+    }
+    get_next_token(parser); // consume '{'
+    
+    // Parse imported items
+    ASTNode *imports = NULL;
+    ASTNode *current = NULL;
+    
+    while (parser->current_token->type == TOKEN_IDENTIFIER) {
+        ASTNode *import = create_node(NODE_IMPORT, NULL, NULL, parser->current_token->value);
+        
+        if (!imports) {
+            imports = import;
+            current = import;
+        } else {
+            current->next = import;
+            current = import;
+        }
+        
+        get_next_token(parser); // consume identifier
+        
+        if (parser->current_token->type == TOKEN_COMMA) {
+            get_next_token(parser); // consume comma
+        } else {
+            break;
+        }
+    }
+    
+    // Check for closing brace
+    if (parser->current_token->type != TOKEN_RBRACE) {
+        printf("Error: Expected '}' after import list\n");
+        if (imports) free_ast(imports);
+        return NULL;
+    }
+    get_next_token(parser); // consume '}'
+    
+    // Parse 'from' clause
+    if (parser->current_token->type != TOKEN_FROM) {
+        printf("Error: Expected 'from' after import list\n");
+        if (imports) free_ast(imports);
+        return NULL;
+    }
+    get_next_token(parser); // consume 'from'
+    
+    // Parse module path
+    if (parser->current_token->type != TOKEN_STRING) {
+        printf("Error: Expected module path after 'from'\n");
+        if (imports) free_ast(imports);
+        return NULL;
+    }
+    
+    ASTNode *module = create_node(NODE_MODULE, imports, NULL, parser->current_token->value);
+    get_next_token(parser); // consume module path
+    
+    // Check for semicolon
+    if (parser->current_token->type != TOKEN_SEMICOLON) {
+        printf("Error: Expected ';' after module path\n");
+        if (module) free_ast(module);
+        return NULL;
+    }
+    get_next_token(parser); // consume semicolon
+    
+    return module;
 }

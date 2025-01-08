@@ -33,7 +33,10 @@ typedef enum
     NODE_ARRAY_METHOD_CALL, // 24
     NODE_ARRAY_LITERAL, // 25
     NODE_INPUT, // 26   
-    NODE_TYPE_CAST // 27
+    NODE_TYPE_CAST, // 27
+    NODE_IMPORT, //28
+    NODE_EXPORT, //29
+    NODE_MODULE //30
 } ASTNodeType;
 
 typedef struct ASTNode

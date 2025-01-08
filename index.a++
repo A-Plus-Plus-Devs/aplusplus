@@ -1,3 +1,3 @@
-int x = (int) input("Enter a number: ");
-print("You entered: ");
-print(x);
+import { greetUser } from "./math.a++";
+
+print(greetUser("John"));

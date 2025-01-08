@@ -125,7 +125,10 @@ typedef enum
     TOKEN_TIME,
     TOKEN_NOW,
     TOKEN_TO_PRECISION,
-    TOKEN_INSERT       // .insert
+    TOKEN_INSERT,       // .insert
+    TOKEN_IMPORT,
+    TOKEN_EXPORT,
+    TOKEN_FROM
 } TokenType;
 
 // Define keywords

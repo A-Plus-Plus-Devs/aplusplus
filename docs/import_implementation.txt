@@ -1,0 +1,66 @@
+A++ importing syntax
+
+Implementing imports in A++ involves designing a system that can locate, load, and integrate external files into your program. Here's a step-by-step breakdown:
+
+Define the Import Syntax:
+
+grab { func_1, func_2,... } from 'path_name';
+grab everything from 'path_name';
+
+File structure:
+
+Use .a++ files, none .a++ files cannot be imported or used.
+
+Module Resolution
+
+Goal: Find the file corresponding to the module name.
+- elative Path: Check paths like ./module.a++
+
+File Loading
+Open the file using C's fopen() or similar functions.
+Read the content and pass it to the lexer.
+
+
+Parsing the Module
+
+Pass the module's content to the lexer and parser.
+Generate an Abstract Syntax Tree (AST) for the module.
+
+parser should identify exports as exports
+
+Export Handling
+Use an export keyword to define what a module makes available.
+
+eg:
+
+export #define int sqrt(int x, int y) {...}
+export #define float func2(float x, float y) {...}
+
+
+Add exported items to a lookup table (e.g., a hash table or dictionary) for easy access.
+
+Imported items can be full accessed
+
+eg. grab { sqrt } from './math.a++';
+
+print(sqrt(4)); // 2
+
+Circular Dependency Handling
+
+Detect cycles when importing modules to avoid infinite loops.
+Maintain a stack of currently loaded modules
+
+Caching Imported Modules
+
+Avoid re-importing the same module multiple times.
+Use a cache (e.g., hash table) to store loaded modules
+
+Binding to the Program
+Add the exported functions/variables to the calling program’s symbol table.
+
+Error Handling
+
+Handle errors gracefully:
+File not found.
+Syntax errors in the imported file.
+Circular dependencies.
