@@ -18,7 +18,7 @@ if ! command -v vsce &> /dev/null; then
 fi
 
 # Navigate to syntax directory
-cd syntax || exit 1
+cd vscode || exit 1
 
 # Install dependencies
 npm install

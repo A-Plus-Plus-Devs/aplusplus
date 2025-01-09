@@ -16,7 +16,7 @@ if (!(Get-Command vsce -ErrorAction SilentlyContinue)) {
 }
 
 # Navigate to syntax directory
-Set-Location -Path "syntax"
+Set-Location -Path "vscode"
 
 # Install dependencies
 npm install
