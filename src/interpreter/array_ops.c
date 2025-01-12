@@ -140,97 +140,57 @@ void *interpret_array_declaration(ASTNode *node)
 
 void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
 {
-    // DEBUG_LOG("Interpreting array method call");
     if (!array || !node || !node->method_name)
     {
-        // DEBUG_LOG("Invalid parameters: array=%p, node=%p, method_name=%s", 
-                //  (void*)array, (void*)node, node ? node->method_name : "NULL");
         return NULL;
     }
 
-    // DEBUG_LOG("Method: %s, Array type: %d, Length: %zu", 
-    //          node->method_name, array->type, array->length);
-
-    // Handle length property first (no argument needed)
     if (strcmp(node->method_name, "length") == 0)
     {
         int *length = malloc(sizeof(int));
         if (!length)
         {
-            // DEBUG_LOG("Failed to allocate memory for length");
             return NULL;
         }
         *length = array->length;
-        // DEBUG_LOG("Length method returning: %d", *length);
         return length;
     }
 
-    // For methods that require arguments, interpret the argument first
     void *element = NULL;
     if (strcmp(node->method_name, "addFirst") == 0 || 
         strcmp(node->method_name, "addLast") == 0)
     {
         if (!node->right)
         {
-            DEBUG_LOG("No argument provided for %s", node->method_name);
             return NULL;
         }
 
         element = interpret_expression(node->right);
         if (!element)
         {
-            DEBUG_LOG("Failed to interpret argument for %s", node->method_name);
             return NULL;
         }
 
-        // Create a copy of the element based on array type
-        void *element_copy = NULL;
-        switch (array->type)
+        if (array->type == STRING_TYPE && element)
         {
-            case STRING_TYPE:
-                element_copy = strdup((char *)element);
-                break;
-            case INT_TYPE:
-                element_copy = malloc(sizeof(int));
-                if (element_copy) *(int *)element_copy = *(int *)element;
-                break;
-            case FLOAT_TYPE:
-                element_copy = malloc(sizeof(double));
-                if (element_copy) *(double *)element_copy = *(double *)element;
-                break;
-            case BOOL_TYPE:
-                element_copy = malloc(sizeof(bool));
-                if (element_copy) *(bool *)element_copy = *(bool *)element;
-                break;
-            default:
-                DEBUG_LOG("Unsupported array type: %d", array->type);
+            char *str_copy = strdup((char*)element);
+            if (!str_copy)
+            {
                 free(element);
                 return NULL;
-        }
-
-        if (!element_copy)
-        {
-            // DEBUG_LOG("Failed to copy element");
+            }
             free(element);
-            return NULL;
+            element = str_copy;
         }
-
-        free(element);  // Free the original element
-        element = element_copy;
-    }
-
-    // Execute the method
-    if (strcmp(node->method_name, "addLast") == 0)
-    {
-        array_add_last(array, element);
-        // DEBUG_LOG("Added element to end of array");
-        return NULL;
-    }
-
-    if (strcmp(node->method_name, "addFirst") == 0)
-    {
-        array_add_first(array, element);
-        // DEBUG_LOG("Added element to start of array");
+        
+        if (strcmp(node->method_name, "addLast") == 0)
+        {
+            array_add_last(array, element);
+        }
+        else
+        {
+            array_add_first(array, element);
+        }
         return NULL;
     }
 
@@ -238,7 +198,6 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
     {
         if (array->length == 0)
         {
-            // DEBUG_LOG("Cannot remove from empty array");
             return NULL;
         }
         return array_remove_last(array);
@@ -248,7 +207,6 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
     {
         if (array->length == 0)
         {
-            // DEBUG_LOG("Cannot remove from empty array");
             return NULL;
         }
         return array_remove_first(array);
@@ -258,7 +216,6 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
     {
         if (!node->right || !node->right->next)
         {
-            DEBUG_LOG("Insert requires two arguments: index and value");
             return NULL;
         }
 
@@ -266,7 +223,6 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
         void *index_result = interpret_expression(node->right);
         if (!index_result)
         {
-            // DEBUG_LOG("Failed to interpret index argument");
             return NULL;
         }
         int index = *(int *)index_result;
@@ -276,7 +232,6 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
         void *value = interpret_expression(node->right->next);
         if (!value)
         {
-            DEBUG_LOG("Failed to interpret value argument");
             return NULL;
         }
 
@@ -286,6 +241,9 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
         {
             case STRING_TYPE:
                 element_copy = strdup((char *)value);
+                if (!element_copy) {
+                    return NULL;
+                }
                 break;
             case INT_TYPE:
                 element_copy = malloc(sizeof(int));
@@ -300,15 +258,11 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
                 if (element_copy) *(bool *)element_copy = *(bool *)value;
                 break;
             default:
-                DEBUG_LOG("Unsupported array type: %d", array->type);
-                free(value);
                 return NULL;
         }
 
         if (!element_copy)
         {
-            DEBUG_LOG("Failed to copy element");
-            free(value);
             return NULL;
         }
 
@@ -317,17 +271,13 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
         return NULL;
     }
 
-    DEBUG_LOG("Unknown array method: %s", node->method_name);
-    if (element) free(element);
     return NULL;
 }
 
 void *interpret_array_access(ASTNode *node, ArrayValue *array)
 {
-    DEBUG_LOG("Interpreting array access");
     if (!node || !array)
     {
-        DEBUG_LOG("Node or array is NULL");
         return NULL;
     }
 
@@ -335,7 +285,6 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
     void *index_result = interpret_expression(node->index);
     if (!index_result)
     {
-        DEBUG_LOG("Failed to evaluate index expression - index: %p", (void*)index_result);
         return NULL;
     }
 
@@ -353,8 +302,6 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
         free(index_result);
     }
 
-    DEBUG_LOG("Accessing array at index: %d", index);
-
     // Check bounds
     if (index < 0 || index >= array->length)
     {
@@ -366,7 +313,6 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
     void *element = array->elements[index];
     if (!element)
     {
-        // DEBUG_LOG("Element at index %d is NULL", index);
         return NULL;
     }
 
@@ -379,21 +325,16 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
         int *copy = malloc(sizeof(int));
         *copy = *(int *)element;
         result = copy;
-        // printf("DEBUG: Retrieved int value: %d\n", *copy);
-
         break;
     }
     case STRING_TYPE:
         result = strdup((char *)element);
-        // printf("DEBUG: Retrieved string value: %s\n", (char *)result);
-
         break;
     case FLOAT_TYPE:
     {
         double *copy = malloc(sizeof(double));
         *copy = *(double *)element;
         result = copy;
-        // printf("DEBUG: Retrieved float value: %f\n", *copy);
         break;
     }
     case BOOL_TYPE:
@@ -401,7 +342,6 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
         bool *copy = malloc(sizeof(bool));
         *copy = *(bool *)element;
         result = copy;
-        // printf("DEBUG: Retrieved boolean value: %d\n", *copy);
         break;
     }
     default:
@@ -410,6 +350,5 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
         result = element;
     }
 
-    // DEBUG_LOG("Successfully retrieved element at index %d", index);
     return result;
 }

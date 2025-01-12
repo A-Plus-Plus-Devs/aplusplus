@@ -2100,13 +2100,23 @@ static char *evaluate_input(const char *prompt)
         return strdup("");
     }
 
-    // Remove trailing newline if present
     if (read > 0 && line[read - 1] == '\n')
     {
         line[read - 1] = '\0';
+        read--;
     }
 
-    return line;
+    char *result = malloc(read + 1);
+    if (!result) {
+        free(line);
+        return strdup("");
+    }
+
+    memcpy(result, line, read);
+    result[read] = '\0';
+    
+    free(line);
+    return result;
 }
 
 static void register_builtin_functions(void)
@@ -2988,7 +2998,7 @@ void interpret(ASTNode *node)
                 }
                 else if (strcmp(node->var_type, "char") == 0)
                 {
-                    char value = node->left ? node->left->value[0] : '\0';
+                    char value = node->left->value[0];
                     set_variable(node->var_name, CHAR_TYPE, &value);
                 }
                 else if (strstr(node->var_type, "<"))
@@ -3486,7 +3496,8 @@ void *interpret_expression(ASTNode *node)
 
     case NODE_STRING_LITERAL:
     {
-        return strdup(node->value);
+        char *str = strdup(node->value);
+        return str;
     }
 
     case NODE_BOOL_LITERAL:
@@ -3508,19 +3519,41 @@ void *interpret_expression(ASTNode *node)
         Variable *var = get_variable(node->value);
         if (!var)
         {
-            printf("Error: Undefined variable '%s'\n", node->value);
             return NULL;
         }
         
-        // Return a copy of the variable's value
-        int *value = malloc(sizeof(int));
-        *value = var->value.int_value;
+        // Return a copy of the variable's value based on its type
+        void *value = NULL;
+        switch (var->type) {
+            case STRING_TYPE:
+                if (var->value.string_value) {
+                    value = strdup(var->value.string_value);
+                }
+                break;
+            case INT_TYPE:
+                value = malloc(sizeof(int));
+                if (value) {
+                    *(int*)value = var->value.int_value;
+                }
+                break;
+            case FLOAT_TYPE:
+                value = malloc(sizeof(double));
+                if (value) {
+                    *(double*)value = var->value.float_value;
+                }
+                break;
+            case BOOL_TYPE:
+                value = malloc(sizeof(bool));
+                if (value) {
+                    *(bool*)value = var->value.bool_value;
+                }
+                break;
+        }
         return value;
     }
 
     case NODE_ARRAY_METHOD_CALL:
     {
-        // printf("DEBUG: Handling array method call for '%s'\n", node->var_name);
         Variable *array_var = get_variable(node->var_name);
         if (!array_var)
         {
@@ -3537,40 +3570,18 @@ void *interpret_expression(ASTNode *node)
 
     case NODE_ARRAY_ACCESS:
     {
-        // printf("DEBUG: Handling NODE_ARRAY_ACCESS in interpret_expression\n");
-
         Variable *array_var = get_variable(node->var_name);
-        // printf("DEBUG: Looking up array variable '%s': %p\n", node->var_name, (void *)array_var);
-
-        if (!array_var)
+        if (!array_var || !array_var->value.array_value)
         {
-            printf("ERROR: Array variable '%s' not found\n", node->var_name);
+            printf("ERROR: Array '%s' not found or uninitialized\n", node->var_name);
             return NULL;
         }
-
-        if (!array_var->value.array_value)
-        {
-            printf("ERROR: Array '%s' is uninitialized\n", node->var_name);
-            return NULL;
-        }
-
-        // printf("DEBUG: Found array at %p, type: %d, length: %zu\n",
-        //        (void *)array_var->value.array_value,
-        //        array_var->value.array_value->type,
-        //        array_var->value.array_value->length);
 
         void *result = interpret_array_access(node, array_var->value.array_value);
-        // printf("DEBUG: interpret_array_access returned: %p\n", result);
-
         if (!result)
         {
             printf("ERROR: Array access failed\n");
         }
-        else
-        {
-            printf("ERROR: Array access successful, value type: %d\n", array_var->value.array_value->type);
-        }
-
         return result;
     }
 
@@ -3588,9 +3599,6 @@ void *interpret_expression(ASTNode *node)
 
 char *extract_array_type(const char *var_type)
 {
-    // printf("DEBUG: Extracting array type from '%s'\n", var_type);
-
-    // Find the opening '<' and closing '>'
     const char *start = strchr(var_type, '<');
     const char *end = strchr(var_type, '>');
 
@@ -3600,7 +3608,6 @@ char *extract_array_type(const char *var_type)
         return NULL;
     }
 
-    // Calculate length of type name
     size_t type_len = end - (start + 1);
     char *array_type = malloc(type_len + 1);
 
@@ -3610,10 +3617,8 @@ char *extract_array_type(const char *var_type)
         return NULL;
     }
 
-    // Copy the type name (excluding the < >)
     strncpy(array_type, start + 1, type_len);
     array_type[type_len] = '\0';
 
-    // printf("DEBUG: Extracted array type: '%s'\n", array_type);
     return array_type;
 }
