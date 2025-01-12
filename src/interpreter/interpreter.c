@@ -2344,23 +2344,18 @@ void print_array_element(void *element, VariableType type)
     {
     case INT_TYPE:
         printf("%d\n", *(int *)element);
-        free(element);
         break;
     case FLOAT_TYPE:
         printf("%g\n", *(double *)element);
-        free(element);
         break;
     case STRING_TYPE:
         printf("%s\n", (char *)element);
-        free(element);
         break;
     case BOOL_TYPE:
         printf("%s\n", *(bool *)element ? "yup" : "nope");
-        free(element);
         break;
     default:
         printf("Error: Unsupported type %d", type);
-        free(element);
     }
 }
 
