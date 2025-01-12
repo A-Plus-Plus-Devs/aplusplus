@@ -1,5 +1,6 @@
 # Array Implementation in A++
 
+> **Update (January 12, 2025)**: Fixed critical issue with variable-based array indexing
 > **Update (January 2025)**: Arrays are now fully functional! Major fixes and improvements include:
 > - Fixed array declaration and initialization (previously non-functional)
 > - Implemented array access and element updates (previously broken)
@@ -15,6 +16,7 @@ This document describes the implementation of dynamic arrays in A++. Arrays were
 ## Array Features
 - Dynamic sizing (✓ working)
 - Zero-based indexing (✓ working)
+- Variable-based indexing (✓ fixed as of Jan 12, 2025)
 - Type-safe arrays (string[], int[], etc.) (✓ working)
 - Mixed-type arrays (any[]) (✓ working)
 - Array operations (all now functional):
@@ -34,6 +36,10 @@ The following critical issues have been resolved:
 3. Memory management has been fixed to prevent leaks
 4. Type checking is now properly enforced
 5. Method calls now correctly handle multiple arguments
+6. Variable-based array indexing now works (fixed Jan 12, 2025)
+   - Previously failed when using variables as array indices
+   - Fixed by properly returning variable values in expression interpreter
+   - Now supports both literal indices (numbers[0]) and variable indices (numbers[x])
 
 ### Array Types
 Arrays are implemented as a new variable type with the following characteristics:
@@ -41,6 +47,7 @@ Arrays are implemented as a new variable type with the following characteristics
 - Type checking for typed arrays (✓ fixed)
 - Flexible sizing for any[] arrays (✓ fixed)
 - Full support for array indexing and updates (✓ fixed)
+- Variable-based indexing support (✓ fixed Jan 12, 2025)
 
 ### Array Operations
 Each array operation is now properly implemented as a method call:
@@ -74,6 +81,10 @@ names.insert(1, "Alice");         // ["Jane", "Alice", "Bob"]
 // Array Access and Updates (Now Working)
 first = numbers[0];               // Get first element works
 numbers[1] = 5;                   // Update second element works
+
+// Variable-based Indexing (Fixed Jan 12, 2025)
+int x = 2;
+value = numbers[x];               // Access using variable index works
 ```
 
 ## Implementation Notes
@@ -82,6 +93,7 @@ numbers[1] = 5;                   // Update second element works
 - Array operations include bounds checking and appropriate error messages
 - Method calls support multiple arguments, enabling more complex array manipulations
 - Integration with the global length() function now works for both strings and arrays
+- Variable-based array indexing properly resolves variable values before access
 
 ## Recent Fixes and Updates
 1. Parser improvements:
@@ -93,15 +105,11 @@ numbers[1] = 5;                   // Update second element works
    - Implemented proper array memory management
    - Fixed array access and update operations
    - Added support for array methods
+   - Fixed variable-based array indexing (Jan 12, 2025)
 
 3. Array operations:
    - All basic operations now working
    - Added insert() method
    - Fixed length calculation
    - Improved type safety
-
-4. Memory management:
-   - Fixed memory leaks
-   - Improved allocation strategy
-   - Added proper cleanup for different types
-```
+   - Added support for variable indices in array access
