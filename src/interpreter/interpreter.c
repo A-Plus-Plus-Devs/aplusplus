@@ -1440,7 +1440,7 @@ static void set_variable(const char *name, VariableType type, void *value)
             else if (type == BOOL_TYPE)
             {
                 variables[i].value.bool_value = *(bool *)value;
-            }
+                }
             else if (type == FLOAT_TYPE)
             {
                 variables[i].value.float_value = *(double *)value;
@@ -3511,7 +3511,11 @@ void *interpret_expression(ASTNode *node)
             printf("Error: Undefined variable '%s'\n", node->value);
             return NULL;
         }
-        return NULL;
+        
+        // Return a copy of the variable's value
+        int *value = malloc(sizeof(int));
+        *value = var->value.int_value;
+        return value;
     }
 
     case NODE_ARRAY_METHOD_CALL:

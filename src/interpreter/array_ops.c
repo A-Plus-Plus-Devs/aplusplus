@@ -34,6 +34,9 @@
 #include <string.h>
 #include <stdio.h>
 
+// Forward declarations
+// static Variable *get_variable(const char *name);
+
 #define DEBUG_LOG(msg, ...) printf("[DEBUG] %s:%d - " msg "\n", __func__, __LINE__, ##__VA_ARGS__)
 
 static VariableType get_array_type(const char *type_str)
@@ -321,7 +324,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
 
 void *interpret_array_access(ASTNode *node, ArrayValue *array)
 {
-    // DEBUG_LOG("Interpreting array access");
+    DEBUG_LOG("Interpreting array access");
     if (!node || !array)
     {
         DEBUG_LOG("Node or array is NULL");
@@ -332,7 +335,7 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
     void *index_result = interpret_expression(node->index);
     if (!index_result)
     {
-        // DEBUG_LOG("Failed to evaluate index expression");
+        DEBUG_LOG("Failed to evaluate index expression - index: %p", (void*)index_result);
         return NULL;
     }
 
@@ -344,11 +347,13 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
     }
     else
     {
+        // For all other cases (including variables), the interpret_expression should 
+        // have already given us the resolved value
         index = *(int *)index_result;
         free(index_result);
     }
 
-    // DEBUG_LOG("Accessing array at index: %d", index);
+    DEBUG_LOG("Accessing array at index: %d", index);
 
     // Check bounds
     if (index < 0 || index >= array->length)
