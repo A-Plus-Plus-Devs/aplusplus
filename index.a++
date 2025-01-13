@@ -1,3 +1,2 @@
-print(5**-2);  // Should print 0.04
-print(2**-3);  // Should print 0.125
-print(0**-2);  // Should print 0.111111...
+float x = (float) 10;
+print(x);
