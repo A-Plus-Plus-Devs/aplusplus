@@ -209,7 +209,65 @@ static ASTNode *parse_statement(Parser *parser)
         }
         else if (next_char == '[')
         {
-            node = parse_array_access(parser, parser->current_token->value);
+            // First parse the array access
+            char* array_name = strdup(parser->current_token->value);
+            get_next_token(parser); // consume identifier
+            
+            if (parser->current_token->type != TOKEN_LBRACKET) {
+                printf("Error: Expected '[', got token type %d\n", parser->current_token->type);
+                free(array_name);
+                return NULL;
+            }
+            
+            get_next_token(parser); // consume [
+            
+            ASTNode* index = parse_expression(parser);
+            if (!index) {
+                printf("Error: Failed to parse array index expression\n");
+                free(array_name);
+                return NULL;
+            }
+            
+            if (parser->current_token->type != TOKEN_RBRACKET) {
+                printf("Error: Expected ']', got token type: %d\n", parser->current_token->type);
+                free(array_name);
+                free_ast(index);
+                return NULL;
+            }
+            get_next_token(parser); // consume ]
+            
+            // Check if this is an assignment
+            if (parser->current_token->type == TOKEN_ASSIGN) {
+                get_next_token(parser); // consume =
+                
+                ASTNode* value = parse_expression(parser);
+                if (!value) {
+                    printf("Error: Failed to parse assignment value\n");
+                    free(array_name);
+                    free_ast(index);
+                    return NULL;
+                }
+                
+                if (parser->current_token->type != TOKEN_SEMICOLON) {
+                    printf("Error: Expected semicolon after array assignment\n");
+                    free(array_name);
+                    free_ast(index);
+                    free_ast(value);
+                    return NULL;
+                }
+                get_next_token(parser); // consume ;
+                
+                // Create array assignment node
+                ASTNode* array_access = create_node(NODE_ARRAY_ACCESS, NULL, NULL, array_name);
+                array_access->index = index;
+                node = create_assignment_node(array_name, value);
+                node->array_access = array_access;
+            } else {
+                // Just array access
+                node = create_node(NODE_ARRAY_ACCESS, NULL, NULL, array_name);
+                node->index = index;
+            }
+            free(array_name);
         }
         else if (next_char == '.')
         {

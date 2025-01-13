@@ -52,6 +52,7 @@ typedef struct ASTNode
     struct ASTNode *elements;   // Linked list of array elements
     struct ASTNode *index;      // Index for array access
     char *method_name;          // Name of array method being called
+    struct ASTNode *array_access; // For array assignments (e.g., arr[i] = x)
 
     // Function-specific fields
     char *return_type;           // Return type for functions

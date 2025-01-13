@@ -10,4 +10,12 @@ for (int i = 0; i < len; i++) {
     names.addLast(name);
 }
 
-print(names[a]);
+names[1] = "Addy";
+
+print(names);
+
+#define string greetUser(string name) {
+    yield "Hello " + name;
+}
+
+print(greetUser("Paul"));

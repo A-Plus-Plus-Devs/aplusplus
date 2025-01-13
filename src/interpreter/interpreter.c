@@ -3381,43 +3381,117 @@ static void handle_assignment(ASTNode *node)
         exit(1);
     }
 
-    // Handle the assignment based on the variable's type
+    // Handle array assignment
+    if (node->array_access)
+    {
+        if (existing_var->type != ARRAY_TYPE)
+        {
+            printf("Error: Cannot perform array access on non-array variable '%s'\n", node->var_name);
+            exit(1);
+        }
+
+        ArrayValue *array = existing_var->value.array_value;
+        int index = evaluate_expression(node->array_access->index);
+        
+        if (index < 0 || index >= array->length)
+        {
+            printf("Error: Array index %d out of bounds for array '%s' (length: %d)\n", 
+                   index, node->var_name, array->length);
+            exit(1);
+        }
+
+        // Get the value to assign
+        void *value = NULL;
+        switch (array->type)
+        {
+            case INT_TYPE:
+            {
+                int val = evaluate_expression(node->left);
+                value = malloc(sizeof(int));
+                *(int*)value = val;
+                break;
+            }
+            case FLOAT_TYPE:
+            {
+                double val = evaluate_float_expression(node->left);
+                value = malloc(sizeof(double));
+                *(double*)value = val;
+                break;
+            }
+            case STRING_TYPE:
+            {
+                char *val = evaluate_string_expression(node->left);
+                value = strdup(val);
+                free(val);
+                break;
+            }
+            case BOOL_TYPE:
+            {
+                bool val = evaluate_bool_expression(node->left);
+                value = malloc(sizeof(bool));
+                *(bool*)value = val;
+                break;
+            }
+            case CHAR_TYPE:
+            {
+                char val = node->left->value[0];
+                value = malloc(sizeof(char));
+                *(char*)value = val;
+                break;
+            }
+            default:
+                printf("Error: Unsupported type for array element\n");
+                exit(1);
+        }
+
+        // Free the old value if it exists
+        if (array->elements[index])
+        {
+            free(array->elements[index]);
+        }
+
+        // Set the new value
+        array->elements[index] = value;
+        return;
+    }
+
+    // Handle regular variable assignment
     switch (existing_var->type)
     {
-    case INT_TYPE:
-    {
-        int value = evaluate_expression(node->left);
-        set_variable(node->var_name, INT_TYPE, &value);
-    }
-    break;
-    case FLOAT_TYPE:
-    {
-        double value = evaluate_float_expression(node->left);
-        set_variable(node->var_name, FLOAT_TYPE, &value);
-    }
-    break;
-    case STRING_TYPE:
-    {
-        char *value = evaluate_string_expression(node->left);
-        set_variable(node->var_name, STRING_TYPE, value);
-        free(value);
-    }
-    break;
-    case BOOL_TYPE:
-    {
-        bool value = evaluate_bool_expression(node->left);
-        set_variable(node->var_name, BOOL_TYPE, &value);
-    }
-    break;
-    case CHAR_TYPE:
-    {
-        char value = node->left->value[0];
-        set_variable(node->var_name, CHAR_TYPE, &value);
-    }
-    break;
-    default:
-        printf("Error: Unsupported type for variable '%s'\n", node->var_name);
-        exit(1);
+        case INT_TYPE:
+        {
+            int value = evaluate_expression(node->left);
+            set_variable(node->var_name, INT_TYPE, &value);
+            break;
+        }
+        case FLOAT_TYPE:
+        {
+            double value = evaluate_float_expression(node->left);
+            set_variable(node->var_name, FLOAT_TYPE, &value);
+            break;
+        }
+        case STRING_TYPE:
+        {
+            char *value = evaluate_string_expression(node->left);
+            set_variable(node->var_name, STRING_TYPE, value);
+            free(value);
+            break;
+        }
+        case BOOL_TYPE:
+        {
+            bool value = evaluate_bool_expression(node->left);
+            set_variable(node->var_name, BOOL_TYPE, &value);
+            break;
+        }
+        case CHAR_TYPE:
+        {
+            char value = node->left->value[0];
+            set_variable(node->var_name, CHAR_TYPE, &value);
+            break;
+        }
+        default:
+            printf("Error: Unsupported type for variable '%s'\n", node->var_name);
+            exit(1);
     }
 }
 
