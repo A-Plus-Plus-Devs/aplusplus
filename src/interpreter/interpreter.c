@@ -1657,7 +1657,13 @@ static int evaluate_expression(ASTNode *node)
             return right != 0 ? left % right : 0;
         if (strcmp(node->value, "**") == 0)
         {
-            return (int)pow(left, right);
+            // For power operations, always use floating-point calculation
+            ASTNode *float_node = create_node(NODE_FLOAT_LITERAL, NULL, NULL, "float");
+            float_node->left = node->left;
+            float_node->right = node->right;
+            double result = evaluate_float_expression(float_node);
+            free(float_node);
+            return (int)result;  // Convert back to int if needed
         }
 
         return 0;
@@ -2034,6 +2040,25 @@ static double evaluate_float_expression(ASTNode *node)
             return right != 0.0 ? left / right : 0.0;
         if (strcmp(node->value, "**") == 0)
         {
+            // Handle special case: 0 raised to negative power
+            if (left == 0.0 && right < 0)
+            {
+                printf("\033[1;31mERROR:\033[0m Sorry Bro, can't raise 0 to a negative power — math says nope!\n");
+                exit(1);  // Exit with error status
+            }
+            
+            // For negative exponents, calculate positive power first then take reciprocal
+            if (right < 0)
+            {
+                double positive_power = pow(left, -right);
+                if (positive_power == 0.0)
+                {
+                    printf("\033[1;31mERROR:\033[0m Sorry bro, your expression has a division by 0.\n");
+                    exit(1);
+                }
+                return 1.0 / positive_power;
+            }
+            
             return pow(left, right);
         }
 
@@ -2546,19 +2571,17 @@ void interpret(ASTNode *node)
                     free(result);
                 }
             }
+            else if (node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "**") == 0)
+            {
+                // Always handle power operations as floating point
+                double result = evaluate_float_expression(node->left);
+                printf("%g\n", result);
+            }
             else if (node->left->type == NODE_FLOAT_LITERAL ||
                      (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == FLOAT_TYPE))
             {
                 double result = evaluate_float_expression(node->left);
-                // Check if the number is a whole number
-                if (result == (int)result)
-                {
-                    printf("%.1f\n", result); // Force .0 for whole numbers
-                }
-                else
-                {
-                    printf("%g\n", result); // Use original precision for decimals
-                }
+                printf("%g\n", result);
             }
             else if (node->left->type == NODE_BOOL_LITERAL ||
                      (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == BOOL_TYPE))
