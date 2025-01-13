@@ -10,7 +10,9 @@ for (int i = 0; i < len; i++) {
     names.addLast(name);
 }
 
-names[1] = "Addy";
+names[1] = "Jake";
+
+names.addLast("Bob");
 
 print(names);
 
