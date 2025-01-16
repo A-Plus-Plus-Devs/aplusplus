@@ -5,7 +5,7 @@
 // 1. Basic Print Tests
 print("=== Basic Print Tests ===");
 print(42);                  // Integer
-print(3.14);               // Float
+print(3.14);               // Decimal
 print("Hello, World!");    // String
 print(yup);               // Boolean
 
@@ -13,7 +13,7 @@ print(yup);               // Boolean
 print("=== Variable Tests ===");
 int x = 10;
 print(x);
-float y = 20.5;
+decimal y = 20.5;
 print(y);
 string message = "Testing";
 print(message);

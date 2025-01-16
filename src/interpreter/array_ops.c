@@ -52,8 +52,8 @@ static VariableType get_array_type(const char *type_str)
         return INT_TYPE;
     if (strcmp(type_str, "string") == 0)
         return STRING_TYPE;
-    if (strcmp(type_str, "float") == 0)
-        return FLOAT_TYPE;
+    if (strcmp(type_str, "decimal") == 0)
+        return DECIMAL_TYPE;
     if (strcmp(type_str, "bool") == 0 || strcmp(type_str, "boolean") == 0)
         return BOOL_TYPE;
     if (strcmp(type_str, "any") == 0)
@@ -249,7 +249,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
                 element_copy = malloc(sizeof(int));
                 if (element_copy) *(int *)element_copy = *(int *)value;
                 break;
-            case FLOAT_TYPE:
+            case DECIMAL_TYPE:
                 element_copy = malloc(sizeof(double));
                 if (element_copy) *(double *)element_copy = *(double *)value;
                 break;
@@ -330,7 +330,7 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
     case STRING_TYPE:
         result = strdup((char *)element);
         break;
-    case FLOAT_TYPE:
+    case DECIMAL_TYPE:
     {
         double *copy = malloc(sizeof(double));
         *copy = *(double *)element;

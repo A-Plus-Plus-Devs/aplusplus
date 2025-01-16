@@ -4,7 +4,7 @@ print("=== Type Casting Tests ===");
 // String to number conversions
 print("\nString to Number Tests:");
 print((int) "42");        // Should print: 42
-print((float) "3.14");    // Should print: 3.14
+print((decimal) "3.14");    // Should print: 3.14
 print((int) "3.14");      // Should print: 3
 print((int) "abc");       // Should print error or 0
 
@@ -24,5 +24,5 @@ print((string) nope);     // Should print: "nope"
 // Edge cases
 print("\nEdge Cases:");
 print((int) "");         // Should print error or 0
-print((float) "");       // Should print error or 0
+print((decimal) "");       // Should print error or 0
 print((string) null);    // Should print error or "" 

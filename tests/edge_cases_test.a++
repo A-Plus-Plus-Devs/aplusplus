@@ -16,7 +16,7 @@ int min_int = -2147483648;   // Minimum 32-bit integer
 print("max: " + max_int);
 print("min: " + min_int);
 
-float very_small = 0.0000001;  // Very small float
+decimal very_small = 0.0000001;  // Very small decimal
 print(very_small);
 
 string empty = "";             // Empty string
@@ -78,8 +78,8 @@ for (int i = 0; i < 2; i = i + 1) {
 // 6. Type Coercion Tests
 print("=== Type Coercion Tests ===");
 int int_val = 42;
-float float_val = 3.14;
-print(int_val + float_val);    // Int + Float
+decimal decimal_val = 3.14;
+print(int_val + decimal_val);    // Int + Decimal
 
 // 7. Mixed Expression Tests
 print("=== Mixed Expression Tests ===");

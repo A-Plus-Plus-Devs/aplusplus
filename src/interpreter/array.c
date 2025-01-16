@@ -156,7 +156,7 @@ void debug_print_array(ArrayValue* array)
             case INT_TYPE:
                 printf("[%zu]: %d\n", i, *(int*)element);
                 break;
-            case FLOAT_TYPE:
+            case DECIMAL_TYPE:
                 printf("[%zu]: %f\n", i, *(double*)element);
                 break;
             case BOOL_TYPE:

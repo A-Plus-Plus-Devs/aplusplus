@@ -159,8 +159,8 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_INT_TYPE;
     else if (strcmp(buffer, "string") == 0)
         token->type = TOKEN_STRING_TYPE;
-    else if (strcmp(buffer, "float") == 0)
-        token->type = TOKEN_FLOAT_TYPE;
+    else if (strcmp(buffer, "decimal") == 0)
+        token->type = TOKEN_DECIMAL_TYPE;
     else if (strcmp(buffer, "boolean") == 0 || strcmp(buffer, "bool") == 0)
         token->type = TOKEN_BOOL_TYPE;
     else if (strcmp(buffer, "print") == 0 || strcmp(buffer, "echo") == 0 || strcmp(buffer, "yap") == 0)
@@ -229,7 +229,7 @@ static Token *number(Lexer *lexer)
 {
     char buffer[256] = {0};
     int i = 0;
-    bool is_float = false;
+    bool is_decimal = false;
 
     // printf("\nDEBUG: Starting number parse\n");
     // printf("DEBUG: Current char: '%c'\n", lexer->current_char);
@@ -245,7 +245,7 @@ static Token *number(Lexer *lexer)
     if (lexer->current_char == '.')
     {
         // printf("DEBUG: Found decimal point\n");
-        is_float = true;
+        is_decimal = true;
         buffer[i++] = lexer->current_char;
         advance(lexer);
         
@@ -261,7 +261,7 @@ static Token *number(Lexer *lexer)
     buffer[i] = '\0';
 
     Token *token = malloc(sizeof(Token));
-    token->type = is_float ? TOKEN_FLOAT : TOKEN_NUMBER;
+    token->type = is_decimal ? TOKEN_DECIMAL : TOKEN_NUMBER;
     token->value = strdup(buffer);
 
     // printf("DEBUG: Created number token - type: %d, value: '%s'\n", 

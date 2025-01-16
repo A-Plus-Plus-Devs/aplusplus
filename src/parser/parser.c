@@ -189,7 +189,7 @@ static ASTNode *parse_statement(Parser *parser)
         break;
 
     case TOKEN_INT_TYPE:
-    case TOKEN_FLOAT_TYPE:
+    case TOKEN_DECIMAL_TYPE:
     case TOKEN_STRING_TYPE:
     case TOKEN_CHAR_TYPE:
     case TOKEN_BOOL_TYPE:
@@ -745,10 +745,10 @@ static ASTNode *parse_factor(Parser *parser)
         }
         return create_node(NODE_BINARY_OP, operand, NULL, "!");
     }
-    else if (token->type == TOKEN_NUMBER || token->type == TOKEN_FLOAT)
+    else if (token->type == TOKEN_NUMBER || token->type == TOKEN_DECIMAL)
     {
         ASTNode *node = create_node(
-            token->type == TOKEN_FLOAT ? NODE_FLOAT_LITERAL : NODE_INT_LITERAL,
+            token->type == TOKEN_DECIMAL ? NODE_DECIMAL_LITERAL : NODE_INT_LITERAL,
             NULL, NULL, token->value);
         get_next_token(parser);
         return node;
@@ -867,7 +867,7 @@ static ASTNode *parse_factor(Parser *parser)
         // Check if this is a type cast
         if (parser->current_token->value &&
             (strcmp(parser->current_token->value, "int") == 0 ||
-             strcmp(parser->current_token->value, "float") == 0 ||
+             strcmp(parser->current_token->value, "decimal") == 0 ||
              strcmp(parser->current_token->value, "string") == 0 ||
              strcmp(parser->current_token->value, "boolean") == 0 ||
              strcmp(parser->current_token->value, "char") == 0))
@@ -1285,7 +1285,7 @@ static ASTNode *parse_for_statement(Parser *parser)
     // Parse initialisation
     ASTNode *init = NULL;
     if (parser->current_token->type == TOKEN_INT_TYPE ||
-        parser->current_token->type == TOKEN_FLOAT_TYPE ||
+        parser->current_token->type == TOKEN_DECIMAL_TYPE ||
         parser->current_token->type == TOKEN_STRING_TYPE ||
         parser->current_token->type == TOKEN_BOOL_TYPE)
     {
@@ -1457,7 +1457,7 @@ static ASTNode *parse_function_definition(Parser *parser)
     }
     else if (parser->current_token->type == TOKEN_INT_TYPE ||
              parser->current_token->type == TOKEN_STRING_TYPE ||
-             parser->current_token->type == TOKEN_FLOAT_TYPE ||
+             parser->current_token->type == TOKEN_DECIMAL_TYPE ||
              parser->current_token->type == TOKEN_BOOL_TYPE ||
              parser->current_token->type == TOKEN_CHAR_TYPE)
     {
@@ -1591,7 +1591,7 @@ static ASTNode *parse_function_parameters(Parser *parser)
         // Parse parameter type
         char *param_type = NULL;
         if (parser->current_token->type == TOKEN_INT_TYPE ||
-            parser->current_token->type == TOKEN_FLOAT_TYPE ||
+            parser->current_token->type == TOKEN_DECIMAL_TYPE ||
             parser->current_token->type == TOKEN_STRING_TYPE ||
             parser->current_token->type == TOKEN_CHAR_TYPE ||
             parser->current_token->type == TOKEN_BOOL_TYPE)

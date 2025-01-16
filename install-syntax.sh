@@ -27,6 +27,6 @@ npm install
 vsce package
 
 # Install the extension
-code --install-extension a-plus-plus-*.vsix
+code --install-extension a-plus-plus-*.vsix --force
 
 echo "A++ Syntax Highlighter installation complete!" 

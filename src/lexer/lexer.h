@@ -10,7 +10,7 @@ typedef enum
     TOKEN_IDENTIFIER,
     TOKEN_STRING,
     TOKEN_ASSIGN,
-    TOKEN_FLOAT,
+    TOKEN_DECIMAL,
     TOKEN_INT,
     TOKEN_CHAR,
     TOKEN_CHAR_AT,
@@ -57,7 +57,7 @@ typedef enum
     TOKEN_ELSEIF,
     TOKEN_BREAK,
     TOKEN_CONTINUE,
-    TOKEN_FLOAT_TYPE,
+    TOKEN_DECIMAL_TYPE,
     TOKEN_CHAR_TYPE,
     TOKEN_SHORT_TYPE,
     TOKEN_BOOL_TYPE,
@@ -74,7 +74,7 @@ typedef enum
     TOKEN_DEFINE,       // #define
     TOKEN_YIELD,        // yield
     TOKEN_FUNCTION,     // function
-    TOKEN_TYPE,         // type declarations (int, float, string, etc.)
+    TOKEN_TYPE,         // type declarations (int, decimal, string, etc.)
     TOKEN_PLUS_ASSIGN,  // +=
     TOKEN_MINUS_ASSIGN, // -=
     TOKEN_MUL_ASSIGN,   // *=
@@ -120,7 +120,7 @@ typedef enum
     TOKEN_MIN,
     TOKEN_RANDOM,
     TOKEN_RANDOM_INT,
-    TOKEN_RANDOM_FLOAT,
+    TOKEN_RANDOM_DECIMAL,
     TOKEN_DATE,
     TOKEN_TIME,
     TOKEN_NOW,
@@ -138,7 +138,7 @@ typedef enum
     KEYWORD_BREAK,
     KEYWORD_CONTINUE,
     KEYWORD_INT,
-    KEYWORD_FLOAT,
+    KEYWORD_DECIMAL,
     KEYWORD_BOOL,
     KEYWORD_VOID,
     KEYWORD_RETURN,

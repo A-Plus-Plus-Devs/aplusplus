@@ -6,14 +6,14 @@ print("=== Type Checking Tests ===");
 // 1. Basic Type Assignment Tests
 print("--- Basic Type Assignments ---");
 int x1 = 42;
-float y1 = 3.14;
+decimal y1 = 3.14;
 string s1 = "Hello";
 boolean b1 = yup;
 char c1 = 'A';
 
 // 2. Valid Implicit Conversions
 print("--- Valid Implicit Conversions ---");
-float f2 = 42;        // int -> float
+decimal f2 = 42;        // int -> decimal
 int i2 = 'B';         // char -> int
 int i3 = yup;         // bool -> int (should be 1)
 int i4 = nope;        // bool -> int (should be 0)
@@ -21,7 +21,7 @@ int i4 = nope;        // bool -> int (should be 0)
 // 3. String Concatenation Tests
 print("--- String Concatenation Tests ---");
 string s2 = "Number: " + 42;        // int concatenation
-string s3 = "Pi: " + 3.14;          // float concatenation
+string s3 = "Pi: " + 3.14;          // decimal concatenation
 string s4 = "Flag: " + yup;         // bool concatenation
 string s5 = "Char: " + 'X';         // char concatenation
 
@@ -30,7 +30,7 @@ string s5 = "Char: " + 'X';         // char concatenation
     yield a + b;
 }
 
-#define float divide(int a, int b) {
+#define decimal divide(int a, int b) {
     yield a / b;
 }
 
@@ -40,8 +40,8 @@ string s5 = "Char: " + 'X';         // char concatenation
 
 // Valid function return type assignments
 int result1 = add(5, 3);           // int -> int
-float result2 = add(5, 3);         // int -> float (implicit)
-float result3 = divide(10, 2);     // float -> float
+decimal result2 = add(5, 3);         // int -> decimal (implicit)
+decimal result3 = divide(10, 2);     // decimal -> decimal
 string result4 = greet("World");   // string -> string
 
 // 5. Invalid Type Assignments (Should Cause Errors)
@@ -49,14 +49,14 @@ string result4 = greet("World");   // string -> string
 
 
 // Direct invalid assignments
-// int bad1 = 3.14;         // Error: float -> int
+// int bad1 = 3.14;         // Error: decimal -> int
 int bad2 = "42";         // Error: string -> int
 boolean bad3 = 1;        // Error: int -> bool
 char bad4 = 65;          // Error: int -> char
 string bad5 = 42;        // Error: int -> string (without concatenation)
 
 // Invalid function return type assignments
-int bad6 = divide(10, 2);    // Error: float -> int
+int bad6 = divide(10, 2);    // Error: decimal -> int
 int bad7 = greet("World");   // Error: string -> int
 string bad8 = add(5, 3);     // Error: int -> string
 

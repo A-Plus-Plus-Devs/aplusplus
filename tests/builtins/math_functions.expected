@@ -15,8 +15,8 @@ Root Tests:
 0
 
 Edge Cases:
-Error: Cannot calculate square root of negative number
-Error: Root index cannot be zero
+ERROR: Cannot calculate square root of negative number
+ERROR: Root index cannot be zero
 -2.5198421
 
 Min/Max Tests:

@@ -4,13 +4,13 @@ Sum: 8
 
 === Return Type Tests ===
 Integer return: 42
-Float return: 3.14
+Decimal return: 3.14
 String return: test string
 Boolean return: yup
 
 === Parameter Type Tests ===
 Combined string: Hello, World!
-Float sum: 6
+Decimal sum: 6
 
 === Recursive Function Tests ===
 Factorial of 5: 120

@@ -5,7 +5,7 @@ print("=== Valid Type Conversion Tests ===");
 print("--- Basic Assignments ---");
 int x1 = 42;
 print(x1);
-float y1 = 3.14;
+decimal y1 = 3.14;
 print(y1);
 string s1 = "Hello";
 print(s1);
@@ -14,7 +14,7 @@ print(b1);
 
 // 2. Valid Implicit Conversions
 print("--- Valid Implicit Conversions ---");
-float f2 = 42;        // int -> float
+decimal f2 = 42;        // int -> decimal
 print(f2);
 int i2 = 'B';         // char -> int (ASCII value of 'B' is 66)
 print(i2);

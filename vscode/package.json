@@ -2,7 +2,7 @@
   "name": "a-plus-plus",
   "displayName": "A++",
   "description": "A++ Language Support",
-  "version": "0.0.3",
+  "version": "0.0.0",
   "engines": {
     "vscode": "^1.60.0"
   },

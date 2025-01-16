@@ -3,7 +3,7 @@
 
 typedef enum {
     INT_TYPE,
-    FLOAT_TYPE,
+    DECIMAL_TYPE,
     STRING_TYPE,
     BOOL_TYPE,
     CHAR_TYPE,

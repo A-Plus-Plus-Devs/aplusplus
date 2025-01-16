@@ -12,7 +12,7 @@ typedef enum
     NODE_ASSIGNMENT, // 3
     NODE_VAR_DECLARATION, // 4
     NODE_LITERAL, // 5
-    NODE_FLOAT_LITERAL, // 6
+    NODE_DECIMAL_LITERAL, // 6
     NODE_INT_LITERAL, // 7
     NODE_CHAR_LITERAL, // 8
     NODE_IF, // 9
@@ -206,7 +206,7 @@ ASTNode *create_array_literal_node(ASTNode *elements);
 /**
  * @brief Creates a type cast node.
  * 
- * @param target_type The type to cast to (e.g., "int", "float", "string").
+ * @param target_type The type to cast to (e.g., "int", "decimal", "string").
  * @param expr The expression to be cast.
  * @return ASTNode* A pointer to the newly created type cast node.
  */

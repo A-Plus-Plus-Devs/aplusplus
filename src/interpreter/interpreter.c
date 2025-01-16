@@ -46,7 +46,7 @@ typedef struct
     union
     {
         int int_value; // If it's an int, store the value here
-        double float_value;
+        double decimal_value;
         char *string_value;
         bool bool_value;
         char char_value;
@@ -66,7 +66,7 @@ typedef struct
 // Function declarations
 static int evaluate_expression(ASTNode *node);
 static bool evaluate_bool_expression(ASTNode *node);
-static double evaluate_float_expression(ASTNode *node);
+static double evaluate_decimal_expression(ASTNode *node);
 static char *evaluate_string_expression(ASTNode *node);
 static VariableType get_type_from_string(const char *type_str);
 static Function *find_function(const char *name);
@@ -116,9 +116,9 @@ static VariableType get_type_from_string(const char *type_str)
     {
         return INT_TYPE;
     }
-    else if (strcmp(type_str, "float") == 0)
+    else if (strcmp(type_str, "decimal") == 0)
     {
-        return FLOAT_TYPE;
+        return DECIMAL_TYPE;
     }
     else if (strcmp(type_str, "string") == 0)
     {
@@ -141,9 +141,9 @@ static VariableType get_function_return_type(const char *return_type_str)
     {
         return INT_TYPE;
     }
-    else if (strcmp(return_type_str, "float") == 0)
+    else if (strcmp(return_type_str, "decimal") == 0)
     {
-        return FLOAT_TYPE;
+        return DECIMAL_TYPE;
     }
     else if (strcmp(return_type_str, "string") == 0)
     {
@@ -165,7 +165,7 @@ void register_function(char *name, char *return_type, ASTNode *parameters, ASTNo
 {
     if (function_count >= MAX_FUNCTIONS)
     {
-        printf("Error: Maximum number of functions reached\n");
+        printf("\033[1;31mERROR:\033[0m Maximum number of functions reached\n");
         return;
     }
 
@@ -174,7 +174,7 @@ void register_function(char *name, char *return_type, ASTNode *parameters, ASTNo
     {
         if (strcmp(functions[i].name, name) == 0)
         {
-            printf("Error: Function '%s' already defined\n", name);
+            printf("\033[1;31mERROR:\033[0m Function '%s' already defined\n", name);
             return;
         }
     }
@@ -212,16 +212,16 @@ char *execute_function(const char *name, ASTNode *arguments)
 
         if (!arguments->target_type)
         {
-            printf("[ERROR] Target type is NULL\n");
+            printf("\033[1;31mERROR:\033[0m Target type is NULL\n");
             return NULL;
         }
 
-        if (strcmp(arguments->target_type, "float") == 0)
+        if (strcmp(arguments->target_type, "decimal") == 0)
         {
 
             if (!arguments->left)
             {
-                printf("[ERROR] No expression to convert (left node is NULL)\n");
+                printf("\033[1;31mERROR:\033[0m No expression to convert (left node is NULL)\n");
                 return NULL;
             }
 
@@ -253,9 +253,9 @@ char *execute_function(const char *name, ASTNode *arguments)
                     {
                         val = atof(var->value.string_value);
                     }
-                    else if (var->type == FLOAT_TYPE)
+                    else if (var->type == DECIMAL_TYPE)
                     {
-                        val = var->value.float_value;
+                        val = var->value.decimal_value;
                     }
                     char result[32];
                     snprintf(result, sizeof(result), "%g", val);
@@ -263,17 +263,17 @@ char *execute_function(const char *name, ASTNode *arguments)
                 }
                 else
                 {
-                    printf("[ERROR] Variable not found: %s\n", arguments->left->value);
+                    printf("\033[1;31mERROR:\033[0m Variable not found: %s\n", arguments->left->value);
                 }
             }
             else
             {
-                printf("[ERROR] Unsupported node type for float conversion: %d\n", arguments->left->type);
+                printf("\033[1;31mERROR:\033[0m Unsupported node type for decimal conversion: %d\n", arguments->left->type);
             }
         }
         else
         {
-            printf("[ERROR] Unsupported cast type: %s\n", arguments->target_type);
+            printf("\033[1;31mERROR:\033[0m Unsupported cast type: %s\n", arguments->target_type);
         }
         return NULL;
     }
@@ -282,7 +282,7 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: length() requires an argument\n");
+            printf("\033[1;31mERROR:\033[0m length() requires an argument\n");
             return strdup("0");
         }
 
@@ -331,7 +331,7 @@ char *execute_function(const char *name, ASTNode *arguments)
             return strdup(result);
         }
 
-        printf("Error: Argument to length() must be a string or array\n");
+        printf("\033[1;31mERROR:\033[0m Argument to length() must be a string or array\n");
         return strdup("0");
     }
 
@@ -359,7 +359,7 @@ char *execute_function(const char *name, ASTNode *arguments)
                 char *arg = evaluate_string_expression(current);
                 if (!arg)
                 {
-                    printf("Error: Invalid argument for date()\n");
+                    printf("\033[1;31mERROR:\033[0m Invalid argument for date()\n");
                     return strdup("");
                 }
 
@@ -431,7 +431,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         // Get the string argument
         if (!arguments)
         {
-            printf("Error: charAt() requires two arguments: string and index\n");
+            printf("\033[1;31mERROR:\033[0m charAt() requires two arguments: string and index\n");
             return strdup("");
         }
 
@@ -454,7 +454,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         ASTNode *index_arg = arguments->next;
         if (!index_arg)
         {
-            printf("Error: charAt() requires an index argument\n");
+            printf("\033[1;31mERROR:\033[0m charAt() requires an index argument\n");
             return strdup("");
         }
 
@@ -463,14 +463,14 @@ char *execute_function(const char *name, ASTNode *arguments)
         // Validate string and index
         if (!str_value)
         {
-            printf("Error: First argument to charAt() must be a string\n");
+            printf("\033[1;31mERROR:\033[0m First argument to charAt() must be a string\n");
             return strdup("");
         }
 
         size_t str_len = strlen(str_value);
         if (index < 0 || (size_t)index >= str_len)
         {
-            printf("Error: String index %d out of range (0-%zu)\n", index, str_len - 1);
+            printf("\033[1;31mERROR:\033[0m String index %d out of range (0-%zu)\n", index, str_len - 1);
             return strdup("");
         }
 
@@ -486,14 +486,14 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments || !arguments->next || !arguments->next->next)
         {
-            printf("Error: substring() requires three arguments\n");
+            printf("\033[1;31mERROR:\033[0m substring() requires three arguments\n");
             return strdup("");
         }
 
         char *str_value = evaluate_string_expression(arguments);
         if (!str_value)
         {
-            printf("Error: First argument to substring() must be a string\n");
+            printf("\033[1;31mERROR:\033[0m First argument to substring() must be a string\n");
             return strdup("");
         }
 
@@ -503,7 +503,7 @@ char *execute_function(const char *name, ASTNode *arguments)
 
         if (start < 0 || end < 0 || (size_t)start >= str_len || (size_t)end > str_len || start > end)
         {
-            printf("Error: Invalid substring indices\n");
+            printf("\033[1;31mERROR:\033[0m Invalid substring indices\n");
             free(str_value);
             return strdup("");
         }
@@ -522,7 +522,7 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments || !arguments->next)
         {
-            printf("Error: concat() requires two arguments\n");
+            printf("\033[1;31mERROR:\033[0m concat() requires two arguments\n");
             return strdup("");
         }
 
@@ -531,7 +531,7 @@ char *execute_function(const char *name, ASTNode *arguments)
 
         if (!str1 || !str2)
         {
-            printf("Error: Both arguments to concat() must be strings\n");
+            printf("\033[1;31mERROR:\033[0m Both arguments to concat() must be strings\n");
             free(str1);
             free(str2);
             return strdup("");
@@ -552,14 +552,14 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments || !arguments->next || !arguments->next->next)
         {
-            printf("Error: replace() requires three arguments\n");
+            printf("\033[1;31mERROR:\033[0m replace() requires three arguments\n");
             return strdup("");
         }
 
         char *str_value = evaluate_string_expression(arguments);
         if (!str_value)
         {
-            printf("Error: First argument to replace() must be a string\n");
+            printf("\033[1;31mERROR:\033[0m First argument to replace() must be a string\n");
             return strdup("");
         }
 
@@ -568,7 +568,7 @@ char *execute_function(const char *name, ASTNode *arguments)
 
         if (!new_char || strlen(new_char) != 1)
         {
-            printf("Error: Third argument to replace() must be a single character\n");
+            printf("\033[1;31mERROR:\033[0m Third argument to replace() must be a single character\n");
             free(str_value);
             free(new_char);
             return strdup("");
@@ -577,7 +577,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         size_t str_len = strlen(str_value);
         if (index < 0 || (size_t)index >= str_len)
         {
-            printf("Error: String index %d out of range (0-%zu)\n", index, str_len - 1);
+            printf("\033[1;31mERROR:\033[0m String index %d out of range (0-%zu)\n", index, str_len - 1);
             free(str_value);
             free(new_char);
             return strdup("");
@@ -595,7 +595,7 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments || !arguments->next)
         {
-            printf("Error: indexOf() requires two arguments: string and character\n");
+            printf("\033[1;31mERROR:\033[0m indexOf() requires two arguments: string and character\n");
             return strdup("-1");
         }
 
@@ -603,7 +603,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         char *str_value = evaluate_string_expression(arguments);
         if (!str_value)
         {
-            printf("Error: First argument to indexOf() must be a string\n");
+            printf("\033[1;31mERROR:\033[0m First argument to indexOf() must be a string\n");
             return strdup("-1");
         }
 
@@ -611,7 +611,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         char *char_value = evaluate_string_expression(arguments->next);
         if (!char_value || strlen(char_value) != 1)
         {
-            printf("Error: Second argument to indexOf() must be a single character\n");
+            printf("\033[1;31mERROR:\033[0m Second argument to indexOf() must be a single character\n");
             free(str_value);
             free(char_value);
             return strdup("-1");
@@ -635,14 +635,14 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: toLowerCase() requires a string argument\n");
+            printf("\033[1;31mERROR:\033[0m toLowerCase() requires a string argument\n");
             return strdup("");
         }
 
         char *str_value = evaluate_string_expression(arguments);
         if (!str_value)
         {
-            printf("Error: Argument to toLowerCase() must be a string\n");
+            printf("\033[1;31mERROR:\033[0m Argument to toLowerCase() must be a string\n");
             return strdup("");
         }
 
@@ -658,14 +658,14 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: toUpperCase() requires a string argument\n");
+            printf("\033[1;31mERROR:\033[0m toUpperCase() requires a string argument\n");
             return strdup("");
         }
 
         char *str_value = evaluate_string_expression(arguments);
         if (!str_value)
         {
-            printf("Error: Argument to toUpperCase() must be a string\n");
+            printf("\033[1;31mERROR:\033[0m Argument to toUpperCase() must be a string\n");
             return strdup("");
         }
 
@@ -682,14 +682,14 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: reverse() requires a string argument\n");
+            printf("\033[1;31mERROR:\033[0m reverse() requires a string argument\n");
             return strdup("");
         }
 
         char *str_value = evaluate_string_expression(arguments);
         if (!str_value)
         {
-            printf("Error: Argument to reverse() must be a string\n");
+            printf("\033[1;31mERROR:\033[0m Argument to reverse() must be a string\n");
             return strdup("");
         }
 
@@ -710,14 +710,14 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: trim() requires a string argument\n");
+            printf("\033[1;31mERROR:\033[0m trim() requires a string argument\n");
             return strdup("");
         }
 
         char *str_value = evaluate_string_expression(arguments);
         if (!str_value)
         {
-            printf("Error: Argument to trim() must be a string\n");
+            printf("\033[1;31mERROR:\033[0m Argument to trim() must be a string\n");
             return strdup("");
         }
 
@@ -754,7 +754,7 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments || !arguments->next)
         {
-            printf("Error: repeat() requires at least two arguments: string and count\n");
+            printf("\033[1;31mERROR:\033[0m repeat() requires at least two arguments: string and count\n");
             return strdup("");
         }
 
@@ -762,7 +762,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         char *str_value = evaluate_string_expression(arguments);
         if (!str_value)
         {
-            printf("Error: First argument to repeat() must be a string\n");
+            printf("\033[1;31mERROR:\033[0m First argument to repeat() must be a string\n");
             return strdup("");
         }
 
@@ -770,7 +770,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         int count = evaluate_expression(arguments->next);
         if (count < 0)
         {
-            printf("Error: Repeat count must be non-negative\n");
+            printf("\033[1;31mERROR:\033[0m Repeat count must be non-negative\n");
             free(str_value);
             return strdup("");
         }
@@ -782,7 +782,7 @@ char *execute_function(const char *name, ASTNode *arguments)
             delimiter = evaluate_string_expression(arguments->next->next);
             if (!delimiter)
             {
-                printf("Error: Third argument to repeat() must be a string\n");
+                printf("\033[1;31mERROR:\033[0m Third argument to repeat() must be a string\n");
                 free(str_value);
                 return strdup("");
             }
@@ -797,7 +797,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         char *result = malloc(total_len + 1);
         if (!result)
         {
-            printf("Error: Memory allocation failed\n");
+            printf("\033[1;31mERROR:\033[0m Memory allocation failed\n");
             free(str_value);
             if (arguments->next->next)
                 free(delimiter);
@@ -832,7 +832,7 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: round() requires at least one argument\n");
+            printf("\033[1;31mERROR:\033[0m round() requires at least one argument\n");
             return strdup("0");
         }
 
@@ -844,7 +844,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         }
         else
         {
-            number = evaluate_float_expression(arguments);
+            number = evaluate_decimal_expression(arguments);
         }
 
         // Get the optional direction (U for up, D for down)
@@ -854,7 +854,7 @@ char *execute_function(const char *name, ASTNode *arguments)
             direction = evaluate_string_expression(arguments->next);
             if (!direction)
             {
-                printf("Error: Second argument to round() must be 'U' or 'D'\n");
+                printf("\033[1;31mERROR:\033[0m Second argument to round() must be 'U' or 'D'\n");
                 return strdup("0");
             }
         }
@@ -872,7 +872,7 @@ char *execute_function(const char *name, ASTNode *arguments)
             }
             else
             {
-                printf("Error: Round direction must be 'U' or 'D'\n");
+                printf("\033[1;31mERROR:\033[0m Round direction must be 'U' or 'D'\n");
                 free(direction);
                 return strdup("0");
             }
@@ -892,11 +892,11 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: abs() requires one argument\n");
+            printf("\033[1;31mERROR:\033[0m abs() requires one argument\n");
             return strdup("0");
         }
 
-        // Handle both integer and float inputs
+        // Handle both integer and decimal inputs
         if (arguments->type == NODE_INT_LITERAL)
         {
             int value = evaluate_expression(arguments);
@@ -907,7 +907,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         }
         else
         {
-            double value = evaluate_float_expression(arguments);
+            double value = evaluate_decimal_expression(arguments);
             double abs_value = fabs(value);
             char result[32];
             snprintf(result, sizeof(result), "%g", abs_value);
@@ -919,18 +919,18 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments || !arguments->next)
         {
-            printf("Error: toPrecision() requires two arguments: number and decimal places\n");
+            printf("\033[1;31mERROR:\033[0m toPrecision() requires two arguments: number and decimal places\n");
             return strdup("0");
         }
 
         // Get the number
-        double number = evaluate_float_expression(arguments);
+        double number = evaluate_decimal_expression(arguments);
 
         // Get the number of decimal places
         int decimals = evaluate_expression(arguments->next);
         if (decimals < 0)
         {
-            printf("Error: Number of decimal places cannot be negative\n");
+            printf("\033[1;31mERROR:\033[0m Number of decimal places cannot be negative\n");
             return strdup("0");
         }
 
@@ -953,18 +953,18 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: %s() requires at least one argument\n", name);
+            printf("\033[1;31mERROR:\033[0m %s() requires at least one argument\n", name);
             return strdup("0");
         }
 
         bool is_max = (strcmp(name, "max") == 0);
-        double result = evaluate_float_expression(arguments);
+        double result = evaluate_decimal_expression(arguments);
         ASTNode *current = arguments->next;
 
         // Iterate through all arguments
         while (current)
         {
-            double value = evaluate_float_expression(current);
+            double value = evaluate_decimal_expression(current);
             if (is_max)
             {
                 if (value > result)
@@ -997,10 +997,10 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: sin() requires one argument\n");
+            printf("\033[1;31mERROR:\033[0m sin() requires one argument\n");
             return strdup("0");
         }
-        double angle = evaluate_float_expression(arguments);
+        double angle = evaluate_decimal_expression(arguments);
         double result = sin(angle);
         char str_result[32];
         snprintf(str_result, sizeof(str_result), "%.10g", result);
@@ -1010,10 +1010,10 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: cos() requires one argument\n");
+            printf("\033[1;31mERROR:\033[0m cos() requires one argument\n");
             return strdup("0");
         }
-        double angle = evaluate_float_expression(arguments);
+        double angle = evaluate_decimal_expression(arguments);
         double result = cos(angle);
         char str_result[32];
         snprintf(str_result, sizeof(str_result), "%.10g", result);
@@ -1023,10 +1023,10 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: tan() requires one argument\n");
+            printf("\033[1;31mERROR:\033[0m tan() requires one argument\n");
             return strdup("0");
         }
-        double angle = evaluate_float_expression(arguments);
+        double angle = evaluate_decimal_expression(arguments);
         double result = tan(angle);
         char str_result[32];
         snprintf(str_result, sizeof(str_result), "%.10g", result);
@@ -1036,13 +1036,13 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: asin() requires one argument\n");
+            printf("\033[1;31mERROR:\033[0m asin() requires one argument\n");
             return strdup("0");
         }
-        double value = evaluate_float_expression(arguments);
+        double value = evaluate_decimal_expression(arguments);
         if (value < -1 || value > 1)
         {
-            printf("Error: asin() argument must be between -1 and 1\n");
+            printf("\033[1;31mERROR:\033[0m asin() argument must be between -1 and 1\n");
             return strdup("0");
         }
         double result = asin(value);
@@ -1054,13 +1054,13 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: acos() requires one argument\n");
+            printf("\033[1;31mERROR:\033[0m acos() requires one argument\n");
             return strdup("0");
         }
-        double value = evaluate_float_expression(arguments);
+        double value = evaluate_decimal_expression(arguments);
         if (value < -1 || value > 1)
         {
-            printf("Error: acos() argument must be between -1 and 1\n");
+            printf("\033[1;31mERROR:\033[0m acos() argument must be between -1 and 1\n");
             return strdup("0");
         }
         double result = acos(value);
@@ -1072,10 +1072,10 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: atan() requires one argument\n");
+            printf("\033[1;31mERROR:\033[0m atan() requires one argument\n");
             return strdup("0");
         }
-        double value = evaluate_float_expression(arguments);
+        double value = evaluate_decimal_expression(arguments);
         double result = atan(value);
         char str_result[32];
         snprintf(str_result, sizeof(str_result), "%.10g", result);
@@ -1086,14 +1086,14 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: sqrt() requires one argument\n");
+            printf("\033[1;31mERROR:\033[0m sqrt() requires one argument\n");
             return strdup("0");
         }
 
-        double number = evaluate_float_expression(arguments);
+        double number = evaluate_decimal_expression(arguments);
         if (number < 0)
         {
-            printf("Error: Cannot calculate square root of negative number\n");
+            printf("\033[1;31mERROR:\033[0m Cannot calculate square root of negative number\n");
             return strdup("0");
         }
 
@@ -1106,11 +1106,11 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments)
         {
-            printf("Error: cbrt() requires one argument\n");
+            printf("\033[1;31mERROR:\033[0m cbrt() requires one argument\n");
             return strdup("0");
         }
 
-        double number = evaluate_float_expression(arguments);
+        double number = evaluate_decimal_expression(arguments);
         double result = cbrt(number); // cbrt handles negative numbers correctly
         char str_result[32];
         snprintf(str_result, sizeof(str_result), "%.10g", result);
@@ -1120,24 +1120,24 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         if (!arguments || !arguments->next)
         {
-            printf("Error: root() requires two arguments: number and nth root\n");
+            printf("\033[1;31mERROR:\033[0m root() requires two arguments: number and nth root\n");
             return strdup("0");
         }
 
-        double number = evaluate_float_expression(arguments);
-        double n = evaluate_float_expression(arguments->next);
+        double number = evaluate_decimal_expression(arguments);
+        double n = evaluate_decimal_expression(arguments->next);
 
         // Check for valid input
         if (n == 0)
         {
-            printf("Error: Root index cannot be zero\n");
+            printf("\033[1;31mERROR:\033[0m Root index cannot be zero\n");
             return strdup("0");
         }
 
         // Handle even roots of negative numbers
         if (number < 0 && fmod(n, 2) == 0)
         {
-            printf("Error: Cannot calculate even root of negative number\n");
+            printf("\033[1;31mERROR:\033[0m Cannot calculate even root of negative number\n");
             return strdup("0");
         }
 
@@ -1162,7 +1162,7 @@ char *execute_function(const char *name, ASTNode *arguments)
     Function *func = find_function(name);
     if (!func)
     {
-        printf("Error: Function '%s' not found\n", name);
+        printf("\033[1;31mERROR:\033[0m Function '%s' not found\n", name);
         return NULL;
     }
 
@@ -1178,7 +1178,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         // Evaluate argument
         void *value = NULL;
         int int_val;
-        double float_val;
+        double decimal_val;
         bool bool_val;
         char char_val;
         char *str_val;
@@ -1188,10 +1188,10 @@ char *execute_function(const char *name, ASTNode *arguments)
             int_val = evaluate_expression(arg);
             value = &int_val;
         }
-        else if (strcmp(param->var_type, "float") == 0)
+        else if (strcmp(param->var_type, "decimal") == 0)
         {
-            float_val = evaluate_float_expression(arg);
-            value = &float_val;
+            decimal_val = evaluate_decimal_expression(arg);
+            value = &decimal_val;
         }
         else if (strcmp(param->var_type, "string") == 0)
         {
@@ -1244,9 +1244,9 @@ char *execute_function(const char *name, ASTNode *arguments)
                 snprintf(buf, sizeof(buf), "%d", val);
                 result = strdup(buf);
             }
-            else if (strcmp(func->return_type, "float") == 0)
+            else if (strcmp(func->return_type, "decimal") == 0)
             {
-                double val = evaluate_float_expression(current->left);
+                double val = evaluate_decimal_expression(current->left);
                 char buf[32];
                 if (val == (int)val)
                 {
@@ -1359,9 +1359,9 @@ static char *execute_function_body(const char *return_type, ASTNode *body)
                 snprintf(buf, sizeof(buf), "%d", val);
                 result = strdup(buf);
             }
-            else if (strcmp(return_type, "float") == 0)
+            else if (strcmp(return_type, "decimal") == 0)
             {
-                double val = evaluate_float_expression(current->left);
+                double val = evaluate_decimal_expression(current->left);
                 char buf[32];
                 if (val == (int)val)
                 {
@@ -1441,9 +1441,9 @@ static void set_variable(const char *name, VariableType type, void *value)
             {
                 variables[i].value.bool_value = *(bool *)value;
                 }
-            else if (type == FLOAT_TYPE)
+            else if (type == DECIMAL_TYPE)
             {
-                variables[i].value.float_value = *(double *)value;
+                variables[i].value.decimal_value = *(double *)value;
             }
             else if (type == CHAR_TYPE)
             {
@@ -1478,9 +1478,9 @@ static void set_variable(const char *name, VariableType type, void *value)
         {
             variables[variable_count].value.bool_value = *(bool *)value;
         }
-        else if (type == FLOAT_TYPE)
+        else if (type == DECIMAL_TYPE)
         {
-            variables[variable_count].value.float_value = *(double *)value;
+            variables[variable_count].value.decimal_value = *(double *)value;
         }
         else if (type == CHAR_TYPE)
         {
@@ -1491,7 +1491,7 @@ static void set_variable(const char *name, VariableType type, void *value)
     else
     {
         // If we've reached the maximum number of variables, we print an error
-        printf("Error: Maximum number of variables reached.\n");
+        printf("\033[1;31mERROR:\033[0m Maximum number of variables reached.\n");
     }
 }
 
@@ -1538,7 +1538,7 @@ static int evaluate_expression(ASTNode *node)
             {
                 return atoi(node->left->value);
             }
-            else if (node->left->type == NODE_FLOAT_LITERAL)
+            else if (node->left->type == NODE_DECIMAL_LITERAL)
             {
                 return (int)atof(node->left->value);
             }
@@ -1549,8 +1549,8 @@ static int evaluate_expression(ASTNode *node)
                 {
                     switch (var->type)
                     {
-                    case FLOAT_TYPE:
-                        return (int)var->value.float_value;
+                    case DECIMAL_TYPE:
+                        return (int)var->value.decimal_value;
                     case STRING_TYPE:
                         return atoi(var->value.string_value);
                     case INT_TYPE:
@@ -1558,16 +1558,16 @@ static int evaluate_expression(ASTNode *node)
                     case BOOL_TYPE:
                         return var->value.bool_value ? 1 : 0;
                     default:
-                        printf("[ERROR] Unsupported variable type for int cast\n");
+                        printf("\033[1;31mERROR:\033[0m Unsupported variable type for int cast\n");
                         return 0;
                     }
                 }
             }
         }
-        else if (strcmp(node->target_type, "float") == 0)
+        else if (strcmp(node->target_type, "decimal") == 0)
         {
-            // For float casts, delegate to evaluate_float_expression
-            return (int)evaluate_float_expression(node);
+            // For decimal casts, delegate to evaluate_decimal_expression
+            return (int)evaluate_decimal_expression(node);
         }
     }
 
@@ -1576,7 +1576,7 @@ static int evaluate_expression(ASTNode *node)
     case NODE_INT_LITERAL:
         return atoi(node->value);
 
-    case NODE_FLOAT_LITERAL:
+    case NODE_DECIMAL_LITERAL:
         return (int)atof(node->value);
 
     case NODE_LITERAL:
@@ -1584,7 +1584,7 @@ static int evaluate_expression(ASTNode *node)
         Variable *var = get_variable(node->value);
         if (!var)
         {
-            printf("[ERROR] Undefined variable: %s\n", node->value);
+            printf("\033[1;31mERROR:\033[0m Undefined variable: %s\n", node->value);
             return 0;
         }
         // Special handling for array printing
@@ -1606,7 +1606,7 @@ static int evaluate_expression(ASTNode *node)
                 case STRING_TYPE:
                     printf("\"%s\"", (char *)element);
                     break;
-                case FLOAT_TYPE:
+                case DECIMAL_TYPE:
                     printf("%g", *(double *)element);
                     break;
                 case BOOL_TYPE:
@@ -1628,14 +1628,14 @@ static int evaluate_expression(ASTNode *node)
         {
         case INT_TYPE:
             return var->value.int_value;
-        case FLOAT_TYPE:
-            return (int)var->value.float_value;
+        case DECIMAL_TYPE:
+            return (int)var->value.decimal_value;
         case BOOL_TYPE:
             return var->value.bool_value ? 1 : 0;
         case STRING_TYPE:
             return atoi(var->value.string_value);
         default:
-            printf("[ERROR] Unsupported variable type in expression\n");
+            printf("\033[1;31mERROR:\033[0m Unsupported variable type in expression\n");
             return 0;
         }
     }
@@ -1657,12 +1657,12 @@ static int evaluate_expression(ASTNode *node)
             return right != 0 ? left % right : 0;
         if (strcmp(node->value, "**") == 0)
         {
-            // For power operations, always use floating-point calculation
-            ASTNode *float_node = create_node(NODE_FLOAT_LITERAL, NULL, NULL, "float");
-            float_node->left = node->left;
-            float_node->right = node->right;
-            double result = evaluate_float_expression(float_node);
-            free(float_node);
+            // For power operations, always use decimal calculation
+            ASTNode *decimal_node = create_node(NODE_DECIMAL_LITERAL, NULL, NULL, "decimal");
+            decimal_node->left = node->left;
+            decimal_node->right = node->right;
+            double result = evaluate_decimal_expression(decimal_node);
+            free(decimal_node);
             return (int)result;  // Convert back to int if needed
         }
 
@@ -1700,14 +1700,14 @@ static int evaluate_expression(ASTNode *node)
         Variable *array_var = get_variable(node->var_name);
         if (!array_var || !array_var->value.array_value)
         {
-            printf("ERROR: Array '%s' not found or uninitialized\n", node->var_name);
+            printf("\033[1;31mERROR:\033[0m Array '%s' not found or uninitialized\n", node->var_name);
             return 0;
         }
 
         void *result = interpret_array_access(node, array_var->value.array_value);
         if (!result)
         {
-            printf("ERROR: Array access failed\n");
+            printf("\033[1;31mERROR:\033[0m Array access failed\n");
             return 0;
         }
 
@@ -1718,7 +1718,7 @@ static int evaluate_expression(ASTNode *node)
     }
 
     default:
-        printf("[ERROR] Unsupported node type in expression: %d\n", node->type);
+        printf("\033[1;31mERROR:\033[0m Unsupported node type in expression: %d\n", node->type);
         return 0;
     }
 }
@@ -1825,11 +1825,11 @@ char *evaluate_string_expression(ASTNode *node)
             snprintf(buffer, sizeof(buffer), "%d", var->value.int_value);
             return strdup(buffer);
         }
-        else if (var && var->type == FLOAT_TYPE)
+        else if (var && var->type == DECIMAL_TYPE)
         {
-            // Convert float to string
+            // Convert decimal to string
             char buffer[32];
-            snprintf(buffer, sizeof(buffer), "%g", var->value.float_value);
+            snprintf(buffer, sizeof(buffer), "%g", var->value.decimal_value);
             return strdup(buffer);
         }
         else if (var && var->type == BOOL_TYPE)
@@ -1856,40 +1856,40 @@ char *evaluate_string_expression(ASTNode *node)
         char *left = evaluate_string_expression(node->left);
         char *right = evaluate_string_expression(node->right);
 
-        // Check if right operand is a float variable or float literal
+        // Check if right operand is a decimal variable or decimal literal
         if (node->right->type == NODE_LITERAL)
         {
             Variable *var = get_variable(node->right->value);
-            if (var && var->type == FLOAT_TYPE)
+            if (var && var->type == DECIMAL_TYPE)
             {
-                double val = var->value.float_value;
-                char float_str[32];
+                double val = var->value.decimal_value;
+                char decimal_str[32];
                 if (val == (int)val)
                 {
-                    snprintf(float_str, sizeof(float_str), "%.1f", val); // Force .0 for whole numbers
+                    snprintf(decimal_str, sizeof(decimal_str), "%.1f", val); // Force .0 for whole numbers
                 }
                 else
                 {
-                    snprintf(float_str, sizeof(float_str), "%g", val); // Use original precision for decimals
+                    snprintf(decimal_str, sizeof(decimal_str), "%g", val); // Use original precision for decimals
                 }
                 free(right);
-                right = strdup(float_str);
+                right = strdup(decimal_str);
             }
         }
-        else if (node->right->type == NODE_FLOAT_LITERAL)
+        else if (node->right->type == NODE_DECIMAL_LITERAL)
         {
             double val = atof(node->right->value);
-            char float_str[32];
+            char decimal_str[32];
             if (val == (int)val)
             {
-                snprintf(float_str, sizeof(float_str), "%.1f", val);
+                snprintf(decimal_str, sizeof(decimal_str), "%.1f", val);
             }
             else
             {
-                snprintf(float_str, sizeof(float_str), "%g", val);
+                snprintf(decimal_str, sizeof(decimal_str), "%g", val);
             }
             free(right);
-            right = strdup(float_str);
+            right = strdup(decimal_str);
         }
 
         // Allocate space for concatenated string
@@ -1912,9 +1912,9 @@ char *evaluate_string_expression(ASTNode *node)
         snprintf(buffer, sizeof(buffer), "%d", atoi(node->value));
         return strdup(buffer);
     }
-    else if (node->type == NODE_FLOAT_LITERAL)
+    else if (node->type == NODE_DECIMAL_LITERAL)
     {
-        // Convert float literal to string
+        // Convert decimal literal to string
         char buffer[32];
         snprintf(buffer, sizeof(buffer), "%g", atof(node->value));
         return strdup(buffer);
@@ -1940,7 +1940,7 @@ char *evaluate_string_expression(ASTNode *node)
     return strdup("");
 }
 
-static double evaluate_float_expression(ASTNode *node)
+static double evaluate_decimal_expression(ASTNode *node)
 {
 
     if (!node)
@@ -1952,13 +1952,13 @@ static double evaluate_float_expression(ASTNode *node)
     if (node->type == NODE_TYPE_CAST)
     {
 
-        if (strcmp(node->target_type, "float") == 0)
+        if (strcmp(node->target_type, "decimal") == 0)
         {
             switch (node->left->type)
             {
             case NODE_INT_LITERAL:
                 return (double)atoi(node->left->value);
-            case NODE_FLOAT_LITERAL:
+            case NODE_DECIMAL_LITERAL:
                 return atof(node->left->value);
             case NODE_STRING_LITERAL:
                 return atof(node->left->value);
@@ -1971,21 +1971,21 @@ static double evaluate_float_expression(ASTNode *node)
                     {
                     case INT_TYPE:
                         return (double)var->value.int_value;
-                    case FLOAT_TYPE:
-                        return var->value.float_value;
+                    case DECIMAL_TYPE:
+                        return var->value.decimal_value;
                     case STRING_TYPE:
                         return atof(var->value.string_value);
                     case BOOL_TYPE:
                         return var->value.bool_value ? 1.0 : 0.0;
                     default:
-                        printf("[ERROR] Unsupported variable type for float cast\n");
+                        printf("\033[1;31mERROR:\033[0m Unsupported variable type for decimal cast\n");
                         return 0.0;
                     }
                 }
                 break;
             }
             default:
-                printf("[ERROR] Unsupported node type for float cast: %d\n",
+                printf("\033[1;31mERROR:\033[0m Unsupported node type for decimal cast: %d\n",
                        node->left->type);
                 return 0.0;
             }
@@ -1995,7 +1995,7 @@ static double evaluate_float_expression(ASTNode *node)
     // Handle regular expressions
     switch (node->type)
     {
-    case NODE_FLOAT_LITERAL:
+    case NODE_DECIMAL_LITERAL:
         return atof(node->value);
 
     case NODE_INT_LITERAL:
@@ -2006,13 +2006,13 @@ static double evaluate_float_expression(ASTNode *node)
         Variable *var = get_variable(node->value);
         if (!var)
         {
-            printf("[ERROR] Undefined variable: %s\n", node->value);
+            printf("\033[1;31mERROR:\033[0m Undefined variable: %s\n", node->value);
             return 0.0;
         }
         switch (var->type)
         {
-        case FLOAT_TYPE:
-            return var->value.float_value;
+        case DECIMAL_TYPE:
+            return var->value.decimal_value;
         case INT_TYPE:
             return (double)var->value.int_value;
         case STRING_TYPE:
@@ -2020,15 +2020,15 @@ static double evaluate_float_expression(ASTNode *node)
         case BOOL_TYPE:
             return var->value.bool_value ? 1.0 : 0.0;
         default:
-            printf("[ERROR] Unsupported variable type in float expression\n");
+            printf("\033[1;31mERROR:\033[0m Unsupported variable type in decimal expression\n");
             return 0.0;
         }
     }
 
     case NODE_BINARY_OP:
     {
-        double left = evaluate_float_expression(node->left);
-        double right = evaluate_float_expression(node->right);
+        double left = evaluate_decimal_expression(node->left);
+        double right = evaluate_decimal_expression(node->right);
 
         if (strcmp(node->value, "+") == 0)
             return left + right;
@@ -2066,7 +2066,7 @@ static double evaluate_float_expression(ASTNode *node)
     }
 
     default:
-        printf("[ERROR] Unsupported node type in float expression: %d\n", node->type);
+        printf("\033[1;31mERROR:\033[0m Unsupported node type in decimal expression: %d\n", node->type);
         return 0.0;
     }
 }
@@ -2075,7 +2075,7 @@ static bool can_implicitly_convert(VariableType from_type, VariableType to_type)
 {
     switch (to_type)
     {
-    case FLOAT_TYPE:
+    case DECIMAL_TYPE:
         return from_type == INT_TYPE || from_type == CHAR_TYPE;
     case INT_TYPE:
         return from_type == CHAR_TYPE || from_type == BOOL_TYPE;
@@ -2096,8 +2096,8 @@ static const char *type_to_string(VariableType type)
     {
     case INT_TYPE:
         return "int";
-    case FLOAT_TYPE:
-        return "float";
+    case DECIMAL_TYPE:
+        return "decimal";
     case STRING_TYPE:
         return "string";
     case BOOL_TYPE:
@@ -2248,7 +2248,7 @@ static void register_builtin_functions(void)
     // Register abs function
     Function abs_func = {
         .name = "abs",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = abs_func;
@@ -2256,7 +2256,7 @@ static void register_builtin_functions(void)
     // Register toPrecision function
     Function precision_func = {
         .name = "toPrecision",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = precision_func;
@@ -2264,7 +2264,7 @@ static void register_builtin_functions(void)
     // Register min function
     Function min_func = {
         .name = "min",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = min_func;
@@ -2272,7 +2272,7 @@ static void register_builtin_functions(void)
     // Register max function
     Function max_func = {
         .name = "max",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = max_func;
@@ -2280,42 +2280,42 @@ static void register_builtin_functions(void)
     // Register trigonometric functions
     Function sin_func = {
         .name = "sin",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = sin_func;
 
     Function cos_func = {
         .name = "cos",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = cos_func;
 
     Function tan_func = {
         .name = "tan",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = tan_func;
 
     Function asin_func = {
         .name = "asin",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = asin_func;
 
     Function acos_func = {
         .name = "acos",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = acos_func;
 
     Function atan_func = {
         .name = "atan",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = atan_func;
@@ -2345,21 +2345,21 @@ static void register_builtin_functions(void)
     // Register root functions
     Function sqrt_func = {
         .name = "sqrt",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = sqrt_func;
 
     Function cbrt_func = {
         .name = "cbrt",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = cbrt_func;
 
     Function root_func = {
         .name = "root",
-        .return_type = "float",
+        .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = root_func;
@@ -2380,7 +2380,7 @@ void print_array_element(void *element, VariableType type)
     case INT_TYPE:
         printf("%d\n", *(int *)element);
         break;
-    case FLOAT_TYPE:
+    case DECIMAL_TYPE:
         printf("%g\n", *(double *)element);
         break;
     case STRING_TYPE:
@@ -2390,7 +2390,7 @@ void print_array_element(void *element, VariableType type)
         printf("%s\n", *(bool *)element ? "yup" : "nope");
         break;
     default:
-        printf("Error: Unsupported type %d", type);
+        printf("\033[1;31mERROR:\033[0m Unsupported type %d", type);
     }
 }
 
@@ -2487,15 +2487,15 @@ void interpret(ASTNode *node)
                             }
                             break;
                         }
-                        case FLOAT_TYPE:
+                        case DECIMAL_TYPE:
                         {
-                            if (element->type == NODE_FLOAT_LITERAL)
+                            if (element->type == NODE_DECIMAL_LITERAL)
                             {
                                 double value = atof(element->value);
                                 double *element_value = malloc(sizeof(double));
                                 *element_value = value;
                                 array_add_last(array, element_value);
-                                // printf("DEBUG: Added float element: %f\n", value);
+                                // printf("DEBUG: Added decimal element: %f\n", value);
                             }
                             break;
                         }
@@ -2532,13 +2532,13 @@ void interpret(ASTNode *node)
             Variable *array_var = get_variable(node->var_name);
             if (!array_var)
             {
-                printf("Error: Array '%s' not found\n", node->var_name);
+                printf("\033[1;31mERROR:\033[0m Array '%s' not found\n", node->var_name);
                 break;
             }
 
             if (array_var->type != ARRAY_TYPE || !array_var->value.array_value)
             {
-                printf("Error: '%s' is not a valid array\n", node->var_name);
+                printf("\033[1;31mERROR:\033[0m '%s' is not a valid array\n", node->var_name);
                 break;
             }
 
@@ -2560,7 +2560,7 @@ void interpret(ASTNode *node)
                 Function *func = find_function(node->left->function_name);
                 if (!func)
                 {
-                    printf("Error: Undefined function '%s'\n", node->left->function_name);
+                    printf("\033[1;31mERROR:\033[0m Undefined function '%s'\n", node->left->function_name);
                     exit(1);
                 }
 
@@ -2573,14 +2573,14 @@ void interpret(ASTNode *node)
             }
             else if (node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "**") == 0)
             {
-                // Always handle power operations as floating point
-                double result = evaluate_float_expression(node->left);
+                // Always handle power operations as decimal
+                double result = evaluate_decimal_expression(node->left);
                 printf("%g\n", result);
             }
-            else if (node->left->type == NODE_FLOAT_LITERAL ||
-                     (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == FLOAT_TYPE))
+            else if (node->left->type == NODE_DECIMAL_LITERAL ||
+                     (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == DECIMAL_TYPE))
             {
-                double result = evaluate_float_expression(node->left);
+                double result = evaluate_decimal_expression(node->left);
                  // Check if the number is a whole number
                 if (result == (int)result)
                 {
@@ -2606,21 +2606,21 @@ void interpret(ASTNode *node)
             }
             else if (node->left->type == NODE_BINARY_OP)
             {
-                // Check if any operand is a float
-                bool has_float = false;
-                if (node->left->left && (node->left->left->type == NODE_FLOAT_LITERAL ||
+                // Check if any operand is a decimal
+                bool has_decimal = false;
+                if (node->left->left && (node->left->left->type == NODE_DECIMAL_LITERAL ||
                                          (node->left->left->type == NODE_LITERAL &&
                                           get_variable(node->left->left->value) &&
-                                          get_variable(node->left->left->value)->type == FLOAT_TYPE)))
+                                          get_variable(node->left->left->value)->type == DECIMAL_TYPE)))
                 {
-                    has_float = true;
+                    has_decimal = true;
                 }
-                if (node->left->right && (node->left->right->type == NODE_FLOAT_LITERAL ||
+                if (node->left->right && (node->left->right->type == NODE_DECIMAL_LITERAL ||
                                           (node->left->right->type == NODE_LITERAL &&
                                            get_variable(node->left->right->value) &&
-                                           get_variable(node->left->right->value)->type == FLOAT_TYPE)))
+                                           get_variable(node->left->right->value)->type == DECIMAL_TYPE)))
                 {
-                    has_float = true;
+                    has_decimal = true;
                 }
 
                 // Check if it's a string concatenation operation
@@ -2650,9 +2650,9 @@ void interpret(ASTNode *node)
                     bool result = evaluate_bool_expression(node->left);
                     printf("%s\n", result ? "yup" : "nope");
                 }
-                else if (has_float)
+                else if (has_decimal)
                 {
-                    double result = evaluate_float_expression(node->left);
+                    double result = evaluate_decimal_expression(node->left);
                     printf("%g\n", result);
                 }
                 else
@@ -2674,7 +2674,7 @@ void interpret(ASTNode *node)
                 Variable *array_var = get_variable(node->left->var_name);
                 if (!array_var || !array_var->value.array_value)
                 {
-                    printf("Error: Invalid array access\n");
+                    printf("\033[1;31mERROR:\033[0m Invalid array access\n");
                     return;
                 }
 
@@ -2759,9 +2759,9 @@ void interpret(ASTNode *node)
                             {
                                 var->value.int_value = variables[j].value.int_value;
                             }
-                            else if (var->type == FLOAT_TYPE)
+                            else if (var->type == DECIMAL_TYPE)
                             {
-                                var->value.float_value = variables[j].value.float_value;
+                                var->value.decimal_value = variables[j].value.decimal_value;
                             }
                             else if (var->type == BOOL_TYPE)
                             {
@@ -2825,7 +2825,7 @@ void interpret(ASTNode *node)
                     case NODE_LITERAL:
                         snprintf(buffer, sizeof(buffer), "%s", node->left->left->value);
                         break;
-                    case NODE_FLOAT_LITERAL:
+                    case NODE_DECIMAL_LITERAL:
                         snprintf(buffer, sizeof(buffer), "%.2f", atof(node->left->left->value));
                         break;
                     case NODE_BOOL_LITERAL:
@@ -2852,7 +2852,7 @@ void interpret(ASTNode *node)
                     }
                     set_variable(node->var_name, STRING_TYPE, buffer);
                 }
-                else if (strcmp(node->var_type, "float") == 0)
+                else if (strcmp(node-> var_type, "decimal") == 0)
                 {
                     double value = 0.0;
                     switch (node->left->left->type)
@@ -2875,17 +2875,17 @@ void interpret(ASTNode *node)
                     case NODE_INT_LITERAL:
                         value = (double)atoi(node->left->left->value);
                         break;
-                    case NODE_FLOAT_LITERAL:
+                    case NODE_DECIMAL_LITERAL:
                         value = atof(node->left->left->value);
                         break;
                     case NODE_BOOL_LITERAL:
                         value = (strcmp(node->left->left->value, "yup") == 0) ? 1.0 : 0.0;
                         break;
                     default:
-                        printf("Error: Cannot convert type to float\n");
+                        printf("\033[1;31mERROR:\033[0m Cannot convert type to decimal\n");
                         exit(1);
                     }
-                    set_variable(node->var_name, FLOAT_TYPE, &value);
+                    set_variable(node->var_name, DECIMAL_TYPE, &value);
                 }
                 else if (strcmp(node->var_type, "boolean") == 0)
                 {
@@ -2895,7 +2895,7 @@ void interpret(ASTNode *node)
                     case NODE_INT_LITERAL:
                         value = atoi(node->left->left->value) != 0;
                         break;
-                    case NODE_FLOAT_LITERAL:
+                    case NODE_DECIMAL_LITERAL:
                         value = atof(node->left->left->value) != 0.0;
                         break;
                     case NODE_STRING_LITERAL:
@@ -2921,7 +2921,7 @@ void interpret(ASTNode *node)
                         break;
                     }
                     default:
-                        printf("Error: Cannot convert type to boolean\n");
+                        printf("\033[1;31mERROR:\033[0m Cannot convert type to boolean\n");
                         exit(1);
                     }
                     // Convert bool to yup/nope
@@ -2948,7 +2948,7 @@ void interpret(ASTNode *node)
                         }
                         break;
                     }
-                    case NODE_FLOAT_LITERAL:
+                    case NODE_DECIMAL_LITERAL:
                         value = (int)atof(node->left->left->value);
                         break;
                     case NODE_INT_LITERAL:
@@ -2958,12 +2958,12 @@ void interpret(ASTNode *node)
                         value = (strcmp(node->left->left->value, "yup") == 0) ? 1 : 0;
                         break;
                     default:
-                        printf("Error: Cannot convert type to int\n");
+                        printf("\033[1;31mERROR:\033[0m Cannot convert type to int\n");
                         exit(1);
                     }
                     set_variable(node->var_name, INT_TYPE, &value);
                 }
-                else if (strcmp(node->var_type, "float") == 0)
+                else if (strcmp(node->var_type, "decimal") == 0)
                 {
                     float value = 0.0f;
                     switch (node->left->left->type)
@@ -2986,17 +2986,17 @@ void interpret(ASTNode *node)
                     case NODE_INT_LITERAL:
                         value = (float)atoi(node->left->left->value);
                         break;
-                    case NODE_FLOAT_LITERAL:
+                    case NODE_DECIMAL_LITERAL:
                         value = atof(node->left->left->value);
                         break;
                     case NODE_BOOL_LITERAL:
                         value = (strcmp(node->left->left->value, "true") == 0) ? 1.0f : 0.0f;
                         break;
                     default:
-                        printf("Error: Cannot convert type to float\n");
+                        printf("\033[1;31mERROR:\033[0m Cannot convert type to decimal\n");
                         exit(1);
                     }
-                    set_variable(node->var_name, FLOAT_TYPE, &value);
+                    set_variable(node->var_name, DECIMAL_TYPE, &value);
                 }
                 else if (strcmp(node->var_type, "boolean") == 0)
                 {
@@ -3017,7 +3017,7 @@ void interpret(ASTNode *node)
                                get_variable(node->left->value)->type == STRING_TYPE) &&
                              !(node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "+") == 0))
                     {
-                        printf("Error: Type mismatch - Cannot convert to string for variable '%s'. Use string concatenation (+) for conversion.\n",
+                        printf("\033[1;31mERROR:\033[0m Type mismatch - Cannot convert to string for variable '%s'. Use string concatenation (+) for conversion.\n",
                                node->var_name);
                         exit(1);
                     }
@@ -3054,7 +3054,7 @@ void interpret(ASTNode *node)
                     }
                     else
                     {
-                        printf("ERROR: Failed to initialize array\n");
+                        printf("\033[1;31mERROR:\033[0m Failed to initialize array\n");
                     }
                     free(array_type);
                 }
@@ -3067,7 +3067,7 @@ void interpret(ASTNode *node)
                     Function *func = find_function(node->left->function_name);
                     if (!func)
                     {
-                        printf("Error: Undefined function '%s'\n", node->left->function_name);
+                        printf("\033[1;31mERROR:\033[0m Undefined function '%s'\n", node->left->function_name);
                         exit(1);
                     }
 
@@ -3077,7 +3077,7 @@ void interpret(ASTNode *node)
                     // Check if return type is compatible with variable type
                     if (func_return_type != get_type_from_string(node->var_type) && !can_implicitly_convert(func_return_type, get_type_from_string(node->var_type)))
                     {
-                        printf("Error: Type mismatch - Cannot assign return value of function '%s' (%s) to variable '%s' (%s)\n",
+                        printf("\033[1;31mERROR:\033[0m Type mismatch - Cannot assign return value of function '%s' (%s) to variable '%s' (%s)\n",
                                node->left->function_name, type_to_string(func_return_type),
                                node->var_name, type_to_string(get_type_from_string(node->var_type)));
                         exit(1);
@@ -3095,10 +3095,10 @@ void interpret(ASTNode *node)
                             int value = atoi(result);
                             set_variable(node->var_name, INT_TYPE, &value);
                         }
-                        else if (strcmp(node->var_type, "float") == 0)
+                        else if (strcmp(node->var_type, "decimal") == 0)
                         {
                             double value = atof(result);
-                            set_variable(node->var_name, FLOAT_TYPE, &value);
+                            set_variable(node->var_name, DECIMAL_TYPE, &value);
                         }
                         else if (strcmp(node->var_type, "boolean") == 0)
                         {
@@ -3113,7 +3113,7 @@ void interpret(ASTNode *node)
                         free(result);
                     }
                 }
-                else if (strcmp(node->var_type, "float") == 0)
+                else if (strcmp(node->var_type, "decimal") == 0)
                 {
                     VariableType expr_type;
 
@@ -3122,9 +3122,9 @@ void interpret(ASTNode *node)
                     {
                         expr_type = STRING_TYPE;
                     }
-                    else if (node->left->type == NODE_FLOAT_LITERAL)
+                    else if (node->left->type == NODE_DECIMAL_LITERAL)
                     {
-                        expr_type = FLOAT_TYPE;
+                        expr_type = DECIMAL_TYPE;
                     }
                     else if (node->left->type == NODE_BOOL_LITERAL)
                     {
@@ -3144,9 +3144,9 @@ void interpret(ASTNode *node)
                     }
 
                     // Check type compatibility
-                    if (expr_type != FLOAT_TYPE && !can_implicitly_convert(expr_type, FLOAT_TYPE))
+                    if (expr_type != DECIMAL_TYPE && !can_implicitly_convert(expr_type, DECIMAL_TYPE))
                     {
-                        printf("Error: Type mismatch - Cannot convert from '%s' to 'float' for variable '%s'\n",
+                        printf("\033[1;31mERROR:\033[0m Type mismatch - Cannot convert from '%s' to 'decimal' for variable '%s'\n",
                                type_to_string(expr_type), node->var_name);
                         exit(1);
                     }
@@ -3156,12 +3156,12 @@ void interpret(ASTNode *node)
                     {
                         int int_val = evaluate_expression(node->left);
                         double value = (double)int_val;
-                        set_variable(node->var_name, FLOAT_TYPE, &value);
+                        set_variable(node->var_name, DECIMAL_TYPE, &value);
                     }
                     else
                     {
-                        double value = evaluate_float_expression(node->left);
-                        set_variable(node->var_name, FLOAT_TYPE, &value);
+                        double value = evaluate_decimal_expression(node->left);
+                        set_variable(node->var_name, DECIMAL_TYPE, &value);
                     }
                 }
                 else if (strcmp(node->var_type, "int") == 0)
@@ -3173,9 +3173,9 @@ void interpret(ASTNode *node)
                     {
                         expr_type = STRING_TYPE;
                     }
-                    else if (node->left->type == NODE_FLOAT_LITERAL)
+                    else if (node->left->type == NODE_DECIMAL_LITERAL)
                     {
-                        expr_type = FLOAT_TYPE;
+                        expr_type = DECIMAL_TYPE;
                     }
                     else if (node->left->type == NODE_BOOL_LITERAL)
                     {
@@ -3197,7 +3197,7 @@ void interpret(ASTNode *node)
                     // Check type compatibility
                     if (expr_type != INT_TYPE && !can_implicitly_convert(expr_type, INT_TYPE))
                     {
-                        printf("Error: Type mismatch - Cannot convert from '%s' to 'int' for variable '%s'\n",
+                        printf("\033[1;31mERROR:\033[0m Type mismatch - Cannot convert from '%s' to 'int' for variable '%s'\n",
                                type_to_string(expr_type), node->var_name);
                         exit(1);
                     }
@@ -3240,7 +3240,7 @@ void interpret(ASTNode *node)
                                get_variable(node->left->value)->type == STRING_TYPE) &&
                              !(node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "+") == 0))
                     {
-                        printf("Error: Type mismatch - Cannot convert to string for variable '%s'. Use string concatenation (+) for conversion.\n",
+                        printf("\033[1;31mERROR:\033[0m Type mismatch - Cannot convert to string for variable '%s'. Use string concatenation (+) for conversion.\n",
                                node->var_name);
                         exit(1);
                     }
@@ -3267,7 +3267,7 @@ void interpret(ASTNode *node)
             Variable *var = get_variable(node->var_name);
             if (!var)
             {
-                printf("Error: Undefined variable '%s'\n", node->var_name);
+                printf("\033[1;31mERROR:\033[0m Undefined variable '%s'\n", node->var_name);
                 exit(1);
             }
 
@@ -3285,7 +3285,7 @@ void interpret(ASTNode *node)
                 char *new_str = realloc(var->value.string_value, new_size);
                 if (!new_str)
                 {
-                    printf("Error: Memory allocation failed\n");
+                    printf("\033[1;31mERROR:\033[0m Memory allocation failed\n");
                     free(right_val);
                     return;
                 }
@@ -3304,13 +3304,13 @@ void interpret(ASTNode *node)
             Variable *array_var = get_variable(node->var_name);
             if (!array_var || !array_var->value.array_value)
             {
-                printf("ERROR: Array '%s' not found or uninitialized\n", node->var_name);
+                printf("\033[1;31mERROR:\033[0m Array '%s' not found or uninitialized\n", node->var_name);
                 return;
             }
             void *result = interpret_array_access(node, array_var->value.array_value);
             if (!result)
             {
-                printf("ERROR: Array access failed\n");
+                printf("\033[1;31mERROR:\033[0m Array access failed\n");
             }
             break;
         }
@@ -3341,7 +3341,7 @@ static void handle_type_cast(ASTNode *node)
         }
         else
         {
-            printf("Error: Unhandled node type: %d\n", node->left->type);
+            printf("\033[1;31mERROR:\033[0m Unhandled node type: %d\n", node->left->type);
         }
     }
 
@@ -3355,7 +3355,7 @@ static void handle_type_cast(ASTNode *node)
         {
             value = atoi(node->left->value);
         }
-        else if (node->left->type == NODE_FLOAT_LITERAL)
+        else if (node->left->type == NODE_DECIMAL_LITERAL)
         {
             value = (int)atof(node->left->value);
         }
@@ -3368,13 +3368,13 @@ static void handle_type_cast(ASTNode *node)
                 {
                     value = var->value.int_value;
                 }
-                else if (var->type == FLOAT_TYPE)
+                else if (var->type == DECIMAL_TYPE)
                 {
-                    value = (int)var->value.float_value;
+                    value = (int)var->value.decimal_value;
                 }
                 else
                 {
-                    printf("Error: Cannot cast type to boolean\n");
+                    printf("\033[1;31mERROR:\033[0m Cannot cast type to boolean\n");
                     exit(1);
                 }
             }
@@ -3387,7 +3387,7 @@ static void handle_type_cast(ASTNode *node)
         // Strict validation for boolean conversion
         if (value != 0 && value != 1)
         {
-            printf("Error: Cannot cast %d to boolean. Only 0 and 1 are valid values.\n", value);
+            printf("\033[1;31mERROR:\033[0m Cannot cast %d to boolean. Only 0 and 1 are valid values.\n", value);
             exit(1);
         }
 
@@ -3401,7 +3401,7 @@ static void handle_assignment(ASTNode *node)
 {
     if (!node->var_name)
     {
-        printf("Error: Invalid assignment - missing variable name\n");
+        printf("\033[1;31mERROR:\033[0m Invalid assignment - missing variable name\n");
         exit(1);
     }
 
@@ -3409,7 +3409,7 @@ static void handle_assignment(ASTNode *node)
     Variable *existing_var = get_variable(node->var_name);
     if (!existing_var)
     {
-        printf("Error: Variable '%s' not declared\n", node->var_name);
+        printf("\033[1;31mERROR:\033[0m Variable '%s' not declared\n", node->var_name);
         exit(1);
     }
 
@@ -3418,7 +3418,7 @@ static void handle_assignment(ASTNode *node)
     {
         if (existing_var->type != ARRAY_TYPE)
         {
-            printf("Error: Cannot perform array access on non-array variable '%s'\n", node->var_name);
+            printf("\033[1;31mERROR:\033[0m Cannot perform array access on non-array variable '%s'\n", node->var_name);
             exit(1);
         }
 
@@ -3427,7 +3427,7 @@ static void handle_assignment(ASTNode *node)
         
         if (index < 0 || index >= array->length)
         {
-            printf("Error: Array index %d out of bounds for array '%s' (length: %d)\n", 
+            printf("\033[1;31mERROR:\033[0m Array index %d out of bounds for array '%s' (length: %d)\n", 
                    index, node->var_name, array->length);
             exit(1);
         }
@@ -3443,9 +3443,9 @@ static void handle_assignment(ASTNode *node)
                 *(int*)value = val;
                 break;
             }
-            case FLOAT_TYPE:
+            case DECIMAL_TYPE:
             {
-                double val = evaluate_float_expression(node->left);
+                double val = evaluate_decimal_expression(node->left);
                 value = malloc(sizeof(double));
                 *(double*)value = val;
                 break;
@@ -3472,7 +3472,7 @@ static void handle_assignment(ASTNode *node)
                 break;
             }
             default:
-                printf("Error: Unsupported type for array element\n");
+                printf("\033[1;31mERROR:\033[0m Unsupported type for array element\n");
                 exit(1);
         }
 
@@ -3496,10 +3496,10 @@ static void handle_assignment(ASTNode *node)
             set_variable(node->var_name, INT_TYPE, &value);
             break;
         }
-        case FLOAT_TYPE:
+        case DECIMAL_TYPE:
         {
-            double value = evaluate_float_expression(node->left);
-            set_variable(node->var_name, FLOAT_TYPE, &value);
+            double value = evaluate_decimal_expression(node->left);
+            set_variable(node->var_name, DECIMAL_TYPE, &value);
             break;
         }
         case STRING_TYPE:
@@ -3593,7 +3593,7 @@ void *interpret_expression(ASTNode *node)
         return value;
     }
 
-    case NODE_FLOAT_LITERAL:
+    case NODE_DECIMAL_LITERAL:
     {
         double *value = malloc(sizeof(double));
         *value = atof(node->value);
@@ -3642,10 +3642,10 @@ void *interpret_expression(ASTNode *node)
                     *(int*)value = var->value.int_value;
                 }
                 break;
-            case FLOAT_TYPE:
+            case DECIMAL_TYPE:
                 value = malloc(sizeof(double));
                 if (value) {
-                    *(double*)value = var->value.float_value;
+                    *(double*)value = var->value.decimal_value;
                 }
                 break;
             case BOOL_TYPE:
