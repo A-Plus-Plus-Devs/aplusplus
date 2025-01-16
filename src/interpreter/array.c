@@ -160,7 +160,7 @@ void debug_print_array(ArrayValue* array)
                 printf("[%zu]: %f\n", i, *(double*)element);
                 break;
             case BOOL_TYPE:
-                printf("[%zu]: %s\n", i, (*(bool*)element) ? "yup" : "nope");
+                printf("[%zu]: %s\n", i, (*(bool*)element) ? "facts" : "cap");
                 break;
             default:
                 printf("[%zu]: <unknown type>\n", i);

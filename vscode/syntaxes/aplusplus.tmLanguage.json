@@ -81,7 +81,7 @@
         "storage_types": {
             "patterns": [{
                 "name": "storage.type.aplusplus",
-                "match": "\\b(string|int|float|decimal|boolean|nothing|char|any)\\b"
+                "match": "\\b(string|integer|decimal|boolean|nothing|char|any)\\b"
             }]
         },
         "function_definition": {
@@ -110,7 +110,7 @@
             "patterns": [
                 {
                     "name": "constant.language.boolean.aplusplus",
-                    "match": "\\b(yup|nope)\\b"
+                    "match": "\\b(cap|facts)\\b"
                 },
                 {
                     "name": "constant.language.aplusplus",

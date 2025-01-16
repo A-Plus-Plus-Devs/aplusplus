@@ -58,7 +58,7 @@ ASTNode *create_var_declaration_node(char *type, char *var_name, ASTNode *value)
     // Set the type of the node to variable declaration
     node->type = NODE_VAR_DECLARATION;
     
-    // Store the type of the variable (e.g., "int", "string")
+    // Store the type of the variable (e.g., "integer", "string")
     node->var_type = type;
     
     // Store the name of the variable

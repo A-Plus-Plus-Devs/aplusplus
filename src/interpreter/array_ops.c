@@ -48,7 +48,7 @@ static VariableType get_array_type(const char *type_str)
         return EMPTY_TYPE;
     }
 
-    if (strcmp(type_str, "int") == 0)
+    if (strcmp(type_str, "integer") == 0)
         return INT_TYPE;
     if (strcmp(type_str, "string") == 0)
         return STRING_TYPE;

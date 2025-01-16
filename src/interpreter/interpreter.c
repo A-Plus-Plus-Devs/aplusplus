@@ -112,7 +112,7 @@ static void DEBUG_LOG(const char *format, ...)
 // Helper function to convert type string to VariableType
 static VariableType get_type_from_string(const char *type_str)
 {
-    if (strcmp(type_str, "int") == 0)
+    if (strcmp(type_str, "integer") == 0)
     {
         return INT_TYPE;
     }
@@ -137,7 +137,7 @@ static VariableType get_type_from_string(const char *type_str)
 
 static VariableType get_function_return_type(const char *return_type_str)
 {
-    if (strcmp(return_type_str, "int") == 0)
+    if (strcmp(return_type_str, "integer") == 0)
     {
         return INT_TYPE;
     }
@@ -1183,7 +1183,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         char char_val;
         char *str_val;
 
-        if (strcmp(param->var_type, "int") == 0)
+        if (strcmp(param->var_type, "integer") == 0)
         {
             int_val = evaluate_expression(arg);
             value = &int_val;
@@ -1237,7 +1237,7 @@ char *execute_function(const char *name, ASTNode *arguments)
             }
 
             // Handle yield statement based on return type
-            if (strcmp(func->return_type, "int") == 0)
+            if (strcmp(func->return_type, "integer") == 0)
             {
                 int val = evaluate_expression(current->left);
                 char buf[32];
@@ -1276,7 +1276,7 @@ char *execute_function(const char *name, ASTNode *arguments)
             else if (strcmp(func->return_type, "boolean") == 0)
             {
                 bool val = evaluate_bool_expression(current->left);
-                result = strdup(val ? "yup" : "nope");
+                result = strdup(val ? "facts" : "cap");
             }
             else if (strcmp(func->return_type, "char") == 0)
             {
@@ -1352,7 +1352,7 @@ static char *execute_function_body(const char *return_type, ASTNode *body)
             }
 
             // Handle yield statement based on return type
-            if (strcmp(return_type, "int") == 0)
+            if (strcmp(return_type, "integer") == 0)
             {
                 int val = evaluate_expression(current->left);
                 char buf[32];
@@ -1391,7 +1391,7 @@ static char *execute_function_body(const char *return_type, ASTNode *body)
             else if (strcmp(return_type, "boolean") == 0)
             {
                 bool val = evaluate_bool_expression(current->left);
-                result = strdup(val ? "yup" : "nope");
+                result = strdup(val ? "facts" : "cap");
             }
             else if (strcmp(return_type, "char") == 0)
             {
@@ -1499,7 +1499,7 @@ static bool strtobool(const char *str)
 {
     if (str == NULL)
         return false;
-    return (strcmp(str, "yup") == 0);
+    return (strcmp(str, "facts") == 0);
 }
 
 // This function gets the value of a variable
@@ -1532,7 +1532,7 @@ static int evaluate_expression(ASTNode *node)
     if (node->type == NODE_TYPE_CAST)
     {
 
-        if (strcmp(node->target_type, "int") == 0)
+        if (strcmp(node->target_type, "integer") == 0)
         {
             if (node->left->type == NODE_STRING_LITERAL)
             {
@@ -1610,7 +1610,7 @@ static int evaluate_expression(ASTNode *node)
                     printf("%g", *(double *)element);
                     break;
                 case BOOL_TYPE:
-                    printf("%s", *(bool *)element ? "yup" : "nope");
+                    printf("%s", *(bool *)element ? "facts" : "cap");
                     break;
                 case CHAR_TYPE:
                     printf("'%c'", *(char *)element);
@@ -1754,7 +1754,7 @@ static bool evaluate_bool_expression(ASTNode *node)
     // For direct boolean values
     if (node->type == NODE_BOOL_LITERAL)
     {
-        return strcmp(node->value, "yup") == 0;
+        return strcmp(node->value, "facts") == 0;
     }
 
     // For variables
@@ -1835,7 +1835,7 @@ char *evaluate_string_expression(ASTNode *node)
         else if (var && var->type == BOOL_TYPE)
         {
             // Convert bool to string
-            return strdup(var->value.bool_value ? "yup" : "nope");
+            return strdup(var->value.bool_value ? "facts" : "cap");
         }
         else if (var && var->type == CHAR_TYPE)
         {
@@ -1922,7 +1922,7 @@ char *evaluate_string_expression(ASTNode *node)
     else if (node->type == NODE_BOOL_LITERAL)
     {
         // Convert bool literal to string
-        return strdup(strcmp(node->value, "yup") == 0 ? "yup" : "nope");
+        return strdup(strcmp(node->value, "facts") == 0 ? "facts" : "cap");
     }
     else if (node->type == NODE_CHAR_LITERAL)
     {
@@ -2095,7 +2095,7 @@ static const char *type_to_string(VariableType type)
     switch (type)
     {
     case INT_TYPE:
-        return "int";
+        return "integer";
     case DECIMAL_TYPE:
         return "decimal";
     case STRING_TYPE:
@@ -2152,7 +2152,7 @@ static void register_builtin_functions(void)
     // Register length function
     Function length_func = {
         .name = "length",
-        .return_type = "int",
+        .return_type = "integer",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = length_func;
@@ -2168,7 +2168,7 @@ static void register_builtin_functions(void)
     // Register indexOf function
     Function index_of_func = {
         .name = "indexOf",
-        .return_type = "int",
+        .return_type = "integer",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = index_of_func;
@@ -2240,7 +2240,7 @@ static void register_builtin_functions(void)
     // Register round function
     Function round_func = {
         .name = "round",
-        .return_type = "int",
+        .return_type = "integer",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = round_func;
@@ -2387,7 +2387,7 @@ void print_array_element(void *element, VariableType type)
         printf("%s\n", (char *)element);
         break;
     case BOOL_TYPE:
-        printf("%s\n", *(bool *)element ? "yup" : "nope");
+        printf("%s\n", *(bool *)element ? "facts" : "cap");
         break;
     default:
         printf("\033[1;31mERROR:\033[0m Unsupported type %d", type);
@@ -2504,7 +2504,7 @@ void interpret(ASTNode *node)
                             if (element->type == NODE_BOOL_LITERAL)
                             {
                                 bool *element_value = malloc(sizeof(bool));
-                                *element_value = strcmp(element->value, "yup") == 0;
+                                *element_value = strcmp(element->value, "facts") == 0;
                                 array_add_last(array, element_value);
                                 // printf("DEBUG: Added bool element: %s\n", element->value);
                             }
@@ -2596,7 +2596,7 @@ void interpret(ASTNode *node)
                      (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == BOOL_TYPE))
             {
                 bool result = evaluate_bool_expression(node->left);
-                printf("%s\n", result ? "yup" : "nope");
+                printf("%s\n", result ? "facts" : "cap");
             }
             else if (node->left->type == NODE_CHAR_LITERAL ||
                      (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == CHAR_TYPE))
@@ -2648,7 +2648,7 @@ void interpret(ASTNode *node)
                                                strcmp(node->left->value, "!") == 0))
                 {
                     bool result = evaluate_bool_expression(node->left);
-                    printf("%s\n", result ? "yup" : "nope");
+                    printf("%s\n", result ? "facts" : "cap");
                 }
                 else if (has_decimal)
                 {
@@ -2830,7 +2830,7 @@ void interpret(ASTNode *node)
                         break;
                     case NODE_BOOL_LITERAL:
                         snprintf(buffer, sizeof(buffer), "%s",
-                                 strcmp(node->left->left->value, "yup") == 0 ? "yup" : "nope");
+                                 strcmp(node->left->left->value, "facts") == 0 ? "facts" : "cap");
                         break;
                     case NODE_STRING_LITERAL:
                         strncpy(buffer, node->left->left->value, sizeof(buffer) - 1);
@@ -2879,7 +2879,7 @@ void interpret(ASTNode *node)
                         value = atof(node->left->left->value);
                         break;
                     case NODE_BOOL_LITERAL:
-                        value = (strcmp(node->left->left->value, "yup") == 0) ? 1.0 : 0.0;
+                        value = (strcmp(node->left->left->value, "facts") == 0) ? 1.0 : 0.0;
                         break;
                     default:
                         printf("\033[1;31mERROR:\033[0m Cannot convert type to decimal\n");
@@ -2900,11 +2900,11 @@ void interpret(ASTNode *node)
                         break;
                     case NODE_STRING_LITERAL:
                         value = strlen(node->left->left->value) > 0 &&
-                                strcmp(node->left->left->value, "nope") != 0 &&
+                                strcmp(node->left->left->value, "cap") != 0 &&
                                 strcmp(node->left->left->value, "0") != 0;
                         break;
                     case NODE_BOOL_LITERAL:
-                        value = strcmp(node->left->left->value, "yup") == 0;
+                        value = strcmp(node->left->left->value, "facts") == 0;
                         break;
                     case NODE_INPUT:
                     {
@@ -2915,7 +2915,7 @@ void interpret(ASTNode *node)
                         {
                             input[strcspn(input, "\n")] = 0;
                             value = strlen(input) > 0 &&
-                                    strcmp(input, "nope") != 0 &&
+                                    strcmp(input, "cap") != 0 &&
                                     strcmp(input, "0") != 0;
                         }
                         break;
@@ -2924,11 +2924,11 @@ void interpret(ASTNode *node)
                         printf("\033[1;31mERROR:\033[0m Cannot convert type to boolean\n");
                         exit(1);
                     }
-                    // Convert bool to yup/nope
-                    char *bool_str = value ? "yup" : "nope";
+                    // Convert bool to facts/cap
+                    char *bool_str = value ? "facts" : "cap";
                     set_variable(node->var_name, BOOL_TYPE, bool_str);
                 }
-                else if (strcmp(node->var_type, "int") == 0)
+                else if (strcmp(node->var_type, "integer") == 0)
                 {
                     int value = 0;
                     switch (node->left->left->type)
@@ -2955,7 +2955,7 @@ void interpret(ASTNode *node)
                         value = atoi(node->left->left->value);
                         break;
                     case NODE_BOOL_LITERAL:
-                        value = (strcmp(node->left->left->value, "yup") == 0) ? 1 : 0;
+                        value = (strcmp(node->left->left->value, "facts") == 0) ? 1 : 0;
                         break;
                     default:
                         printf("\033[1;31mERROR:\033[0m Cannot convert type to int\n");
@@ -3090,7 +3090,7 @@ void interpret(ASTNode *node)
                         {
                             set_variable(node->var_name, STRING_TYPE, result);
                         }
-                        else if (strcmp(node->var_type, "int") == 0)
+                        else if (strcmp(node->var_type, "integer") == 0)
                         {
                             int value = atoi(result);
                             set_variable(node->var_name, INT_TYPE, &value);
@@ -3164,7 +3164,7 @@ void interpret(ASTNode *node)
                         set_variable(node->var_name, DECIMAL_TYPE, &value);
                     }
                 }
-                else if (strcmp(node->var_type, "int") == 0)
+                else if (strcmp(node->var_type, "integer") == 0)
                 {
                     VariableType expr_type;
 
@@ -3330,7 +3330,7 @@ static void handle_type_cast(ASTNode *node)
     }
 
     // Handle casting to int
-    if (strcmp(node->target_type, "int") == 0)
+    if (strcmp(node->target_type, "integer") == 0)
     {
         int value = 0;
 
@@ -3609,7 +3609,7 @@ void *interpret_expression(ASTNode *node)
     case NODE_BOOL_LITERAL:
     {
         bool *value = malloc(sizeof(bool));
-        *value = (strcmp(node->value, "yup") == 0);
+        *value = (strcmp(node->value, "facts") == 0);
         return value;
     }
 

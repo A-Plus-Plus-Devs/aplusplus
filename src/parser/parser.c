@@ -866,7 +866,7 @@ static ASTNode *parse_factor(Parser *parser)
 
         // Check if this is a type cast
         if (parser->current_token->value &&
-            (strcmp(parser->current_token->value, "int") == 0 ||
+            (strcmp(parser->current_token->value, "integer") == 0 ||
              strcmp(parser->current_token->value, "decimal") == 0 ||
              strcmp(parser->current_token->value, "string") == 0 ||
              strcmp(parser->current_token->value, "boolean") == 0 ||

@@ -155,7 +155,7 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_IF;
     else if (strcmp(buffer, "else") == 0)
         token->type = TOKEN_ELSE;
-    else if (strcmp(buffer, "int") == 0)
+    else if (strcmp(buffer, "integer") == 0)
         token->type = TOKEN_INT_TYPE;
     else if (strcmp(buffer, "string") == 0)
         token->type = TOKEN_STRING_TYPE;
@@ -165,7 +165,7 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_BOOL_TYPE;
     else if (strcmp(buffer, "print") == 0 || strcmp(buffer, "echo") == 0 || strcmp(buffer, "yap") == 0)
         token->type = TOKEN_PRINT;
-    else if (strcmp(buffer, "yup") == 0 || strcmp(buffer, "nope") == 0)
+    else if (strcmp(buffer, "facts") == 0 || strcmp(buffer, "cap") == 0)
         token->type = TOKEN_BOOL;
     else if (strcmp(buffer, "for") == 0)
         token->type = TOKEN_FOR;
@@ -212,7 +212,7 @@ static Token *boolean(Lexer *lexer)
     buffer[i] = '\0';
     Token *token = malloc(sizeof(Token));
 
-    if (strcmp(buffer, "yup") == 0 || strcmp(buffer, "nope") == 0) {
+    if (strcmp(buffer, "facts") == 0 || strcmp(buffer, "cap") == 0) {
         token->type = TOKEN_BOOL;
         token->value = strdup(buffer);
     } else {
@@ -498,8 +498,8 @@ Token *next_token(Lexer *lexer)
     }
 
     // Check for boolean values
-    if ((lexer->current_char == 'y' && strncmp(lexer->input + lexer->position, "yup", 3) == 0) ||
-        (lexer->current_char == 'n' && strncmp(lexer->input + lexer->position, "nope", 4) == 0))
+    if ((lexer->current_char == 'f' && strncmp(lexer->input + lexer->position, "facts", 5) == 0) ||
+        (lexer->current_char == 'c' && strncmp(lexer->input + lexer->position, "cap", 3) == 0))
     {
         return boolean(lexer);
     }

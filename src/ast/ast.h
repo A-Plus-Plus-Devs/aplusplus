@@ -87,7 +87,7 @@ ASTNode *create_node(ASTNodeType type, ASTNode *left, ASTNode *right, const char
 /**
  * @brief Creates a variable declaration node.
  * 
- * @param type The type of the variable (e.g., "int", "string").
+ * @param type The type of the variable (e.g., "integer", "string").
  * @param var_name The name of the variable.
  * @param value The initial value of the variable (if any).
  * @return ASTNode* A pointer to the newly created variable declaration node.
@@ -169,7 +169,7 @@ ASTNode *create_function_call_node(char *function_name, ASTNode *arguments);
 /**
  * @brief Creates an array declaration node.
  * 
- * @param array_type The type of array elements (e.g., "string", "int").
+ * @param array_type The type of array elements (e.g., "string", "integer").
  * @param var_name The name of the array variable.
  * @param elements The initial elements of the array.
  * @return ASTNode* A pointer to the newly created array declaration node.
@@ -206,7 +206,7 @@ ASTNode *create_array_literal_node(ASTNode *elements);
 /**
  * @brief Creates a type cast node.
  * 
- * @param target_type The type to cast to (e.g., "int", "decimal", "string").
+ * @param target_type The type to cast to (e.g., "integer", "decimal", "string").
  * @param expr The expression to be cast.
  * @return ASTNode* A pointer to the newly created type cast node.
  */
