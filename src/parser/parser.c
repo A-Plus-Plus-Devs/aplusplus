@@ -168,6 +168,29 @@ static ASTNode *parse_statement(Parser *parser)
 
     switch (parser->current_token->type)
     {
+
+        /** Const variables */
+    case TOKEN_FIXED:
+        // Handle fixed variable declaration
+        get_next_token(parser); // consume 'fixed'
+        if (parser->current_token->type == TOKEN_INT_TYPE ||
+            parser->current_token->type == TOKEN_FLOAT_TYPE ||
+            parser->current_token->type == TOKEN_STRING_TYPE ||
+            parser->current_token->type == TOKEN_CHAR_TYPE ||
+            parser->current_token->type == TOKEN_BOOL_TYPE)
+        {
+            node = parse_var_declaration(parser);
+            if (node) {
+                node->is_fixed = true;
+            }
+        }
+        else
+        {
+            printf("Error: Expected type after 'fixed' keyword\n");
+            return NULL;
+        }
+        break;
+
     case TOKEN_DEFINE:
         // printf("[DEBUG] Found function definition\n");
         node = parse_function_definition(parser);

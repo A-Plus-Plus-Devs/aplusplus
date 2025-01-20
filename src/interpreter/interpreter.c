@@ -43,6 +43,7 @@ typedef struct
 {
     char *name;        // The name of the variable
     VariableType type; // The type of the variable (int or string)
+    bool is_fixed;     // Whether the variable is fixed (constant)
     union
     {
         int int_value; // If it's an int, store the value here
@@ -1459,6 +1460,7 @@ static void set_variable(const char *name, VariableType type, void *value)
         // We store the name of the variable
         variables[variable_count].name = strdup(name);
         variables[variable_count].type = type;
+        variables[variable_count].is_fixed = false; // New variables are not fixed by default
         if (type == INT_TYPE)
         {
             // If it's an int, we store the int value
@@ -3410,6 +3412,13 @@ static void handle_assignment(ASTNode *node)
     if (!existing_var)
     {
         printf("Error: Variable '%s' not declared\n", node->var_name);
+        exit(1);
+    }
+
+    // Check if variable is fixed (constant)
+    if (existing_var->is_fixed)
+    {
+        printf("Error: Cannot reassign fixed variable '%s'\n", node->var_name);
         exit(1);
     }
 
