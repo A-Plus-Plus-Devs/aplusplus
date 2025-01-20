@@ -89,6 +89,7 @@ typedef enum
     TOKEN_REMOVE_FIRST, // .removeFirst
     TOKEN_NOTHING_TYPE,  // For 'nothing' keyword
     TOKEN_EMPTY,        // For 'empty' keyword
+    TOKEN_FIXED,        // For 'fixed' keyword - constant variables
     TOKEN_INPUT,
     TOKEN_INDEX_OF,
     TOKEN_SUBSTRING,    

@@ -189,6 +189,8 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_INPUT;
     else if (strcmp(buffer, "insert") == 0)
         token->type = TOKEN_INSERT;
+    else if (strcmp(buffer, "fixed") == 0)
+        token->type = TOKEN_FIXED;
     else
         token->type = TOKEN_IDENTIFIER;
 

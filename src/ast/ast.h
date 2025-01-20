@@ -46,6 +46,7 @@ typedef struct ASTNode
     char *var_name;
     struct ASTNode *else_branch;
     struct ASTNode *elseif_branch;
+    bool is_fixed;              // Whether this is a fixed (constant) variable
 
     // Array-specific fields
     char *array_type;           // Type of array elements
