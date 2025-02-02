@@ -50,8 +50,8 @@ static VariableType get_array_type(const char *type_str)
 
     if (strcmp(type_str, "integer") == 0)
         return INT_TYPE;
-    if (strcmp(type_str, "string") == 0)
-        return STRING_TYPE;
+    if (strcmp(type_str, "text") == 0)
+        return TEXT_TYPE;
     if (strcmp(type_str, "decimal") == 0)
         return DECIMAL_TYPE;
     if (strcmp(type_str, "bool") == 0 || strcmp(type_str, "boolean") == 0)
@@ -171,7 +171,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
             return NULL;
         }
 
-        if (array->type == STRING_TYPE && element)
+        if (array->type == TEXT_TYPE && element)
         {
             char *str_copy = strdup((char*)element);
             if (!str_copy)
@@ -239,7 +239,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
         void *element_copy = NULL;
         switch (array->type)
         {
-            case STRING_TYPE:
+            case TEXT_TYPE:
                 element_copy = strdup((char *)value);
                 if (!element_copy) {
                     return NULL;
@@ -327,7 +327,7 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
         result = copy;
         break;
     }
-    case STRING_TYPE:
+    case TEXT_TYPE:
         result = strdup((char *)element);
         break;
     case DECIMAL_TYPE:

@@ -8,7 +8,7 @@ typedef enum
 {
     TOKEN_EOF,
     TOKEN_IDENTIFIER,
-    TOKEN_STRING,
+    TOKEN_TEXT,
     TOKEN_ASSIGN,
     TOKEN_DECIMAL,
     TOKEN_INT,
@@ -65,7 +65,7 @@ typedef enum
     TOKEN_UNSIGNED_TYPE,
     TOKEN_SIGNED_TYPE,
     TOKEN_DOUBLE_TYPE,
-    TOKEN_STRING_TYPE,
+    TOKEN_TEXT_TYPE,
     TOKEN_FOR,
     TOKEN_INCREMENT,    // ++
     TOKEN_DECREMENT,    // --

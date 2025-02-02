@@ -119,7 +119,7 @@ void free_array(ArrayValue* array) {
         return;
     }
     
-    if (array->type == STRING_TYPE) {
+    if (array->type == TEXT_TYPE) {
         for (size_t i = 0; i < array->length; i++) {
             if (array->elements[i]) {
                 free(array->elements[i]);
@@ -150,7 +150,7 @@ void debug_print_array(ArrayValue* array)
         }
         
         switch (array->type) {
-            case STRING_TYPE:
+            case TEXT_TYPE:
                 printf("[%zu]: '%s'\n", i, (char*)element);
                 break;
             case INT_TYPE:

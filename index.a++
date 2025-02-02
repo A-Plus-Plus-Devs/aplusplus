@@ -15,3 +15,7 @@ boolean xyz = facts;
 boolean isFalse = cap;
 
 print(!isFalse);
+
+text name = "Name";
+
+print(name);

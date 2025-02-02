@@ -4,7 +4,7 @@
 typedef enum {
     INT_TYPE,
     DECIMAL_TYPE,
-    STRING_TYPE,
+    TEXT_TYPE,
     BOOL_TYPE,
     CHAR_TYPE,
     NOTHING_TYPE,  // For void functions

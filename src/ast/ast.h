@@ -19,7 +19,7 @@ typedef enum
     NODE_TERNARY, // 10
     NODE_ELSE, // 11
     NODE_ELSEIF, // 12
-    NODE_STRING_LITERAL, // 13
+    NODE_TEXT_LITERAL, // 13
     NODE_BINARY_OP, // 14
     NODE_BOOL_LITERAL, // 15
     NODE_FOR, // 16

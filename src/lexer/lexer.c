@@ -157,8 +157,8 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_ELSE;
     else if (strcmp(buffer, "integer") == 0)
         token->type = TOKEN_INT_TYPE;
-    else if (strcmp(buffer, "string") == 0)
-        token->type = TOKEN_STRING_TYPE;
+    else if (strcmp(buffer, "text") == 0)
+        token->type = TOKEN_TEXT_TYPE;
     else if (strcmp(buffer, "decimal") == 0)
         token->type = TOKEN_DECIMAL_TYPE;
     else if (strcmp(buffer, "boolean") == 0 || strcmp(buffer, "bool") == 0)
@@ -313,7 +313,7 @@ static Token *string(Lexer *lexer)
     buffer[i] = '\0';
 
     Token *token = malloc(sizeof(Token));
-    token->type = TOKEN_STRING;
+    token->type = TOKEN_TEXT;
     token->value = strdup(buffer);
 
     return token;

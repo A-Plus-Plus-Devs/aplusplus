@@ -190,7 +190,7 @@ static ASTNode *parse_statement(Parser *parser)
 
     case TOKEN_INT_TYPE:
     case TOKEN_DECIMAL_TYPE:
-    case TOKEN_STRING_TYPE:
+    case TOKEN_TEXT_TYPE:
     case TOKEN_CHAR_TYPE:
     case TOKEN_BOOL_TYPE:
         // printf("[DEBUG] Found variable declaration\n");
@@ -753,9 +753,9 @@ static ASTNode *parse_factor(Parser *parser)
         get_next_token(parser);
         return node;
     }
-    else if (token->type == TOKEN_STRING)
+    else if (token->type == TOKEN_TEXT)
     {
-        ASTNode *node = create_node(NODE_STRING_LITERAL, NULL, NULL, token->value);
+        ASTNode *node = create_node(NODE_TEXT_LITERAL, NULL, NULL, token->value);
         get_next_token(parser);
         return node;
     }
@@ -868,7 +868,7 @@ static ASTNode *parse_factor(Parser *parser)
         if (parser->current_token->value &&
             (strcmp(parser->current_token->value, "integer") == 0 ||
              strcmp(parser->current_token->value, "decimal") == 0 ||
-             strcmp(parser->current_token->value, "string") == 0 ||
+             strcmp(parser->current_token->value, "text") == 0 ||
              strcmp(parser->current_token->value, "boolean") == 0 ||
              strcmp(parser->current_token->value, "char") == 0))
         {
@@ -1286,7 +1286,7 @@ static ASTNode *parse_for_statement(Parser *parser)
     ASTNode *init = NULL;
     if (parser->current_token->type == TOKEN_INT_TYPE ||
         parser->current_token->type == TOKEN_DECIMAL_TYPE ||
-        parser->current_token->type == TOKEN_STRING_TYPE ||
+        parser->current_token->type == TOKEN_TEXT_TYPE ||
         parser->current_token->type == TOKEN_BOOL_TYPE)
     {
         init = parse_var_declaration(parser);
@@ -1456,7 +1456,7 @@ static ASTNode *parse_function_definition(Parser *parser)
         get_next_token(parser);
     }
     else if (parser->current_token->type == TOKEN_INT_TYPE ||
-             parser->current_token->type == TOKEN_STRING_TYPE ||
+             parser->current_token->type == TOKEN_TEXT_TYPE ||
              parser->current_token->type == TOKEN_DECIMAL_TYPE ||
              parser->current_token->type == TOKEN_BOOL_TYPE ||
              parser->current_token->type == TOKEN_CHAR_TYPE)
@@ -1592,7 +1592,7 @@ static ASTNode *parse_function_parameters(Parser *parser)
         char *param_type = NULL;
         if (parser->current_token->type == TOKEN_INT_TYPE ||
             parser->current_token->type == TOKEN_DECIMAL_TYPE ||
-            parser->current_token->type == TOKEN_STRING_TYPE ||
+            parser->current_token->type == TOKEN_TEXT_TYPE ||
             parser->current_token->type == TOKEN_CHAR_TYPE ||
             parser->current_token->type == TOKEN_BOOL_TYPE)
         {
@@ -2220,7 +2220,7 @@ static ASTNode *parse_input(Parser *parser)
     get_next_token(parser); // consume '('
 
     // Parse the prompt string
-    if (parser->current_token->type != TOKEN_STRING)
+    if (parser->current_token->type != TOKEN_TEXT)
     {
         printf("Error: Expected string prompt in input()\n");
         return NULL;

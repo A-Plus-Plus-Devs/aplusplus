@@ -120,9 +120,9 @@ static VariableType get_type_from_string(const char *type_str)
     {
         return DECIMAL_TYPE;
     }
-    else if (strcmp(type_str, "string") == 0)
+    else if (strcmp(type_str, "text") == 0)
     {
-        return STRING_TYPE;
+        return TEXT_TYPE;
     }
     else if (strcmp(type_str, "boolean") == 0)
     {
@@ -145,9 +145,9 @@ static VariableType get_function_return_type(const char *return_type_str)
     {
         return DECIMAL_TYPE;
     }
-    else if (strcmp(return_type_str, "string") == 0)
+    else if (strcmp(return_type_str, "text") == 0)
     {
-        return STRING_TYPE;
+        return TEXT_TYPE;
     }
     else if (strcmp(return_type_str, "boolean") == 0)
     {
@@ -225,7 +225,7 @@ char *execute_function(const char *name, ASTNode *arguments)
                 return NULL;
             }
 
-            if (arguments->left->type == NODE_STRING_LITERAL)
+            if (arguments->left->type == NODE_TEXT_LITERAL)
             {
                 double val = atof(arguments->left->value);
                 char result[32];
@@ -249,7 +249,7 @@ char *execute_function(const char *name, ASTNode *arguments)
                     {
                         val = (double)var->value.int_value;
                     }
-                    else if (var->type == STRING_TYPE)
+                    else if (var->type == TEXT_TYPE)
                     {
                         val = atof(var->value.string_value);
                     }
@@ -300,14 +300,14 @@ char *execute_function(const char *name, ASTNode *arguments)
 
         // Handle string length (existing functionality)
         char *str_value = NULL;
-        if (arguments->type == NODE_STRING_LITERAL)
+        if (arguments->type == NODE_TEXT_LITERAL)
         {
             str_value = arguments->value;
         }
         else if (arguments->type == NODE_LITERAL)
         {
             Variable *var = get_variable(arguments->value);
-            if (var && var->type == STRING_TYPE)
+            if (var && var->type == TEXT_TYPE)
             {
                 str_value = var->value.string_value;
             }
@@ -437,14 +437,14 @@ char *execute_function(const char *name, ASTNode *arguments)
 
         // Get the string value
         char *str_value = NULL;
-        if (arguments->type == NODE_STRING_LITERAL)
+        if (arguments->type == NODE_TEXT_LITERAL)
         {
             str_value = arguments->value;
         }
         else if (arguments->type == NODE_LITERAL)
         {
             Variable *var = get_variable(arguments->value);
-            if (var && var->type == STRING_TYPE)
+            if (var && var->type == TEXT_TYPE)
             {
                 str_value = var->value.string_value;
             }
@@ -1193,7 +1193,7 @@ char *execute_function(const char *name, ASTNode *arguments)
             decimal_val = evaluate_decimal_expression(arg);
             value = &decimal_val;
         }
-        else if (strcmp(param->var_type, "string") == 0)
+        else if (strcmp(param->var_type, "text") == 0)
         {
             str_val = evaluate_string_expression(arg);
             value = str_val;
@@ -1213,7 +1213,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         if (value)
         {
             set_variable(param->var_name, get_type_from_string(param->var_type), value);
-            if (strcmp(param->var_type, "string") == 0)
+            if (strcmp(param->var_type, "text") == 0)
             {
                 free(str_val);
             }
@@ -1258,9 +1258,9 @@ char *execute_function(const char *name, ASTNode *arguments)
                 }
                 result = strdup(buf);
             }
-            else if (strcmp(func->return_type, "string") == 0)
+            else if (strcmp(func->return_type, "text") == 0)
             {
-                if (current->left->type == NODE_STRING_LITERAL)
+                if (current->left->type == NODE_TEXT_LITERAL)
                 {
                     result = strdup(current->left->value);
                 }
@@ -1322,7 +1322,7 @@ char *execute_function(const char *name, ASTNode *arguments)
     {
         variable_count--;
         free(variables[variable_count].name);
-        if (variables[variable_count].type == STRING_TYPE)
+        if (variables[variable_count].type == TEXT_TYPE)
         {
             free(variables[variable_count].value.string_value);
         }
@@ -1373,9 +1373,9 @@ static char *execute_function_body(const char *return_type, ASTNode *body)
                 }
                 result = strdup(buf);
             }
-            else if (strcmp(return_type, "string") == 0)
+            else if (strcmp(return_type, "text") == 0)
             {
-                if (current->left->type == NODE_STRING_LITERAL)
+                if (current->left->type == NODE_TEXT_LITERAL)
                 {
                     result = strdup(current->left->value);
                 }
@@ -1427,7 +1427,7 @@ static void set_variable(const char *name, VariableType type, void *value)
                 // If it's an int, we store the int value
                 variables[i].value.int_value = *(int *)value;
             }
-            else if (type == STRING_TYPE)
+            else if (type == TEXT_TYPE)
             {
                 // If it's a string, we free the old string and store the new one
                 free(variables[i].value.string_value);
@@ -1469,7 +1469,7 @@ static void set_variable(const char *name, VariableType type, void *value)
             // printf("DEBUG: Setting new array value at %p\n", value);
             variables[variable_count].value.array_value = (ArrayValue *)value;
         }
-        else if (type == STRING_TYPE)
+        else if (type == TEXT_TYPE)
         {
             // If it's a string, we store a copy of the string
             variables[variable_count].value.string_value = strdup((char *)value);
@@ -1534,7 +1534,7 @@ static int evaluate_expression(ASTNode *node)
 
         if (strcmp(node->target_type, "integer") == 0)
         {
-            if (node->left->type == NODE_STRING_LITERAL)
+            if (node->left->type == NODE_TEXT_LITERAL)
             {
                 return atoi(node->left->value);
             }
@@ -1551,7 +1551,7 @@ static int evaluate_expression(ASTNode *node)
                     {
                     case DECIMAL_TYPE:
                         return (int)var->value.decimal_value;
-                    case STRING_TYPE:
+                    case TEXT_TYPE:
                         return atoi(var->value.string_value);
                     case INT_TYPE:
                         return var->value.int_value;
@@ -1603,7 +1603,7 @@ static int evaluate_expression(ASTNode *node)
                 case INT_TYPE:
                     printf("%d", *(int *)element);
                     break;
-                case STRING_TYPE:
+                case TEXT_TYPE:
                     printf("\"%s\"", (char *)element);
                     break;
                 case DECIMAL_TYPE:
@@ -1632,7 +1632,7 @@ static int evaluate_expression(ASTNode *node)
             return (int)var->value.decimal_value;
         case BOOL_TYPE:
             return var->value.bool_value ? 1 : 0;
-        case STRING_TYPE:
+        case TEXT_TYPE:
             return atoi(var->value.string_value);
         default:
             printf("\033[1;31mERROR:\033[0m Unsupported variable type in expression\n");
@@ -1802,7 +1802,7 @@ char *evaluate_string_expression(ASTNode *node)
     if (node == NULL)
         return strdup("");
 
-    if (node->type == NODE_STRING_LITERAL)
+    if (node->type == NODE_TEXT_LITERAL)
     {
         return strdup(node->value);
     }
@@ -1814,7 +1814,7 @@ char *evaluate_string_expression(ASTNode *node)
     else if (node->type == NODE_LITERAL)
     {
         Variable *var = get_variable(node->value);
-        if (var && var->type == STRING_TYPE)
+        if (var && var->type == TEXT_TYPE)
         {
             return strdup(var->value.string_value);
         }
@@ -1960,7 +1960,7 @@ static double evaluate_decimal_expression(ASTNode *node)
                 return (double)atoi(node->left->value);
             case NODE_DECIMAL_LITERAL:
                 return atof(node->left->value);
-            case NODE_STRING_LITERAL:
+            case NODE_TEXT_LITERAL:
                 return atof(node->left->value);
             case NODE_LITERAL:
             {
@@ -1973,7 +1973,7 @@ static double evaluate_decimal_expression(ASTNode *node)
                         return (double)var->value.int_value;
                     case DECIMAL_TYPE:
                         return var->value.decimal_value;
-                    case STRING_TYPE:
+                    case TEXT_TYPE:
                         return atof(var->value.string_value);
                     case BOOL_TYPE:
                         return var->value.bool_value ? 1.0 : 0.0;
@@ -2015,7 +2015,7 @@ static double evaluate_decimal_expression(ASTNode *node)
             return var->value.decimal_value;
         case INT_TYPE:
             return (double)var->value.int_value;
-        case STRING_TYPE:
+        case TEXT_TYPE:
             return atof(var->value.string_value);
         case BOOL_TYPE:
             return var->value.bool_value ? 1.0 : 0.0;
@@ -2079,7 +2079,7 @@ static bool can_implicitly_convert(VariableType from_type, VariableType to_type)
         return from_type == INT_TYPE || from_type == CHAR_TYPE;
     case INT_TYPE:
         return from_type == CHAR_TYPE || from_type == BOOL_TYPE;
-    case STRING_TYPE:
+    case TEXT_TYPE:
         return false; // No implicit conversion to string
     case CHAR_TYPE:
         return false; // No implicit conversion to char
@@ -2098,8 +2098,8 @@ static const char *type_to_string(VariableType type)
         return "integer";
     case DECIMAL_TYPE:
         return "decimal";
-    case STRING_TYPE:
-        return "string";
+    case TEXT_TYPE:
+        return "text";
     case BOOL_TYPE:
         return "boolean";
     case CHAR_TYPE:
@@ -2160,7 +2160,7 @@ static void register_builtin_functions(void)
     // Register index function
     Function char_at_func = {
         .name = "charAt",
-        .return_type = "string",
+        .return_type = "text",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = char_at_func;
@@ -2176,7 +2176,7 @@ static void register_builtin_functions(void)
     // Register substring function
     Function substring_func = {
         .name = "substring",
-        .return_type = "string",
+        .return_type = "text",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = substring_func;
@@ -2184,7 +2184,7 @@ static void register_builtin_functions(void)
     // Register concat function
     Function concat_func = {
         .name = "concat",
-        .return_type = "string",
+        .return_type = "text",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = concat_func;
@@ -2192,7 +2192,7 @@ static void register_builtin_functions(void)
     // Register replace function
     Function replace_func = {
         .name = "replace",
-        .return_type = "string",
+        .return_type = "text",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = replace_func;
@@ -2200,7 +2200,7 @@ static void register_builtin_functions(void)
     // Register toLowerCase function
     Function to_lower_func = {
         .name = "toLowerCase",
-        .return_type = "string",
+        .return_type = "text",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = to_lower_func;
@@ -2208,7 +2208,7 @@ static void register_builtin_functions(void)
     // Register toUpperCase function
     Function to_upper_func = {
         .name = "toUpperCase",
-        .return_type = "string",
+        .return_type = "text",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = to_upper_func;
@@ -2216,7 +2216,7 @@ static void register_builtin_functions(void)
     // Register reverse function
     Function reverse_func = {
         .name = "reverse",
-        .return_type = "string",
+        .return_type = "text",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = reverse_func;
@@ -2224,7 +2224,7 @@ static void register_builtin_functions(void)
     // Register trim function
     Function trim_func = {
         .name = "trim",
-        .return_type = "string",
+        .return_type = "text",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = trim_func;
@@ -2232,7 +2232,7 @@ static void register_builtin_functions(void)
     // Register repeat function
     Function repeat_func = {
         .name = "repeat",
-        .return_type = "string",
+        .return_type = "text",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = repeat_func;
@@ -2323,21 +2323,21 @@ static void register_builtin_functions(void)
     // Register date/time functions
     Function date_func = {
         .name = "date",
-        .return_type = "string",
+        .return_type = "text",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = date_func;
 
     Function time_func = {
         .name = "time",
-        .return_type = "string",
+        .return_type = "text",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = time_func;
 
     Function now_func = {
         .name = "now",
-        .return_type = "string",
+        .return_type = "text",
         .parameters = NULL,
         .body = NULL};
     functions[function_count++] = now_func;
@@ -2383,7 +2383,7 @@ void print_array_element(void *element, VariableType type)
     case DECIMAL_TYPE:
         printf("%g\n", *(double *)element);
         break;
-    case STRING_TYPE:
+    case TEXT_TYPE:
         printf("%s\n", (char *)element);
         break;
     case BOOL_TYPE:
@@ -2445,9 +2445,9 @@ void interpret(ASTNode *node)
                             // printf("DEBUG: Added int element: %d\n", value);
                             break;
                         }
-                        case STRING_TYPE:
+                        case TEXT_TYPE:
                         {
-                            if (element->type == NODE_STRING_LITERAL)
+                            if (element->type == NODE_TEXT_LITERAL)
                             {
                                 char *str_value = strdup(element->value);
                                 array_add_last(array, str_value);
@@ -2467,7 +2467,7 @@ void interpret(ASTNode *node)
                                 value = int_val;
                                 break;
                             }
-                            case NODE_STRING_LITERAL:
+                            case NODE_TEXT_LITERAL:
                             {
                                 value = strdup(element->value);
                                 break;
@@ -2625,12 +2625,12 @@ void interpret(ASTNode *node)
 
                 // Check if it's a string concatenation operation
                 if (node->left->value && strcmp(node->left->value, "+") == 0 &&
-                    (node->left->left->type == NODE_STRING_LITERAL ||
-                     node->left->right->type == NODE_STRING_LITERAL ||
+                    (node->left->left->type == NODE_TEXT_LITERAL ||
+                     node->left->right->type == NODE_TEXT_LITERAL ||
                      (node->left->left->type == NODE_LITERAL &&
-                      get_variable(node->left->left->value)->type == STRING_TYPE) ||
+                      get_variable(node->left->left->value)->type == TEXT_TYPE) ||
                      (node->left->right->type == NODE_LITERAL &&
-                      get_variable(node->left->right->value)->type == STRING_TYPE)))
+                      get_variable(node->left->right->value)->type == TEXT_TYPE)))
                 {
                     char *result = evaluate_string_expression(node->left);
                     printf("%s\n", result);
@@ -2661,8 +2661,8 @@ void interpret(ASTNode *node)
                     printf("%d\n", result);
                 }
             }
-            else if (node->left->type == NODE_STRING_LITERAL ||
-                     (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == STRING_TYPE))
+            else if (node->left->type == NODE_TEXT_LITERAL ||
+                     (node->left->type == NODE_LITERAL && get_variable(node->left->value)->type == TEXT_TYPE))
             {
                 char *result = evaluate_string_expression(node->left);
                 printf("%s\n", result);
@@ -2771,7 +2771,7 @@ void interpret(ASTNode *node)
                             {
                                 var->value.char_value = variables[j].value.char_value;
                             }
-                            else if (var->type == STRING_TYPE)
+                            else if (var->type == TEXT_TYPE)
                             {
                                 free(var->value.string_value);
                                 var->value.string_value = strdup(variables[j].value.string_value);
@@ -2786,7 +2786,7 @@ void interpret(ASTNode *node)
                 {
                     variable_count--;
                     free(variables[variable_count].name);
-                    if (variables[variable_count].type == STRING_TYPE)
+                    if (variables[variable_count].type == TEXT_TYPE)
                     {
                         free(variables[variable_count].value.string_value);
                     }
@@ -2798,7 +2798,7 @@ void interpret(ASTNode *node)
             {
                 variable_count--;
                 free(variables[variable_count].name);
-                if (variables[variable_count].type == STRING_TYPE)
+                if (variables[variable_count].type == TEXT_TYPE)
                 {
                     free(variables[variable_count].value.string_value);
                 }
@@ -2816,7 +2816,7 @@ void interpret(ASTNode *node)
             if (node->left && node->left->type == NODE_TYPE_CAST)
             {
                 // Handle type cast in variable declaration
-                if (strcmp(node->var_type, "string") == 0)
+                if (strcmp(node->var_type, "text") == 0)
                 {
                     char buffer[256];
                     switch (node->left->left->type)
@@ -2832,7 +2832,7 @@ void interpret(ASTNode *node)
                         snprintf(buffer, sizeof(buffer), "%s",
                                  strcmp(node->left->left->value, "facts") == 0 ? "facts" : "cap");
                         break;
-                    case NODE_STRING_LITERAL:
+                    case NODE_TEXT_LITERAL:
                         strncpy(buffer, node->left->left->value, sizeof(buffer) - 1);
                         buffer[sizeof(buffer) - 1] = '\0';
                         break;
@@ -2850,14 +2850,14 @@ void interpret(ASTNode *node)
                         snprintf(buffer, sizeof(buffer), "%s", node->left->left->value);
                         break;
                     }
-                    set_variable(node->var_name, STRING_TYPE, buffer);
+                    set_variable(node->var_name, TEXT_TYPE, buffer);
                 }
                 else if (strcmp(node-> var_type, "decimal") == 0)
                 {
                     double value = 0.0;
                     switch (node->left->left->type)
                     {
-                    case NODE_STRING_LITERAL:
+                    case NODE_TEXT_LITERAL:
                         value = atof(node->left->left->value);
                         break;
                     case NODE_INPUT:
@@ -2898,7 +2898,7 @@ void interpret(ASTNode *node)
                     case NODE_DECIMAL_LITERAL:
                         value = atof(node->left->left->value) != 0.0;
                         break;
-                    case NODE_STRING_LITERAL:
+                    case NODE_TEXT_LITERAL:
                         value = strlen(node->left->left->value) > 0 &&
                                 strcmp(node->left->left->value, "cap") != 0 &&
                                 strcmp(node->left->left->value, "0") != 0;
@@ -2933,7 +2933,7 @@ void interpret(ASTNode *node)
                     int value = 0;
                     switch (node->left->left->type)
                     {
-                    case NODE_STRING_LITERAL:
+                    case NODE_TEXT_LITERAL:
                         value = atoi(node->left->left->value);
                         break;
                     case NODE_INPUT:
@@ -2968,7 +2968,7 @@ void interpret(ASTNode *node)
                     float value = 0.0f;
                     switch (node->left->left->type)
                     {
-                    case NODE_STRING_LITERAL:
+                    case NODE_TEXT_LITERAL:
                         value = atof(node->left->left->value);
                         break;
                     case NODE_INPUT:
@@ -3003,18 +3003,18 @@ void interpret(ASTNode *node)
                     bool value = node->left ? evaluate_bool_expression(node->left) : false;
                     set_variable(node->var_name, BOOL_TYPE, &value);
                 }
-                else if (strcmp(node->var_type, "string") == 0)
+                else if (strcmp(node->var_type, "text") == 0)
                 {
                     if (node->left->type == NODE_INPUT)
                     {
                         // Handle input function specially
                         char *value = evaluate_input(node->left->value);
-                        set_variable(node->var_name, STRING_TYPE, value);
+                        set_variable(node->var_name, TEXT_TYPE, value);
                         free(value);
                     }
-                    else if (node->left->type != NODE_STRING_LITERAL &&
+                    else if (node->left->type != NODE_TEXT_LITERAL &&
                              !(node->left->type == NODE_LITERAL &&
-                               get_variable(node->left->value)->type == STRING_TYPE) &&
+                               get_variable(node->left->value)->type == TEXT_TYPE) &&
                              !(node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "+") == 0))
                     {
                         printf("\033[1;31mERROR:\033[0m Type mismatch - Cannot convert to string for variable '%s'. Use string concatenation (+) for conversion.\n",
@@ -3024,7 +3024,7 @@ void interpret(ASTNode *node)
                     else
                     {
                         char *value = evaluate_string_expression(node->left);
-                        set_variable(node->var_name, STRING_TYPE, value);
+                        set_variable(node->var_name, TEXT_TYPE, value);
                         free(value);
                     }
                 }
@@ -3086,9 +3086,9 @@ void interpret(ASTNode *node)
                     char *result = execute_function(node->left->function_name, node->left->arguments);
                     if (result)
                     {
-                        if (strcmp(node->var_type, "string") == 0)
+                        if (strcmp(node->var_type, "text") == 0)
                         {
-                            set_variable(node->var_name, STRING_TYPE, result);
+                            set_variable(node->var_name, TEXT_TYPE, result);
                         }
                         else if (strcmp(node->var_type, "integer") == 0)
                         {
@@ -3118,9 +3118,9 @@ void interpret(ASTNode *node)
                     VariableType expr_type;
 
                     // Determine expression type
-                    if (node->left->type == NODE_STRING_LITERAL)
+                    if (node->left->type == NODE_TEXT_LITERAL)
                     {
-                        expr_type = STRING_TYPE;
+                        expr_type = TEXT_TYPE;
                     }
                     else if (node->left->type == NODE_DECIMAL_LITERAL)
                     {
@@ -3169,9 +3169,9 @@ void interpret(ASTNode *node)
                     VariableType expr_type;
 
                     // Determine expression type
-                    if (node->left->type == NODE_STRING_LITERAL)
+                    if (node->left->type == NODE_TEXT_LITERAL)
                     {
-                        expr_type = STRING_TYPE;
+                        expr_type = TEXT_TYPE;
                     }
                     else if (node->left->type == NODE_DECIMAL_LITERAL)
                     {
@@ -3226,18 +3226,18 @@ void interpret(ASTNode *node)
                     bool value = node->left ? evaluate_bool_expression(node->left) : false;
                     set_variable(node->var_name, BOOL_TYPE, &value);
                 }
-                else if (strcmp(node->var_type, "string") == 0)
+                else if (strcmp(node->var_type, "text") == 0)
                 {
                     if (node->left->type == NODE_INPUT)
                     {
                         // Handle input function specially
                         char *value = evaluate_input(node->left->value);
-                        set_variable(node->var_name, STRING_TYPE, value);
+                        set_variable(node->var_name, TEXT_TYPE, value);
                         free(value);
                     }
-                    else if (node->left->type != NODE_STRING_LITERAL &&
+                    else if (node->left->type != NODE_TEXT_LITERAL &&
                              !(node->left->type == NODE_LITERAL &&
-                               get_variable(node->left->value)->type == STRING_TYPE) &&
+                               get_variable(node->left->value)->type == TEXT_TYPE) &&
                              !(node->left->type == NODE_BINARY_OP && strcmp(node->left->value, "+") == 0))
                     {
                         printf("\033[1;31mERROR:\033[0m Type mismatch - Cannot convert to string for variable '%s'. Use string concatenation (+) for conversion.\n",
@@ -3247,7 +3247,7 @@ void interpret(ASTNode *node)
                     else
                     {
                         char *value = evaluate_string_expression(node->left);
-                        set_variable(node->var_name, STRING_TYPE, value);
+                        set_variable(node->var_name, TEXT_TYPE, value);
                         free(value);
                     }
                 }
@@ -3271,7 +3271,7 @@ void interpret(ASTNode *node)
                 exit(1);
             }
 
-            if (var->type == STRING_TYPE)
+            if (var->type == TEXT_TYPE)
             {
                 // Handle string concatenation
                 char *right_val = evaluate_string_expression(node->right);
@@ -3334,7 +3334,7 @@ static void handle_type_cast(ASTNode *node)
     {
         int value = 0;
 
-        if (node->left->type == NODE_STRING_LITERAL)
+        if (node->left->type == NODE_TEXT_LITERAL)
         {
             value = atoi(node->left->value);
             set_variable(node->var_name, INT_TYPE, &value);
@@ -3450,7 +3450,7 @@ static void handle_assignment(ASTNode *node)
                 *(double*)value = val;
                 break;
             }
-            case STRING_TYPE:
+            case TEXT_TYPE:
             {
                 char *val = evaluate_string_expression(node->left);
                 value = strdup(val);
@@ -3502,10 +3502,10 @@ static void handle_assignment(ASTNode *node)
             set_variable(node->var_name, DECIMAL_TYPE, &value);
             break;
         }
-        case STRING_TYPE:
+        case TEXT_TYPE:
         {
             char *value = evaluate_string_expression(node->left);
-            set_variable(node->var_name, STRING_TYPE, value);
+            set_variable(node->var_name, TEXT_TYPE, value);
             free(value);
             break;
         }
@@ -3600,7 +3600,7 @@ void *interpret_expression(ASTNode *node)
         return value;
     }
 
-    case NODE_STRING_LITERAL:
+    case NODE_TEXT_LITERAL:
     {
         char *str = strdup(node->value);
         return str;
@@ -3631,7 +3631,7 @@ void *interpret_expression(ASTNode *node)
         // Return a copy of the variable's value based on its type
         void *value = NULL;
         switch (var->type) {
-            case STRING_TYPE:
+            case TEXT_TYPE:
                 if (var->value.string_value) {
                     value = strdup(var->value.string_value);
                 }

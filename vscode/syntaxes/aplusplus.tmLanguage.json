@@ -81,7 +81,7 @@
         "storage_types": {
             "patterns": [{
                 "name": "storage.type.aplusplus",
-                "match": "\\b(string|integer|decimal|boolean|nothing|char|any)\\b"
+                "match": "\\b(text|integer|decimal|boolean|nothing|char|any)\\b"
             }]
         },
         "function_definition": {
