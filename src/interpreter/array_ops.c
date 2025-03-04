@@ -7,7 +7,7 @@
  * Key features:
  * - Array literal interpretation
  * - Array declaration processing
- * - Array method calls (addFirst, addLast, etc.)
+ * - Array method calls (inject, add, etc.)
  * - Array element access and modification
  * - Type conversion and validation
  * - Error handling for array operations
@@ -157,8 +157,8 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
     }
 
     void *element = NULL;
-    if (strcmp(node->method_name, "addFirst") == 0 || 
-        strcmp(node->method_name, "addLast") == 0)
+    if (strcmp(node->method_name, "inject") == 0 || 
+        strcmp(node->method_name, "add") == 0)
     {
         if (!node->right)
         {
@@ -183,7 +183,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
             element = str_copy;
         }
         
-        if (strcmp(node->method_name, "addLast") == 0)
+        if (strcmp(node->method_name, "add") == 0)
         {
             array_add_last(array, element);
         }

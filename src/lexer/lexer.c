@@ -173,12 +173,12 @@ static Token *identifier_or_keyword(Lexer *lexer)
         token->type = TOKEN_CHAR_TYPE;
     else if (strcmp(buffer, "yield") == 0)
         token->type = TOKEN_YIELD;
-    else if (strcmp(buffer, "addLast") == 0)
-        token->type = TOKEN_ADD_LAST;
+    else if (strcmp(buffer, "add") == 0)
+        token->type = TOKEN_ADD;
     else if (strcmp(buffer, "removeLast") == 0)
         token->type = TOKEN_REMOVE_LAST;
-    else if (strcmp(buffer, "addFirst") == 0)
-        token->type = TOKEN_ADD_FIRST;
+    else if (strcmp(buffer, "inject") == 0)
+        token->type = TOKEN_INJECT;
     else if (strcmp(buffer, "removeFirst") == 0)
         token->type = TOKEN_REMOVE_FIRST;
     else if (strcmp(buffer, "nothing") == 0)
@@ -773,10 +773,10 @@ Token *next_token(Lexer *lexer)
             method_buffer[i] = '\0';
             
             // Check for specific method names
-            if (strcmp(method_buffer, "addFirst") == 0)
-                token->type = TOKEN_ADD_FIRST;
-            else if (strcmp(method_buffer, "addLast") == 0)
-                token->type = TOKEN_ADD_LAST;
+            if (strcmp(method_buffer, "inject") == 0)
+                token->type = TOKEN_INJECT;
+            else if (strcmp(method_buffer, "add") == 0)
+                token->type = TOKEN_ADD;
             else if (strcmp(method_buffer, "removeFirst") == 0)
                 token->type = TOKEN_REMOVE_FIRST;
             else if (strcmp(method_buffer, "removeLast") == 0)
@@ -792,6 +792,7 @@ Token *next_token(Lexer *lexer)
             token->value = strdup(method_buffer);
         }
         return token;
+        //as a man thinketh, so is he
 
     case '[':
         token->type = TOKEN_LBRACKET;

@@ -96,7 +96,7 @@
         },
         "function_calls": {
             "patterns": [{
-                "match": "\\b(print|echo|yap)\\b",
+                "match": "\\b(print|echo|add|inject|input|length|yap)\\b",
                 "name": "support.function.builtin.aplusplus"
             },
             {
