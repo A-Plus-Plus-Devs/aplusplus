@@ -5,60 +5,60 @@ print("=== Type Checking Tests ===");
 
 // 1. Basic Type Assignment Tests
 print("--- Basic Type Assignments ---");
-int x1 = 42;
+integer x1 = 42;
 decimal y1 = 3.14;
-string s1 = "Hello";
-boolean b1 = yup;
+text s1 = "Hello";
+boolean b1 = facts;
 char c1 = 'A';
 
 // 2. Valid Implicit Conversions
 print("--- Valid Implicit Conversions ---");
-decimal f2 = 42;        // int -> decimal
-int i2 = 'B';         // char -> int
-int i3 = yup;         // bool -> int (should be 1)
-int i4 = nope;        // bool -> int (should be 0)
+decimal f2 = 42;        // integer -> decimal
+integer i2 = 'B';         // char -> int
+integer i3 = facts;         // bool -> integer (should be 1)
+integer i4 = cap;        // bool -> integer (should be 0)
 
 // 3. String Concatenation Tests
 print("--- String Concatenation Tests ---");
-string s2 = "Number: " + 42;        // int concatenation
-string s3 = "Pi: " + 3.14;          // decimal concatenation
-string s4 = "Flag: " + yup;         // bool concatenation
-string s5 = "Char: " + 'X';         // char concatenation
+text s2 = "Number: " + 42;        // integer concatenation
+text s3 = "Pi: " + 3.14;          // decimal concatenation
+text s4 = "Flag: " + facts;         // bool concatenation
+text s5 = "Char: " + 'X';         // char concatenation
 
 // 4. Function Return Type Tests
-#define int add(int a, int b) {
+#define integer add(integer a, integer b) {
     yield a + b;
 }
 
-#define decimal divide(int a, int b) {
+#define decimal divide(integer a, integer b) {
     yield a / b;
 }
 
-#define string greet(string name) {
+#define text greet(text name) {
     yield "Hello, " + name + "!";
 }
 
 // Valid function return type assignments
-int result1 = add(5, 3);           // int -> int
-decimal result2 = add(5, 3);         // int -> decimal (implicit)
+integer result1 = add(5, 3);           // integer -> int
+decimal result2 = add(5, 3);         // integer -> decimal (implicit)
 decimal result3 = divide(10, 2);     // decimal -> decimal
-string result4 = greet("World");   // string -> string
+text result4 = greet("World");   // text -> text
 
 // 5. Invalid Type Assignments (Should Cause Errors)
 // Uncomment each line to test error handling
 
 
 // Direct invalid assignments
-// int bad1 = 3.14;         // Error: decimal -> int
-int bad2 = "42";         // Error: string -> int
-boolean bad3 = 1;        // Error: int -> bool
-char bad4 = 65;          // Error: int -> char
-string bad5 = 42;        // Error: int -> string (without concatenation)
+// integer bad1 = 3.14;         // Error: decimal -> int
+integer bad2 = "42";         // Error: text -> int
+boolean bad3 = 1;        // Error: integer -> bool
+char bad4 = 65;          // Error: integer -> char
+text bad5 = 42;        // Error: integer -> text (without concatenation)
 
 // Invalid function return type assignments
-int bad6 = divide(10, 2);    // Error: decimal -> int
-int bad7 = greet("World");   // Error: string -> int
-string bad8 = add(5, 3);     // Error: int -> string
+integer bad6 = divide(10, 2);    // Error: decimal -> int
+integer bad7 = greet("World");   // Error: text -> int
+text bad8 = add(5, 3);     // Error: integer -> text
 
 
 print("=== Type Checking Tests Complete ===");

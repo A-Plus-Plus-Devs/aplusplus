@@ -14,8 +14,8 @@ Number: 42
 Boolean Tests:
 1
 0
-yup
-nope
+facts
+cap
 
 Edge Cases:
 Error: Cannot convert empty string to number

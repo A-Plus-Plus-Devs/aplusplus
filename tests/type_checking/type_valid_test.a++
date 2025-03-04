@@ -3,33 +3,33 @@ print("=== Valid Type Conversion Tests ===");
 
 // 1. Basic Type Assignment Tests
 print("--- Basic Assignments ---");
-int x1 = 42;
+integer x1 = 42;
 print(x1);
 decimal y1 = 3.14;
 print(y1);
-string s1 = "Hello";
+text s1 = "Hello";
 print(s1);
-boolean b1 = yup;
+boolean b1 = facts;
 print(b1);
 
 // 2. Valid Implicit Conversions
 print("--- Valid Implicit Conversions ---");
-decimal f2 = 42;        // int -> decimal
+decimal f2 = 42;        // integer -> decimal
 print(f2);
-int i2 = 'B';         // char -> int (ASCII value of 'B' is 66)
+integer i2 = 'B';         // char -> integer (ASCII value of 'B' is 66)
 print(i2);
-int i3 = yup;         // bool -> int (should be 1)
+integer i3 = facts;         // bool -> integer (should be 1)
 print(i3);
-int i4 = nope;        // bool -> int (should be 0)
+integer i4 = cap;        // bool -> integer (should be 0)
 print(i4);
 
 // 3. String Concatenation Tests
 print("--- String Concatenation ---");
-string s2 = "Number: " + 42;
+text s2 = "Number: " + 42;
 print(s2);
-string s3 = "Pi: " + 3.14;
+text s3 = "Pi: " + 3.14;
 print(s3);
-string s4 = "Flag: " + yup;
+text s4 = "Flag: " + facts;
 print(s4);
 
 print("=== Valid Type Conversion Tests Complete ===");

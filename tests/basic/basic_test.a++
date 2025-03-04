@@ -13,9 +13,9 @@ echo("Echo key work working");
 print(42);
 print(3.14);
 print("Hello, World!");
-print(yup); 
+print(facts); 
 
-print(5 == 10);  // Should print nope
-print(5 != 10);  // Should print yup
-print(5 >= 5);   // Should print yup
-print(5 <= 4);   // Should print nope
+print(5 == 10);  // Should print cap
+print(5 != 10);  // Should print facts
+print(5 >= 5);   // Should print facts
+print(5 <= 4);   // Should print cap

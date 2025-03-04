@@ -2,12 +2,12 @@
 42
 3.14
 Hello, World!
-yup
+facts
 === Variable Tests ===
 10
 20.5
 Testing
-yup
+facts
 === Arithmetic Tests ===
 20
 10
@@ -39,17 +39,17 @@ yup
 3
 4
 === Conditional Tests ===
-Condition is yup
+Condition is facts
 10 is greater than 5
 === Comparison Tests ===
-yup
-nope
-yup
-yup
-yup
-nope
+facts
+cap
+facts
+facts
+facts
+cap
 === Logical Operator Tests ===
-yup
-nope
-yup
-nope
+facts
+cap
+facts
+cap

@@ -25,7 +25,7 @@ print(root(-16, 3));     // Should print real cube root
 
 // Min/Max tests
 print("\nMin/Max Tests:");
-print(min(5, 3, 8, 1));  // Should print: 1
-print(max(5, 3, 8, 1));  // Should print: 8
-print(min(-5, -3));      // Should print: -5
-print(max(-5, -3));      // Should print: -3 
+print(minimum(5, 3, 8, 1));  // Should print: 1
+print(maximum(5, 3, 8, 1));  // Should print: 8
+print(minimum(-5, -3));      // Should print: -5
+print(maximum(-5, -3));      // Should print: -3 

@@ -4,6 +4,6 @@
 --- String Concatenation Tests ---
 Number: 42
 Pi: 3.14
-Flag: yup
+Flag: facts
 Char: X
 === Type Checking Tests Complete ===

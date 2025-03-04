@@ -949,7 +949,7 @@ char *execute_function(const char *name, ASTNode *arguments)
         snprintf(result, sizeof(result), format, rounded);
         return strdup(result);
     }
-    else if (strcmp(name, "min") == 0 || strcmp(name, "max") == 0)
+    else if (strcmp(name, "minimum") == 0 || strcmp(name, "maximum") == 0)
     {
         if (!arguments)
         {
@@ -957,7 +957,7 @@ char *execute_function(const char *name, ASTNode *arguments)
             return strdup("0");
         }
 
-        bool is_max = (strcmp(name, "max") == 0);
+        bool is_max = (strcmp(name, "maximum") == 0);
         double result = evaluate_decimal_expression(arguments);
         ASTNode *current = arguments->next;
 
@@ -2263,7 +2263,7 @@ static void register_builtin_functions(void)
 
     // Register min function
     Function min_func = {
-        .name = "min",
+        .name = "minimum",
         .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};
@@ -2271,7 +2271,7 @@ static void register_builtin_functions(void)
 
     // Register max function
     Function max_func = {
-        .name = "max",
+        .name = "maximum",
         .return_type = "decimal",
         .parameters = NULL,
         .body = NULL};

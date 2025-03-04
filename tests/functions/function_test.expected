@@ -5,11 +5,11 @@ Sum: 8
 === Return Type Tests ===
 Integer return: 42
 Decimal return: 3.14
-String return: test string
-Boolean return: yup
+Tex return: test text
+Boolean return: facts
 
 === Parameter Type Tests ===
-Combined string: Hello, World!
+Combined text: Hello, World!
 Decimal sum: 6
 
 === Recursive Function Tests ===

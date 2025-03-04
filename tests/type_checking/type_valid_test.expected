@@ -3,7 +3,7 @@
 42
 3.14
 Hello
-yup
+facts
 --- Valid Implicit Conversions ---
 42
 66
@@ -12,5 +12,5 @@ yup
 --- String Concatenation ---
 Number: 42
 Pi: 3.14
-Flag: yup
+Flag: facts
 === Valid Type Conversion Tests Complete ===

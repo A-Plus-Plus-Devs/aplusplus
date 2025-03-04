@@ -3,14 +3,14 @@
 
 print("=== For Loop Test - Basic ===");
 
-for (int i = 0; i < 3; i++) {
+for (integer i = 0; i < 3; i++) {
     print(i);
 }
 
 print("=== For Loop Test - Nested ===");
 
-for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < 3; j++) {
+for (integer i = 0; i < 3; i++) {
+    for (integer j = 0; j < 3; j++) {
         print(i * j);
     }
 }

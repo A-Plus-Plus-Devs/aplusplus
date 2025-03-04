@@ -3,26 +3,26 @@ print("=== Type Casting Tests ===");
 
 // String to number conversions
 print("\nString to Number Tests:");
-print((int) "42");        // Should print: 42
+print((integer) "42");        // Should print: 42
 print((decimal) "3.14");    // Should print: 3.14
-print((int) "3.14");      // Should print: 3
-print((int) "abc");       // Should print error or 0
+print((integer) "3.14");      // Should print: 3
+print((integer) "abc");       // Should print error or 0
 
-// Number to string conversions
+// Number to text conversions
 print("\nNumber to String Tests:");
-print((string) 42);       // Should print: "42"
-print((string) 3.14);     // Should print: "3.14"
-print("Number: " + (string) 42);  // Should print: Number: 42
+print((text) 42);       // Should print: "42"
+print((text) 3.14);     // Should print: "3.14"
+print("Number: " + (text) 42);  // Should print: Number: 42
 
 // Boolean conversions
 print("\nBoolean Tests:");
-print((int) yup);         // Should print: 1
-print((int) nope);        // Should print: 0
-print((string) yup);      // Should print: "yup"
-print((string) nope);     // Should print: "nope"
+print((integer) yup);         // Should print: 1
+print((integer) nope);        // Should print: 0
+print((text) yup);      // Should print: "yup"
+print((text) nope);     // Should print: "nope"
 
 // Edge cases
 print("\nEdge Cases:");
-print((int) "");         // Should print error or 0
+print((integer) "");         // Should print error or 0
 print((decimal) "");       // Should print error or 0
-print((string) null);    // Should print error or "" 
+print((text) null);    // Should print error or "" 

@@ -5,13 +5,13 @@
 print("=== Basic Function Tests ===");
 
 // Simple function with no parameters
-#define string sayHello() {
+#define text sayHello() {
     yield "Hello from function!";
 }
 print(sayHello());
 
 // Function with parameters
-#define int add(int a, int b) {
+#define integer add(integer a, integer b) {
     yield a + b;
 }
 print("Sum: " + add(5, 3));
@@ -19,7 +19,7 @@ print("Sum: " + add(5, 3));
 // 2. Return Type Tests
 print("\n=== Return Type Tests ===");
 
-#define int getNumber() {
+#define integer getNumber() {
     yield 42;
 }
 print("Integer return: " + getNumber());
@@ -29,23 +29,23 @@ print("Integer return: " + getNumber());
 }
 print("Decimal return: " + getDecimal());
 
-#define string getString() {
-    yield "test string";
+#define text getString() {
+    yield "test text";
 }
 print("String return: " + getString());
 
 #define boolean getBoolean() {
-    yield yup;
+    yield facts;
 }
 print("Boolean return: " + getBoolean());
 
 // 3. Parameter Type Tests
 print("\n=== Parameter Type Tests ===");
 
-#define string combineStrings(string s1, string s2) {
+#define text combineStrings(text s1, text s2) {
     yield s1 + s2;
 }
-print("Combined string: " + combineStrings("Hello, ", "World!"));
+print("Combined text: " + combineStrings("Hello, ", "World!"));
 
 #define decimal addNumbers(decimal x, decimal y) {
     yield x + y;
@@ -55,7 +55,7 @@ print("Decimal sum: " + addNumbers(3.14, 2.86));
 // 4. Recursive Function Tests
 print("\n=== Recursive Function Tests ===");
 
-#define int factorial(int n) {
+#define integer factorial(integer n) {
     if (n <= 1) {
         yield 1;
     }
@@ -66,15 +66,15 @@ print("Factorial of 5: " + factorial(5));
 // 5. Function Call Chain Tests
 print("\n=== Function Call Chain Tests ===");
 
-#define int double(int x) {
+#define integer double(integer x) {
     yield x * 2;
 }
 
-#define int triple(int x) {
+#define integer triple(integer x) {
     yield x * 3;
 }
 
-#define int quadruple(int x) {
+#define integer quadruple(integer x) {
     yield double(double(x));
 }
 
@@ -85,10 +85,10 @@ print("Quadruple 5: " + quadruple(5));
 // 6. Scope Tests
 print("\n=== Scope Tests ===");
 
-int globalVar = 10;
+integer globalVar = 10;
 
-#define string testScope() {
-    int localVar = 20;
+#define text testScope() {
+    integer localVar = 20;
     print("Global var inside function: " + globalVar);
     print("Local var inside function: " + localVar);
     yield "Scope test complete";

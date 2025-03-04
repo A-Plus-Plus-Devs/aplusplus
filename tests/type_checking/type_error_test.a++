@@ -6,7 +6,7 @@ print("=== Type Error Tests ===");
 // int x1 = 3.14;         // Error: decimal -> int
 
  // Test 2: string to int conversion
-int x2 = "42";         // Error: string -> int 
+integer x2 = "42";         // Error: string -> int 
 
 /* // Test 3: int to bool conversion
 boolean b1 = 1;        // Error: int -> bool */

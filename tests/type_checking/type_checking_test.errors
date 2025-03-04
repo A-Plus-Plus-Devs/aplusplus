@@ -1,8 +1,8 @@
-Error: Type mismatch - Cannot convert from 'decimal' to 'int'
-Error: Type mismatch - Cannot convert from 'string' to 'int'
-Error: Type mismatch - Cannot convert from 'int' to 'boolean'
-Error: Type mismatch - Cannot convert from 'int' to 'char'
-Error: Type mismatch - Cannot convert to string. Use string concatenation (+) for conversion
-Error: Type mismatch - Cannot assign return value of function 'divide' (decimal) to variable 'bad6' (int)
-Error: Type mismatch - Cannot assign return value of function 'greet' (string) to variable 'bad7' (int)
-Error: Type mismatch - Cannot assign return value of function 'add' (int) to variable 'bad8' (string)
+Error: Type mismatch - Cannot convert from 'decimal' to 'integer'
+Error: Type mismatch - Cannot convert from 'text' to 'integer'
+Error: Type mismatch - Cannot convert from 'integer' to 'boolean'
+Error: Type mismatch - Cannot convert from 'integer' to 'char'
+Error: Type mismatch - Cannot convert to text. Use text concatenation (+) for conversion
+Error: Type mismatch - Cannot assign return value of function 'divide' (decimal) to variable 'bad6' (integer)
+Error: Type mismatch - Cannot assign return value of function 'greet' (text) to variable 'bad7' (integer)
+Error: Type mismatch - Cannot assign return value of function 'add' (integer) to variable 'bad8' (text)
