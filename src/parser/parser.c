@@ -870,6 +870,7 @@ static ASTNode *parse_factor(Parser *parser)
              strcmp(parser->current_token->value, "decimal") == 0 ||
              strcmp(parser->current_token->value, "text") == 0 ||
              strcmp(parser->current_token->value, "boolean") == 0 ||
+             strcmp(parser->current_token->value, "bool") == 0 ||
              strcmp(parser->current_token->value, "char") == 0))
         {
             char *target_type = strdup(parser->current_token->value);
@@ -893,7 +894,7 @@ static ASTNode *parse_factor(Parser *parser)
             }
 
             // Validate boolean casts
-            if (strcmp(target_type, "boolean") == 0)
+            if (strcmp(target_type, "boolean") == 0 || strcmp(target_type, "bool") == 0)
             {
                 if (expr->type == NODE_INT_LITERAL)
                 {

@@ -124,7 +124,7 @@ static VariableType get_type_from_string(const char *type_str)
     {
         return TEXT_TYPE;
     }
-    else if (strcmp(type_str, "boolean") == 0)
+    else if (strcmp(type_str, "boolean") == 0 )
     {
         return BOOL_TYPE;
     }
@@ -149,7 +149,7 @@ static VariableType get_function_return_type(const char *return_type_str)
     {
         return TEXT_TYPE;
     }
-    else if (strcmp(return_type_str, "boolean") == 0)
+    else if (strcmp(return_type_str, "boolean") == 0 || strcmp(return_type_str, "bool") ==  0)
     {
         return BOOL_TYPE;
     }
@@ -1198,7 +1198,7 @@ char *execute_function(const char *name, ASTNode *arguments)
             str_val = evaluate_string_expression(arg);
             value = str_val;
         }
-        else if (strcmp(param->var_type, "boolean") == 0)
+        else if (strcmp(param->var_type, "boolean") == 0 || strcmp(param->var_type, "bool") == 0)
         {
             bool_val = evaluate_bool_expression(arg);
             value = &bool_val;
@@ -1273,7 +1273,7 @@ char *execute_function(const char *name, ASTNode *arguments)
                     result = strdup("");
                 }
             }
-            else if (strcmp(func->return_type, "boolean") == 0)
+            else if (strcmp(func->return_type, "boolean") == 0 || strcmp(func->return_type, "bool") == 0)
             {
                 bool val = evaluate_bool_expression(current->left);
                 result = strdup(val ? "facts" : "cap");
@@ -1388,7 +1388,7 @@ static char *execute_function_body(const char *return_type, ASTNode *body)
                     result = strdup("");
                 }
             }
-            else if (strcmp(return_type, "boolean") == 0)
+            else if (strcmp(return_type, "boolean") == 0 || strcmp(return_type, "bool") == 0)
             {
                 bool val = evaluate_bool_expression(current->left);
                 result = strdup(val ? "facts" : "cap");
@@ -2887,7 +2887,7 @@ void interpret(ASTNode *node)
                     }
                     set_variable(node->var_name, DECIMAL_TYPE, &value);
                 }
-                else if (strcmp(node->var_type, "boolean") == 0)
+                else if (strcmp(node->var_type, "boolean") == 0 || strcmp(node->var_type, "bool") == 0)
                 {
                     bool value = false;
                     switch (node->left->left->type)
@@ -2998,7 +2998,7 @@ void interpret(ASTNode *node)
                     }
                     set_variable(node->var_name, DECIMAL_TYPE, &value);
                 }
-                else if (strcmp(node->var_type, "boolean") == 0)
+                else if (strcmp(node->var_type, "boolean") == 0 || strcmp(node->var_type, "bool") == 0)
                 {
                     bool value = node->left ? evaluate_bool_expression(node->left) : false;
                     set_variable(node->var_name, BOOL_TYPE, &value);
@@ -3100,7 +3100,7 @@ void interpret(ASTNode *node)
                             double value = atof(result);
                             set_variable(node->var_name, DECIMAL_TYPE, &value);
                         }
-                        else if (strcmp(node->var_type, "boolean") == 0)
+                        else if (strcmp(node->var_type, "boolean") == 0 || strcmp(node->var_type, "bool") == 0)
                         {
                             bool value = strtobool(result);
                             set_variable(node->var_name, BOOL_TYPE, &value);
@@ -3221,7 +3221,7 @@ void interpret(ASTNode *node)
                         set_variable(node->var_name, INT_TYPE, &value);
                     }
                 }
-                else if (strcmp(node->var_type, "boolean") == 0)
+                else if (strcmp(node->var_type, "boolean") == 0 || strcmp(node->var_type, "bool") == 0)
                 {
                     bool value = node->left ? evaluate_bool_expression(node->left) : false;
                     set_variable(node->var_name, BOOL_TYPE, &value);
@@ -3346,7 +3346,7 @@ static void handle_type_cast(ASTNode *node)
     }
 
     // Handle casting to boolean
-    if (strcmp(node->target_type, "boolean") == 0)
+    if (strcmp(node->target_type, "boolean") == 0 || strcmp(node->target_type, "bool") == 0)
     {
         int value;
 

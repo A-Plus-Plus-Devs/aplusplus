@@ -31,7 +31,7 @@
     "Function Definition": {
         "prefix": "func",
         "body": [
-            "${1|int,text,float,boolean,void|} ${2:functionName}(${3:parameters}) {",
+            "${1|int,text,float,boolean,bool,void|} ${2:functionName}(${3:parameters}) {",
             "\t$0",
             "}"
         ],
@@ -47,7 +47,7 @@
     "Variable Declaration": {
         "prefix": ["var", "let"],
         "body": [
-            "${1|int,text,float,boolean|} ${2:variableName} = $0;"
+            "${1|int,text,float,boolean,bool|} ${2:variableName} = $0;"
         ],
         "description": "Variable declaration"
     },
