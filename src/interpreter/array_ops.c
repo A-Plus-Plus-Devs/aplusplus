@@ -34,17 +34,12 @@
 #include <string.h>
 #include <stdio.h>
 
-// Forward declarations
-// static Variable *get_variable(const char *name);
-
 #define DEBUG_LOG(msg, ...) printf("[DEBUG] %s:%d - " msg "\n", __func__, __LINE__, ##__VA_ARGS__)
 
 static VariableType get_array_type(const char *type_str)
 {
-    // DEBUG_LOG("Getting array type for: %s", type_str);
     if (!type_str)
     {
-        // DEBUG_LOG("type_str is NULL");
         return EMPTY_TYPE;
     }
 
@@ -59,44 +54,33 @@ static VariableType get_array_type(const char *type_str)
     if (strcmp(type_str, "any") == 0)
         return EMPTY_TYPE;
 
-    // DEBUG_LOG("Unknown type, returning EMPTY_TYPE");
     return EMPTY_TYPE;
 }
 
 void *interpret_array_literal(ASTNode *node)
 {
-    // DEBUG_LOG("Interpreting array literal");
     if (!node)
     {
-        //  DEBUG_LOG("Node is NULL");
         return NULL;
     }
 
     ArrayValue *array = create_array(EMPTY_TYPE, 1);
+
     if (!array)
     {
-        // DEBUG_LOG("Failed to create array");
         return NULL;
     }
-
-    // DEBUG_LOG("Created array with capacity %zu", array->capacity);
-    // debug_print_array(array);
 
     ASTNode *current = node->elements;
     while (current)
     {
-        // DEBUG_LOG("Processing array element of type %d", current->type);
         void *element = interpret_expression(current);
+
         if (element)
         {
             array_add_last(array, element);
-            // DEBUG_LOG("Added element to array");
-            // debug_print_array(array);
         }
-        else
-        {
-            // DEBUG_LOG("Failed to interpret element");
-        }
+
         current = current->next;
     }
 
@@ -105,23 +89,18 @@ void *interpret_array_literal(ASTNode *node)
 
 void *interpret_array_declaration(ASTNode *node)
 {
-    // DEBUG_LOG("Interpreting array declaration");
     if (!node)
     {
-        // DEBUG_LOG("Node is NULL");
         return NULL;
     }
 
-    // DEBUG_LOG("Array type: %s", node->array_type);
     VariableType type = get_array_type(node->array_type);
     int is_mixed = (type == EMPTY_TYPE);
 
     ArrayValue *array = create_array(type, is_mixed);
-    // DEBUG_LOG("Created array with type %d, is_mixed: %d", type, is_mixed);
 
     if (node->elements)
     {
-        // DEBUG_LOG("Processing initial elements");
         ASTNode *current = node->elements;
         while (current)
         {
@@ -129,7 +108,6 @@ void *interpret_array_declaration(ASTNode *node)
             if (element)
             {
                 array_add_last(array, element);
-                // DEBUG_LOG("Added element to array, new length: %zu", array->length);
             }
             current = current->next;
         }
@@ -157,7 +135,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
     }
 
     void *element = NULL;
-    if (strcmp(node->method_name, "addFirst") == 0 || 
+    if (strcmp(node->method_name, "addFirst") == 0 ||
         strcmp(node->method_name, "addLast") == 0)
     {
         if (!node->right)
@@ -173,7 +151,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
 
         if (array->type == STRING_TYPE && element)
         {
-            char *str_copy = strdup((char*)element);
+            char *str_copy = strdup((char *)element);
             if (!str_copy)
             {
                 free(element);
@@ -182,7 +160,7 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
             free(element);
             element = str_copy;
         }
-        
+
         if (strcmp(node->method_name, "addLast") == 0)
         {
             array_add_last(array, element);
@@ -219,7 +197,6 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
             return NULL;
         }
 
-        // Get index
         void *index_result = interpret_expression(node->right);
         if (!index_result)
         {
@@ -228,37 +205,39 @@ void *interpret_array_method_call(ASTNode *node, ArrayValue *array)
         int index = *(int *)index_result;
         free(index_result);
 
-        // Get value
         void *value = interpret_expression(node->right->next);
         if (!value)
         {
             return NULL;
         }
 
-        // Create a copy of the element based on array type
         void *element_copy = NULL;
         switch (array->type)
         {
-            case STRING_TYPE:
-                element_copy = strdup((char *)value);
-                if (!element_copy) {
-                    return NULL;
-                }
-                break;
-            case INT_TYPE:
-                element_copy = malloc(sizeof(int));
-                if (element_copy) *(int *)element_copy = *(int *)value;
-                break;
-            case FLOAT_TYPE:
-                element_copy = malloc(sizeof(double));
-                if (element_copy) *(double *)element_copy = *(double *)value;
-                break;
-            case BOOL_TYPE:
-                element_copy = malloc(sizeof(bool));
-                if (element_copy) *(bool *)element_copy = *(bool *)value;
-                break;
-            default:
+        case STRING_TYPE:
+            element_copy = strdup((char *)value);
+            if (!element_copy)
+            {
                 return NULL;
+            }
+            break;
+        case INT_TYPE:
+            element_copy = malloc(sizeof(int));
+            if (element_copy)
+                *(int *)element_copy = *(int *)value;
+            break;
+        case FLOAT_TYPE:
+            element_copy = malloc(sizeof(double));
+            if (element_copy)
+                *(double *)element_copy = *(double *)value;
+            break;
+        case BOOL_TYPE:
+            element_copy = malloc(sizeof(bool));
+            if (element_copy)
+                *(bool *)element_copy = *(bool *)value;
+            break;
+        default:
+            return NULL;
         }
 
         if (!element_copy)
@@ -281,14 +260,12 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
         return NULL;
     }
 
-    // Get the index value
     void *index_result = interpret_expression(node->index);
     if (!index_result)
     {
         return NULL;
     }
 
-    // Convert index to integer
     int index;
     if (node->index->type == NODE_INT_LITERAL)
     {
@@ -296,27 +273,22 @@ void *interpret_array_access(ASTNode *node, ArrayValue *array)
     }
     else
     {
-        // For all other cases (including variables), the interpret_expression should 
-        // have already given us the resolved value
         index = *(int *)index_result;
         free(index_result);
     }
 
-    // Check bounds
     if (index < 0 || index >= array->length)
     {
         printf("Error: Array index out of bounds: %d\n", index);
         return NULL;
     }
 
-    // Get the element
     void *element = array->elements[index];
     if (!element)
     {
         return NULL;
     }
 
-    // Return a copy of the element
     void *result = NULL;
     switch (array->type)
     {
