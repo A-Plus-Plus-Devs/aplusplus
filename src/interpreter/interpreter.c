@@ -1732,7 +1732,7 @@ static bool evaluate_bool_expression(ASTNode *node)
     if (node->type == NODE_BINARY_OP)
     {
         if (strcmp(node->value, "==") == 0 ||
-            strcmp(node->value, "!=") == 0 ||
+            strcmp(node->value, "!!") == 0 ||
             strcmp(node->value, "<") == 0 ||
             strcmp(node->value, ">") == 0 ||
             strcmp(node->value, "<=") == 0 ||
@@ -1783,7 +1783,7 @@ bool evaluate_comparison(ASTNode *node)
 
     if (strcmp(node->value, "==") == 0)
         return left == right;
-    if (strcmp(node->value, "!=") == 0)
+    if (strcmp(node->value, "!!") == 0)
         return left != right;
     if (strcmp(node->value, "<") == 0)
         return left < right;
@@ -2638,7 +2638,7 @@ void interpret(ASTNode *node)
                 }
                 // Keep existing boolean expression handling
                 else if (node->left->value && (strcmp(node->left->value, "==") == 0 ||
-                                               strcmp(node->left->value, "!=") == 0 ||
+                                               strcmp(node->left->value, "!!") == 0 ||
                                                strcmp(node->left->value, ">") == 0 ||
                                                strcmp(node->left->value, "<") == 0 ||
                                                strcmp(node->left->value, ">=") == 0 ||

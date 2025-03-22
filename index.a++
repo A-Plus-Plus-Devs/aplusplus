@@ -1,1 +1,1 @@
-bool x = y
+print(5 !! 3);

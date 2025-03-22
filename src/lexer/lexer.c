@@ -378,7 +378,7 @@ static TokenType check_multi_char_operator(Lexer *lexer)
         }
         return TOKEN_ASSIGN;
     case '!':
-        if (peek_char(lexer) == '=')
+        if (peek_char(lexer) == '!')
         {
             advance(lexer);
             return TOKEN_NOT_EQUAL;
@@ -544,6 +544,12 @@ Token *next_token(Lexer *lexer)
         if (peek_char(lexer) == '=') {
             advance(lexer);
             token->type = TOKEN_LESS_THAN_OR_EQUAL;
+        } else if (peek_char(lexer) == '-') {
+            token->type = TOKEN_ARROW_ASSIGN;
+            token->value = strdup("<-");
+            advance(lexer); // consume '<'
+            advance(lexer); // consume '-'
+            return token;
         } else {
             // Check for array type annotation
           if (isalpha(peek_char(lexer))) {
@@ -721,11 +727,11 @@ Token *next_token(Lexer *lexer)
         return token;
 
     case '!':
-        if (peek_char(lexer) == '=') {
+        if (peek_char(lexer) == '!') {
             token->type = TOKEN_NOT_EQUAL;
-            token->value = strdup("!=");
-            advance(lexer); // consume '!'
-            advance(lexer); // consume '='
+            token->value = strdup("!!");
+            advance(lexer); // consume first '!'
+            advance(lexer); // consume second '!'
         } else {
             token->type = TOKEN_NOT;
             token->value = strdup("!");

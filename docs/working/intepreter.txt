@@ -285,7 +285,7 @@ static bool evaluate_bool_expression(ASTNode *node)
             int right = evaluate_expression(node->right);
             return left == right;
         }
-        else if (strcmp(node->value, "!=") == 0)
+        else if (strcmp(node->value, "!!") == 0)
         {
             int left = evaluate_expression(node->left);
             int right = evaluate_expression(node->right);

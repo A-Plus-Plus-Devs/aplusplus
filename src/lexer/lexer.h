@@ -10,6 +10,7 @@ typedef enum
     TOKEN_IDENTIFIER,
     TOKEN_TEXT,
     TOKEN_ASSIGN,
+    TOKEN_ARROW_ASSIGN,         // <- (new arrow assignment operator)
     TOKEN_DECIMAL,
     TOKEN_INT,
     TOKEN_CHAR,

@@ -237,8 +237,8 @@ static ASTNode *parse_statement(Parser *parser)
             get_next_token(parser); // consume ]
             
             // Check if this is an assignment
-            if (parser->current_token->type == TOKEN_ASSIGN) {
-                get_next_token(parser); // consume =
+            if (parser->current_token->type == TOKEN_ASSIGN || parser->current_token->type == TOKEN_ARROW_ASSIGN) {
+                get_next_token(parser); // consume assignment operator
                 
                 ASTNode* value = parse_expression(parser);
                 if (!value) {
@@ -383,6 +383,7 @@ static ASTNode *parse_assignment(Parser *parser)
 
     TokenType assign_type = parser->current_token->type;
     if (assign_type != TOKEN_ASSIGN &&
+        assign_type != TOKEN_ARROW_ASSIGN &&
         assign_type != TOKEN_PLUS_ASSIGN &&
         assign_type != TOKEN_MINUS_ASSIGN &&
         assign_type != TOKEN_MUL_ASSIGN &&
@@ -544,7 +545,7 @@ static ASTNode *parse_comparison(Parser *parser)
             op = "==";
             break;
         case TOKEN_NOT_EQUAL:
-            op = "!=";
+            op = "!!";
             break;
         case TOKEN_LESS_THAN:
             op = "<";
@@ -1353,9 +1354,9 @@ static ASTNode *parse_for_statement(Parser *parser)
             increment = create_assignment_node(var_name, sub);
             free(var_name); // free the strdup'd name since create_assignment_node makes its own copy
         }
-        else if (parser->current_token->type == TOKEN_ASSIGN)
+        else if (parser->current_token->type == TOKEN_ASSIGN || parser->current_token->type == TOKEN_ARROW_ASSIGN)
         {
-            get_next_token(parser); // consume '='
+            get_next_token(parser); // consume assignment operator
             ASTNode *value = parse_expression(parser);
             increment = create_assignment_node(var_name, value);
             free(var_name);
@@ -1910,17 +1911,14 @@ static ASTNode *parse_var_declaration(Parser *parser)
 
     get_next_token(parser);
 
-    if (parser->current_token->type != TOKEN_ASSIGN)
+    if (parser->current_token->type != TOKEN_ASSIGN && parser->current_token->type != TOKEN_ARROW_ASSIGN)
     {
-        // printf("[DEBUG] Error: Expected '=' after variable name, got token type %d with value '%s'\n",
-        //        parser->current_token->type,
-        //        parser->current_token->value ? parser->current_token->value : "NULL");
+        // printf("[DEBUG] Error: Expected '=' or '<-', got token type: %d\n", parser->current_token->type);
         free(type);
         free(var_name);
         return NULL;
     }
-
-    get_next_token(parser); // Move past '='
+    get_next_token(parser); // Move past '=' or '<-'
 
     // Parse the full expression, which can include binary operations
     ASTNode *value = parse_expression(parser);
@@ -1962,15 +1960,15 @@ static ASTNode *parse_array_declaration(Parser *parser)
     // printf("[DEBUG] Array type: %s\n", array_type);
     get_next_token(parser); // Consume type
 
-    // Check for =
-    if (parser->current_token->type != TOKEN_ASSIGN)
+    // Check for = or <-
+    if (parser->current_token->type != TOKEN_ASSIGN && parser->current_token->type != TOKEN_ARROW_ASSIGN)
     {
-        printf("ERROR: Expected '=', got token type: %d\n", parser->current_token->type);
+        printf("ERROR: Expected '=' or '<-', got token type: %d\n", parser->current_token->type);
         free(var_name);
         free(array_type);
         return NULL;
     }
-    get_next_token(parser); // Consume =
+    get_next_token(parser); // Consume assignment operator
 
     // Parse array literal
     // printf("[DEBUG] About to parse array literal\n");
