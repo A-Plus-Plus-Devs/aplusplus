@@ -7,9 +7,9 @@ typedef enum {
     STRING_TYPE,
     BOOL_TYPE,
     CHAR_TYPE,
-    NOTHING_TYPE,  // For void functions
-    EMPTY_TYPE,    // For null/None values
-    ARRAY_TYPE     // Add this line
+    NOTHING_TYPE,
+    EMPTY_TYPE,
+    ARRAY_TYPE 
 } VariableType;
 
 #endif // TYPES_H
